@@ -1,4 +1,4 @@
-# PhD research and publications
+# New Proofs and Counterexamples for the Convergence of Monte Carlo Optimistic Policy Iteration
 
 Requires Docker and Make. On this Mac, start Docker with `colima start`.
 
