@@ -140,7 +140,7 @@ async function prepare({ github, context, core }) {
     }
     const { data } = await github.rest.actions.listWorkflowRuns({ ...repo,
       workflow_id: 'publication-previews.yml', event: 'pull_request', head_sha: pr.head.sha, per_page: 100 });
-    const run = data.workflow_runs.find(run => run.head_sha === pr.head.sha
+    const run = data.workflow_runs.sort((a, b) => b.id - a.id).find(run => run.head_sha === pr.head.sha
       && (run.pull_requests.some(item => item.number === pr.number) || run.head_branch === pr.head.ref));
     if (!run || run.status !== 'completed' || run.conclusion !== 'success') {
       const status = !run || run.status !== 'completed'

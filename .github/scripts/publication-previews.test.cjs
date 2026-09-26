@@ -90,8 +90,10 @@ test('publisher reconciles multiple PRs, retries deployment, hides failed builds
       },
       actions: {
         listWorkflowRuns: async ({ head_sha }) => ({ data: { workflow_runs: prs.filter(item => item.head.sha === head_sha)
-          .map(item => ({ id: item.number, run_attempt: 1, status: 'completed', conclusion,
-            head_sha, head_branch: item.head.ref, pull_requests: [{ number: item.number }], html_url: 'https://example.com/build' })) } }),
+          .flatMap(item => [
+            { id: 0, status: 'completed', conclusion: 'failure', head_sha, head_branch: item.head.ref, pull_requests: [] },
+            { id: item.number, run_attempt: 1, status: 'completed', conclusion,
+              head_sha, head_branch: item.head.ref, pull_requests: [{ number: item.number }], html_url: 'https://example.com/build' }]) } }),
         listWorkflowRunArtifacts: async () => [{ id: 1, name: 'publication-pdfs', expired: false }],
         downloadArtifact: async () => { downloads++; return { data: fs.readFileSync(archive) }; },
       },
