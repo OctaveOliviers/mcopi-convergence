@@ -1,0 +1,57 @@
+name: Build publication previews
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publication-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  verify-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test preview publishing
+        run: node --test .github/scripts/publication-previews.test.cjs
+
+  build:
+    if: >-
+      contains(github.event.pull_request.labels.*.name, 'jmlr') ||
+      contains(github.event.pull_request.labels.*.name, 'neurips') ||
+      contains(github.event.pull_request.labels.*.name, 'thesis')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Compile labelled publications
+        env:
+          PUBLICATION_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const { execFileSync } = require('node:child_process');
+          const labels = JSON.parse(process.env.PUBLICATION_LABELS);
+          fs.mkdirSync('preview-pdfs', { recursive: true });
+          for (const publication of ['jmlr', 'neurips', 'thesis']) {
+            if (!labels.includes(publication)) continue;
+            execFileSync('make', [publication], { stdio: 'inherit' });
+            fs.copyFileSync(`publications/${publication}/build/${publication}.pdf`,
+              `preview-pdfs/${publication}.pdf`);
+          }
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: publication-pdfs
+          path: preview-pdfs/*.pdf
+          if-no-files-found: error
+          retention-days: 14
