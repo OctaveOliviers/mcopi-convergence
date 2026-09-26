@@ -1,0 +1,83 @@
+\begin{figure}[b]
+    \centering
+    \hrule
+    \vspace{1.3cm}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=black] node[pos=0.5, left, text=black] {1} (s1)
+                (s1) edge[out=20, in=340, loop, looseness=8, draw=black] node[pos=0.5, right, text=black] {0} (s1) ;
+                % (s1) edge[out=145, in=215, loop, looseness=7] 
+                %     node[pos=0.5, right] {$\best{a}$} 
+                %     node[pos=0.5, left] {1} 
+                % (s1)
+                % (s1) edge[out=35, in=325, loop, looseness=7] 
+                %     node[pos=0.5, left] {$\worst{a}$} 
+                %     node[pos=0.5, right] {0} 
+                % (s1);
+        \end{tikzpicture}
+        \caption{MDP}
+        \label{fig: experiment smallest MDP}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=black] node[pos=0.5, left, text=black] {1} (s1)
+                (s1) edge[out=20, in=340, loop, looseness=8, draw=mylightgrey] node[pos=0.5, right, text=mylightgrey] {0} (s1) ;
+                % (s1) edge[out=160, in=200, loop, looseness=8] node[pos=0.5, left] {$\begin{aligned}
+                %     & \best{a} \\
+                %     & 1
+                % \end{aligned}$} (s1)
+                % (s1) edge[out=20, in=340, loop, looseness=8, draw=mylightgrey] node[pos=0.5, right, text=mylightgrey] {$\begin{aligned}
+                %     & \worst{a} \\
+                %     & 0
+                % \end{aligned}$} (s1);
+        \end{tikzpicture}
+        \caption{Policy $\best{\pol}$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=mylightgrey] node[pos=0.5, left, text=mylightgrey] {1} (s1)
+                (s1) edge[out=20, in=340, loop, looseness=8, draw=black] node[pos=0.5, right, text=black] {0} (s1) ;
+                % (s1) edge[out=160, in=200, loop, looseness=8, draw=mylightgrey] node[pos=0.5, left, text=mylightgrey] {$\begin{aligned}
+                %     & \best{a} \\
+                %     & 1
+                % \end{aligned}$} (s1)
+                % (s1) edge[out=20, in=340, loop, looseness=8] node[pos=0.5, right] {$\begin{aligned}
+                %     & \worst{a} \\
+                %     & 0
+                % \end{aligned}$} (s1);
+        \end{tikzpicture}
+        \caption{Policy $\worst{\pol}$}
+    \end{subfigure}%
+    \vspace{0.7cm}
+    \caption{MDP on which we apply the strategy of Example~5.12 in \citep{Bertsekas1996Neuro-DynamicProgramming}.}
+    \label{fig: experiment smallest counter}
+\end{figure}

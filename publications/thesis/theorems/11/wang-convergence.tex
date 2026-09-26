@@ -1,0 +1,67 @@
+\begin{proof}[Proof of \autoref{thm: optimal feedforward}]
+The feedforward structure of the optimal policy $\best{\pol}$ induces an order on the finite state space.
+In this order, each state-action pair $(s_n, \best{\pol})$ can only transition to states $s_{n'}$ where $n' > n$.
+
+Consider the last state in the order, denoted by $s_N$.
+By definition, every episode that visits $(s_N, \best{\pol})$ experiences a reward $r(s_N, \best{\pol})$ and terminates.
+Since this reward corresponds to the action value $q_{\best{\pol}}(s_N, \best{\pol})$, the estimate is updated after every episode as
+\begin{align*}
+    q_\kpo(s_N, \best{\pol})
+    =
+    q_k(s_N, \best{\pol})
+    + \lrate_k \update_k ( q_{\best{\pol}}(s_N, \best{\pol}) - q_k(s_N, \best{\pol}) + w_k(s_N, \best{\pol}) ) .
+\end{align*}
+The Robbins-Monro conditions guarantee that this update is performed infinitely often. As a result, $q_k(s_N, \best{\pol})$ converges to $q_{\best{\pol}}(s_N, \best{\pol})$ with probability one \citep[Example 4.3]{Bertsekas1996Neuro-DynamicProgramming}.
+For all other actions, \autoref{thm: bounded solution} shows that the estimate $q_k(s_N, a)$ converges to a number that is at most $q_{\best{\pol}}(s_N, a)$. Since those actions are suboptimal, there exists an $\epsilon>0$ such that
+\begin{align*}
+    q_{\best{\pol}}(s_N, \best{\pol}) > q_{\best{\pol}}(s_N, a) + \epsilon
+\end{align*}
+for all actions $a \neq \best{\pol}(s_N)$.
+Therefore, the definition of convergence indicates that there exists a time step $K_N$ such that for all $k \geq K_N$
+\begin{align*}
+    q_k(s_N, \best{\pol}) 
+    \geq q_{\best{\pol}}(s_N, \best{\pol}) - \epsilon/2 
+    > q_{\best{\pol}}(s_N, a) + \epsilon/2 
+    \geq q_k(s_N, a) 
+\end{align*}
+for all actions $a \neq \best{\pol}(s_N)$.
+Consequently, for all $k \geq K_N$ it holds that
+\begin{align*}
+    \pol_k(s_N) = \best{\pol}(s_N) .
+\end{align*}
+
+Further, consider any state $s_n$ and suppose there exists a time step $K_{n+1}$ such that for all steps $k \geq K_{n+1}$
+\begin{align*}
+    \pol_k(s_n') = \best{\pol}(s_n')
+\end{align*}
+for all $n'>n$.
+The expected return of $(s_n, \best{\pol})$ for every episode after $K_{n+1}$ is then $q_{\best{\pol}}(s_n, \best{\pol})$. As a result, the estimate is updated infinitely often as
+\begin{align*}
+    q_\kpo(s_n, \best{\pol})
+    =
+    q_k(s_n, \best{\pol})
+    + \lrate_k \update_k ( q_{\best{\pol}}(s_n, \best{\pol}) - q_k(s_n, \best{\pol}) + w_k(s_n, \best{\pol}) ) 
+\end{align*}
+and, therefore, it converges to $q_{\best{\pol}}(s_n, \best{\pol})$ with probability one.
+As explained above, all other actions are bounded by $q_{\best{\pol}}(s_n, a)$.
+So there exists a time step $K_n \geq K_{n+1}$ such that for all $k \geq K_n$
+\begin{align*}
+    q_k(s_n, \best{\pol}) 
+    > q_k(s_n, a) 
+\end{align*}
+for all actions $a \neq \best{\pol}(s_n)$.
+Consequently, for all $k \geq K_n$ it holds that
+\begin{align*}
+    \pol_k(s_{n'}) = \best{\pol}(s_{n'})
+\end{align*}
+for all $n' \geq n$.
+
+This induction demonstrates that the policy $\pol_k$ matches the policy $\best{\pol}$ for all $k \geq K_1$. For every episode, the expected return of every state-action pair $(s,a)$ is then $q_{\best{\pol}}(s,a)$. As a result, for all $k \geq K_1$ the estimate is updated as
+\begin{align*}
+    q_\kpo
+    =
+    q_k
+    + \lrate_k \update_k ( q_{\best{\pol}} - q_k + w_k ) 
+\end{align*}
+and, therefore, it converges to $q_{\best{\pol}}$ with probability one.
+\end{proof}

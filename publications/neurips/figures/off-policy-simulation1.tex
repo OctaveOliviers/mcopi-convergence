@@ -1,0 +1,108 @@
+\begin{figure}[htbp]
+    \centering
+\includegraphics{figures/simple-counter.pdf}
+   %  \pgfmathsetmacro{\ticklen}{0.1}
+   %  \pgfmathsetmacro{\xmin}{-1}
+   %  \pgfmathsetmacro{\xmax}{4}
+   %  \pgfmathsetmacro{\ymin}{-1}
+   %  \pgfmathsetmacro{\ymax}{4}
+    
+   %  \pgfmathsetmacro{\qbpolx}{3}
+   %  \pgfmathsetmacro{\qbpoly}{2}
+   %  \pgfmathsetmacro{\qwpolx}{1}
+   %  \pgfmathsetmacro{\qwpoly}{0}
+
+    
+   % %\begin{subfigure}[b]{0.9\textwidth}
+   % %    \centering
+
+   %      \begin{tikzpicture}[scale=1]
+
+   %          \pgfmathsetmacro{\eps}{0.9}
+   %          \pgfmathsetmacro{\mbpolx}{1-\eps}
+   %          \pgfmathsetmacro{\mbpoly}{\eps}
+   %          \pgfmathsetmacro{\mwpolx}{\eps}
+   %          \pgfmathsetmacro{\mwpoly}{1-\eps}
+        
+   %          \pgfmathsetmacro{\qc}{(\mbpolx*\qbpolx - \mbpoly*\qbpoly)/(\mbpolx - \mbpoly)}
+        
+   %          % Add the streamline plot using pgfplots
+   %          \begin{axis}[
+   %              hide axis,
+   %              xmin=\xmin, xmax=\xmax,
+   %              ymin=\ymin, ymax=\ymax,
+   %              width=5cm, % Scale the width to match your scaling
+   %              height=5cm, % Adjust for aspect ratio
+   %              clip=true, % Hide parts of streamlines outside the axes
+   %              scale only axis,
+   %              xshift=-1cm, % Custom shift in x-direction
+   %              yshift=-1cm % Custom shift in y-direction
+   %          ] 
+   %              \addplot[mygrey, no marks] 
+   %              table [ x expr=\thisrowno{0}, 
+   %                      y expr=\thisrowno{1}, 
+   %                      col sep=comma, 
+   %                      unbounded coords=jump] 
+   %              {figures/32/streamlines-strong-off-policy.csv};
+
+   %              \addplot[CambridgeCoreBlue, no marks, line width=0.3mm] 
+   %              table [ x expr=\thisrowno{0}, 
+   %                      y expr=\thisrowno{1}, 
+   %                      col sep=comma, 
+   %                      unbounded coords=jump] 
+   %              {figures/32/simulations-strong-off-policy.csv};
+    
+   %              \addplot[
+   %                  smooth,
+   %                  line width=0.3mm,
+   %                  CambridgeCoreOrange,
+   %                  domain=-4:0,
+   %                  samples=10
+   %              ] plot ( 
+   %                  {\qc + (1 - exp(-\mbpolx*x)) * (\qbpolx - \qc)}, 
+   %                  {\qc + (1 - exp(-\mbpoly*x)) * (\qbpoly - \qc)}
+   %              );
+   %              \addplot[
+   %                  smooth,
+   %                  line width=0.3mm,
+   %                  CambridgeCoreOrange,
+   %                  domain=0:1,
+   %                  samples=2
+   %              ] plot ( 
+   %                  {x*\qc + (1 - x) * \xmax}, 
+   %                  {x*\qc + (1 - x) * \ymax}
+   %              );
+   %          \end{axis}
+    
+   %          % Draw the grid and axes
+   %          \draw[->] (\xmin,\ymin) -- (\xmax,\ymin) node[right] {$q(s,\best{\pol}(s))$};
+   %          \draw[->] (\xmin,\ymin) -- (\xmin,\ymax) node[left] {$q(s,\worst{\pol}(s))$};
+   %          % \draw (\xmin,\ymax) -- (\xmax,\ymax) ;
+   %          % \draw (\xmax,\ymin) -- (\xmax,\ymax) ;
+    
+   %          % Draw the line y = x
+   %          % \draw[black, dotted] (\xmin,\ymin) -- (\xmax,\ymax);
+    
+   %          % Add labels to the axes
+   %          \draw (\qbpolx,\ymin+\ticklen) -- (\qbpolx,\ymin-\ticklen) node[below, font=\small] {$\dfrac{1}{1-\discount}$};
+   %          \draw (\xmin+\ticklen,\qbpoly) -- (\xmin-\ticklen,\qbpoly) node[left, font=\small] {$\dfrac{\discount}{1-\discount}$};
+   %          \draw (\qwpolx,\ymin+\ticklen) -- (\qwpolx,\ymin-\ticklen) node[below, font=\small] {$1$};
+   %          \draw (\xmin+\ticklen,\qwpoly) -- (\xmin-\ticklen,\qwpoly) node[left, font=\small] {0};
+    
+   %          % Add the points with associated text
+   %          \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (\qbpolx,\qbpoly) circle (1.5pt) node[above right, text=black] {$q_{\best{\pol}}$};
+   %          \filldraw[fill=black, draw=black] (\qwpolx,\qwpoly) circle (1.5pt) node[below left, text=black] {$q_{\worst{\pol}}$};
+   %          \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (\qwpolx,\qwpolx) circle (1.5pt) ;
+   %          \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.2, -0.5) circle (1.5pt) ;
+   %          \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.6, -0.5) circle (1.5pt) ;
+   %          \node at (\xmax-0.25,\ymax-0.25) [anchor=south east, rotate=45, text=CambridgeCoreOrange] {separatrix};
+    
+   %      \end{tikzpicture}
+    %\end{subfigure}%
+    % \vspace{0.3cm}
+    \caption{The streamlines of the mean-field flow indicate that there are two basins of attraction when the non-greedy bias is large ($\epsilon = 0.1$).
+    Solutions starting to the left of the separatrix tend to converge to a suboptimal fixed point on the boundary when the learning rates are sufficiently small.
+    Those starting to the right converge to $\qopt$. The two simulations of MCES in blue confirm this conclusion.}
+    \label{fig: experiment for off-policy bias}
+        \label{fig: experiment for off-policy bias large}
+\end{figure}

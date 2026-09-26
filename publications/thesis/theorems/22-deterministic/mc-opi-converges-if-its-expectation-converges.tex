@@ -1,0 +1,65 @@
+\begin{proposition}
+\label{thm: if det converges then stoch converges}
+    Solutions of MC-O-PI, as defined in \eqref{eq: mcopi stochastic}, converge to $\qopt$ with probability one
+    if the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate})
+    and 
+    the action values $q_{\best{\pol}}$ are globally asymptotically stable for 
+    % the difference inclusion \eqref{eq: mcopi determ},
+    the difference inclusion \eqref{eq: mcopi determ time inv} with respect to the measure $\omega(q,k) = \|\qopt - q\|$.
+\end{proposition}
+
+\begin{proof}
+% Since the action values $q_{\best{\pol}}$ are globally asymptotically stable for the difference inclusion \eqref{eq: mcopi determ}, 
+By \autoref{thm: perturbed di converges}, the action values $q_{\best{\pol}}$ are globally asymptotically stable for the perturbed difference inclusion \eqref{eq: perturbed inclusion}.
+Let us fix an $\epsilon>0$, take the corresponding $\delta$ from \autoref{def: global asymptotic stability} and choose an $\eta$ such that
+\begin{align*}
+    0 < \eta < \delta < \epsilon .
+\end{align*}
+
+\autoref{thm: bounded solution} establishes that solutions of MC-O-PI are eventually bounded between $q_{\worst{\pol}}$ and $\qopt$.
+Thus, there exists almost surely a time step $K_\epsilon$ such that, for all $k \geq K_\epsilon$,
+\begin{align}
+\label{eq: K epsilon}
+    q_k \in \qset(\epsilon, \eta)
+    \quad \tor \quad 
+    \|\qopt - q_k\| \leq \eta ,
+\end{align}
+since $\qset(\epsilon, \eta)$ corresponds to the long-term region of \autoref{thm: bounded solution} inflated with an $\epsilon$-band and pierced by a hole of radius $\eta$ centered in $\qopt$.
+
+Further, \autoref{thm: steps become arbitrarily small} guarantees that the size of MC-O-PI steps converges to zero with probability one.
+Therefore, there exists almost surely a time step $K_\delta$ such that, for all $k \geq K_\delta$,
+\begin{align}
+\label{eq: K delta}
+    \| q_\kpo - q_k \| < \delta - \eta.
+\end{align}
+
+Finally, \autoref{thm: mc-opi behaves like perturbed sys} implies that there exists almost surely a time step $K_\eta$ such that, for all $k \geq K_\eta$, when $q_k \in \qset(\epsilon, \eta)$, the right-hand side of the perturbed system \eqref{eq: perturbed inclusion} contains that of the MC-O-PI difference inclusion \eqref{eq: mcopi stochastic}. In other words, after time step $K_\eta$, solutions of MC-O-PI in $\qset(\epsilon,\eta)$ are also solutions of the perturbed system \eqref{eq: perturbed inclusion}.
+
+% Since all solutions of the perturbed system converge to $\qopt$, 
+Combining these results, we deduce that for solutions of MC-O-PI
+there exists almost surely a time step $K \geq \max[K_\epsilon, K_\delta, K_\eta]$ such that
+\begin{align}
+    \| q_{\best{\pol}} - q_{K} \| < \eta .
+    % < \delta < \epsilon
+\end{align}
+If the solution later leaves the $\eta$-ball around $q_{\best{\pol}}$,
+it remains within $\delta$ of $q_{\best{\pol}}$ because $K \geq K_\delta$.
+The solution then lies in $\qset(\epsilon, \eta)$ and $K \geq K_\eta$. 
+Hence it is also a solution of the perturbed system \eqref{eq: perturbed inclusion} and, by \autoref{def: global asymptotic stability}, stays within $\epsilon$ of $\qopt$.
+Since this conclusion holds for all $\epsilon>0$, solutions of MC-O-PI converge to $\qopt$ with probability one.
+\end{proof}
+
+% Overall, for any $\epsilon>0$, 
+% there exists a $\delta > 0$ and an $\eta > 0$ that define three concentric neighbourhoods
+% \begin{align*}
+%     \ball_{\eta}(\best{q})
+%     \subset
+%     \ball_{\delta}(\best{q})
+%     \subset
+%     \ball_{\epsilon}(\best{q}) .
+% \end{align*}
+% The solution of MC-O-PI is guaranteed to visit $\ball_{\eta}(\best{q})$ an infinite number of times. Even if at some time step $k > \max[K_\epsilon, K_\delta, K_\eta]$, the solution leaves $\ball_{\eta}(\best{q})$, then it behaves like the perturbed difference inclusion \eqref{eq: perturbed inclusion} initialised in $\ball_{\delta}(\best{q})$, and, consequently, it remains inside $\ball_{\epsilon}(\best{q})$ forever. As a result, MC-O-PI converges to $\best{q}$ with probability one.
+
+% Because if $q_k$ is outside the $\eta$-ball, then it behaves like the perturbed difference inclusion \eqref{eq: perturbed inclusion} and eventually enters the $\eta$-ball around $\best{q}$. 
+% On the other hand, if $q_k$ is inside the $\eta$-ball, then it can either remain there forever and, consequently, also inside the $\epsilon$-ball,
+% or it can jump out of the $\eta$-ball into the region $\qset_\eta$. However, since $q_\kpo$ is then inside the $\delta$-ball and in region $\qset_\eta$, it behaves like the perturbed difference inclusion \eqref{eq: perturbed inclusion} and, consequently, also remain inside the $\epsilon$-ball.

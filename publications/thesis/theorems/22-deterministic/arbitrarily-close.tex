@@ -1,0 +1,50 @@
+\begin{lemma}
+\label{thm: get arbitrarily close}
+    If the deterministic difference inclusion~\eqref{eq: deterministic mces in stochastic section} is globally asymptotically stable
+    with any sequence $(\lrate_k)$ and $(\updateset_k)$ that satisfy \autoref{asp: stochastic conditions on effective learning rate},
+    % 
+    then for any solution $(q_k)$ of MC-OPI it holds that
+    \begin{align}
+        \forall \epsilon>0, \forall K \geq 0, \exists k \geq K
+        \ : \
+        \| q_{\best{\pol}} - q_k \| < \epsilon
+    \end{align}
+\end{lemma}
+\begin{proof}
+For any $\epsilon>0$, define the regions
+\begin{align*}
+    \qset_{\epsilon}
+    &\coloneqq
+    \big\{ q \in \qset :
+    q_{\worst{\pol}} \leq q + \epsilon \ball \leq q_{\best{\pol}} \big\}
+    \qset_{\epsilon}
+    &\coloneqq
+    \big\{ q \in \qset :
+    q_{\worst{\pol}} \leq q + \epsilon \ball \leq q_{\best{\pol}} \big\},
+    \\
+    \qset'_{\epsilon}
+    &\coloneqq
+    \big\{ q \in \qset_\epsilon : \|q_{\best{\pol}} - q\| \geq \epsilon \big\}.
+\end{align*}
+\autoref{thm: bounded solution} shows that for any solution $(q_k)$ of MC-OPI
+\begin{align}
+    \exists K_\epsilon \geq 0, \forall k \geq K_\epsilon 
+    \ : \ 
+    q_k \in \qset_{\epsilon} .
+\end{align}
+Thus, after time step $K_\epsilon$, the solution is either within an $\epsilon$-distance of $q_{\best{\pol}}$,
+or in $\qset'_\epsilon$.
+
+Further, \autoref{thm: effects of noise decrease} indicates that
+\begin{align}
+    \exists K_\sigma \geq 0, \forall k \geq K_\sigma 
+    \ : \
+    \max_{s,a} | \lrate_k \update_k(s,a) w_k(s,a) | < \min_{\qval \in \qset'_{\epsilon}} \sigma(q) .
+\end{align}
+The minimum is well defined because $\qset'_\epsilon$ is compact and $\sigma$ is lower-bounded. It is strictly positive because $\qset'_\epsilon$ does not contain $q_{\best{\pol}}$.
+As a result, when the solution is inside $\qset'_\epsilon$ after time step $K_\sigma$, MC-OPI is equivalent to the perturbed difference inclusion \eqref{eq: perturbed inclusion}.
+\autoref{thm: perturbed di converges} shows that the latter is globally asymptotically stable, which guarantees that the solution enters the $\epsilon$-ball around $q_{\best{\pol}}$ at some later time step.
+
+Altogether, MC-OPI visits the $\epsilon$-ball around $q_{\best{\pol}}$ an infinite number of times.
+
+\end{proof}

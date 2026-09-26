@@ -1,0 +1,66 @@
+% ************************** Thesis Abstract *****************************
+% Use `abstract' as an option in the document class to print only the titlepage and the abstract.
+\begin{abstract}
+
+
+Monte Carlo optimistic policy iteration (MC-O-PI) is a
+% widely used 
+reinforcement learning algorithm that can learn the optimal policy and action values of a Markov decision process (MDP) without knowing its parameters.
+The algorithm maintains an estimate for the optimal action-value function. It alternates between simulating episodes of the MDP using the greedy policy with respect to the current estimate, and updating the estimate in certain visited state-action pairs to match the episode's returns.
+% The initial-visit method only updates the initial state-action pair of each episode, while the first-visit method updates all visited state-action pairs but only the first time each pair is visited.
+
+% It iteratively updates an estimate for the optimal action values using Monte Carlo policy evaluation 
+% and an estimate for the optimal policy using optimistic policy improvement
+% continuously updating an estimate $q$ towards the action values of the policy $\pol$ greedy on $q$.
+
+
+% Despite its straightforward formulation,
+% and successful applications, 
+The convergence of MC-O-PI is a long-standing open problem even 
+% in the tabular case, i.e. 
+when the estimate can be stored without approximation.
+% because the existing methods do not directly generalise
+Counterexamples show that the algorithm can converge to suboptimal solutions under arbitrary parameters.
+There exist conditions guaranteeing optimal convergence,
+yet they are impractical in most settings:
+initialising episodes uniformly
+% uniform sampling 
+over all state-action pairs is infeasible for large or unknown state spaces, and verifying that the optimal policy is feedforward is rarely possible.
+
+
+This thesis establishes realistic implementation guidelines guaranteeing that MC-O-PI converges to the optimal solution.
+% uniform
+Specifically, we prove that if the actions of each state are updated equally frequently on average, solutions of MC-O-PI converge almost surely to the optimal policy and its action values.
+% greedy
+We further conjecture that if the greedy action in each state is updated more frequently, adding centred noise to the episodes' returns prevents MC-O-PI 
+% converges to the optimal solution. 
+from converging to suboptimal fixed points.
+Such noise can arise naturally in stochastic episode simulations.
+% nonuniform
+Finally, we describe how to build counterexamples where the greedy action is updated less frequently even in just one state.
+
+
+% with initial-visit updates, 
+These results imply that
+the initial state of each episode can be sampled according to any distribution
+provided the initial action in that state is the current greedy action at least as often as any other action.
+% the probability of choosing the greedy action as the initial action is greater or equal to that of all other actions in that state.
+Under these conditions, MC-O-PI cannot converge to suboptimal fixed points.
+This algorithm is implementable when each state offers a reasonable number of actions.
+It is also more data-efficient as it allows updating several state-action pairs of each episode instead of only the initial one.
+% simultaneously instead of initial-visit updates.
+% which uses episode data more efficiently.
+% allows prioritising learning different states at different times,
+
+
+% To derive these results, we analyse MC-O-PI
+We obtain these results by studying the mean-field dynamics that emerge when averaging out stochastic perturbations.
+This approach allows us to analyse the evolution of the policy rather than the action-value estimates. By focusing on the policy sequence, we are able to extend all existing convergence proofs and construct more realistic counterexamples while offering more intuitive explanations for convergence to both optimal and suboptimal solutions.
+
+
+% We show that if the optimal action values are globally asymptotically stable for this system, MC-O-PI converges to the optimal solution with probability one.
+
+
+
+
+\end{abstract}

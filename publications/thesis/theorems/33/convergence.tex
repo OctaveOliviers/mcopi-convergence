@@ -1,0 +1,80 @@
+\begin{lemma}
+\label{thm: convergence exact MC-O-PI}
+    Solutions of mean-field MC-O-PI converge to $\qopt$ if the update distributions $(\update_k)_{k \geq 0}$ are biased towards the actions of the corresponding policies $(\pol_k)_{k \geq 0}$ in all states (\autoref{asp: on-policy bias}),
+    the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}),
+    and for all states the initial conditions $q_0$ and $\pol_0 \in \grpol(q_0)$ satisfy
+    \begin{align}
+    \label{eq: condition to start low enough}
+        q_0(s, \pol_0) 
+        \leq 
+        \E_{\transit} \big[ r(s_0, \pol_0) + \discount \, q_0(s_1, \pol_0) \mid s_0 = s \big] .
+    \end{align}
+\end{lemma}
+
+\begin{proof}
+Condition \eqref{eq: condition to start low enough} implies that for every state $s$
+\begin{align*}
+    q_0(s, \pol_0) 
+    &\leq 
+    \E_{\transit} \big[ r(s_0, \pol_0) + \discount q_0(s_1, \pol_0) \mid s_0 = s \big]
+    \\
+    &\leq 
+    \E_{\transit} \big[ r(s_0, \pol_0) + \discount r(s_1, \pol_0) + \discount^2 q_0(s_2, \pol_0) \mid s_0 = s \big]
+    % \\
+    % &\leq \dots
+    \\
+    &\leq 
+    \E_{\transit} \big[ r(s_0, \pol_0) + \discount r(s_1, \pol_0) + \discount^2 r(s_2, \pol_0) + \dots \mid s_0 = s \big]
+    \\
+    &= q_{\pol_0}(s, \pol_0) .
+\end{align*}
+Now, suppose that at time step $k$ we have for every state $s$
+\begin{align*}
+    q_k(s, \pol_k) \leq q_{\pol_k}(s, \pol_k) .
+\end{align*}
+Given that the policy $\pol_k$ is greedy with respect to $q_k$, we know that
+\begin{align*}
+    q_k(s, \pol_\kpo) \leq q_k(s, \pol_k) \leq q_{\pol_k}(s, \pol_k) .
+\end{align*}
+Since $\update_k$ is biased towards the actions of $\pol_k$, \autoref{thm: greedy bias mces policy improves} indicates that $\pol_\kpo$ is at least as good as $\pol_k$, 
+% or, in other words, 
+meaning that $v_{\pol_\kpo} \geq v_{\pol_k}$ and $q_{\pol_\kpo} \geq q_{\pol_k}$.
+Therefore, at time step $k+1$, we obtain for every state $s$
+\begin{align*}
+    q_\kpo(s, \pol_\kpo)
+    &= (1 - \lrate_k \update_k(s, \pol_\kpo)) q_k(s, \pol_\kpo) 
+    + \lrate_k \update_k(s, \pol_\kpo) q_{\pol_k}(s, \pol_\kpo) 
+    \\
+    &\leq (1 - \lrate_k \update_k(s, \pol_\kpo)) q_{\pol_k}(s, \pol_k) 
+    + \lrate_k \update_k(s, \pol_\kpo) q_{\pol_\kpo}(s, \pol_\kpo)
+    \\
+    &\leq q_{\pol_\kpo}(s, \pol_\kpo) .
+\end{align*}
+As a result, 
+% at every time step $k \geq 0$, it holds that
+% \begin{align}
+%     q_k(s, \pol_k) \leq q_{\pol_k}(s, \pol_k)
+% \end{align}
+% for all states $s$.
+% Since policy $\pol_k$ is greedy with respect to $q_k$
+% and, by assumption, the update distribution $\update_k$ is biased towards the actions of policy $\pol_k$, \autoref{thm: greedy bias mces policy improves} implies that 
+the value of consecutive policies is non-decreasing and, due to its upper bound $\qopt$, converges.
+Hence, there exists a time step $K>0$ and a policy $\pol \in \polset$ such that, for all $k \geq K$, 
+% $q_k \in \region(\pol)$ and the deterministic difference inclusion reduces to the linear system
+\begin{align}
+\label{eq: equivalent system on the long term on-pol}
+    q_k &\in \region(\pol) ,
+    \\
+    q_\kpo
+    &=
+    q_k + \lrate_k \update(\start_k, \pol, f_k) ( \qpol - q_k ) .
+\end{align}
+The Robbins-Monro conditions on $(\lrate_k)$ and $(\update_k)$ then ensure that
+\vspace{-0.1cm}
+\begin{align}
+\label{eq: convergence to qopt for exact mcopi}
+    \lim_{k \to \infty} q_k = \qpol .
+\end{align}
+% 
+Finally, equations \eqref{eq: equivalent system on the long term on-pol} and \eqref{eq: convergence to qopt for exact mcopi} show that $\qpol \in \graval(\pol)$, meaning $\pol$ satisfies the Bellman optimality equation and is therefore optimal.
+\end{proof}

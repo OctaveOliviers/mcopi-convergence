@@ -1,0 +1,595 @@
+\begin{figure}[hp!]
+    \centering
+    \begin{subfigure}[b]{0.33\textwidth}
+        % \centering
+
+        \pgfmathsetmacro{\arrowlength}{0.25}
+        \pgfmathsetmacro{\fpone}{0.6838}
+        \pgfmathsetmacro{\fptwo}{1.3161}
+        \pgfmathsetmacro{\bval}{2.9}
+        \pgfmathsetmacro{\sval}{3}
+        \pgfmathsetmacro{\qzero}{1.3964}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-2, ymax=2,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreGreen, domain=0:0.2-0.01, samples=10] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=0.2+0.01:1.4-0.01, samples=50] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=1.4+0.01:2, samples=20] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, black] {$f_\perp$};
+            \node at (0,1) [left, font=\small] {1};
+            \draw[dotted, CambridgeCoreGreen] (1.4,0) -- (1.4,2) ;
+            \draw[dotted, CambridgeCoreGreen] (0.2,0) -- (0.2,2) ;
+            
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-3, ymax=3,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreBlue, domain=0:\qzero-0.01, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+                
+                \addplot[CambridgeCoreBlue, domain=\qzero+0.01:2, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, text=black] {$f_\parallel$};
+            \node at (0,1) [left, font=\small] {0};
+            \draw[dotted, CambridgeCoreBlue] (\qzero,0) -- (\qzero,2) ;
+
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                % see notes 240903
+                \addplot[black, domain=0.5:2, samples=50] {
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2) ;
+
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fpone-\arrowlength, \fpone-\arrowlength) -- ++(\arrowlength, \arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fpone+\arrowlength, \fpone+\arrowlength) -- ++(-\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(-\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(+\arrowlength, +\arrowlength);
+
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fpone+\arrowlength, \fpone-\arrowlength) -- ++(-\arrowlength, +\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fpone-\arrowlength, \fpone+\arrowlength) -- ++(\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fptwo+\arrowlength, \fptwo-\arrowlength) -- ++(-\arrowlength, +\arrowlength);;
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fptwo-\arrowlength, \fptwo+\arrowlength) -- ++(\arrowlength, -\arrowlength);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=black, draw=black] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};            
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % Scale the width to match your scaling
+                height=2cm, % Adjust for aspect ratio
+                % axis equal,
+                axis line style={draw=none}, % Hide the default axis
+                ticks=none, % Hide the ticks
+                clip=true, % Hide parts of streamlines outside the axes
+                scale only axis,
+                % at={(-2, -2)}, % Positioning within the parent tikzpicture
+                % anchor=south east, % Align the bottom-left corner of axis at (0,0)
+                % xshift=-1cm, % Custom shift in x-direction
+                % yshift=-1cm % Custom shift in y-direction
+            ] 
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/32/streamlines-convergence-1.csv};
+
+                \addplot[
+                    smooth,
+                    line width=0.3mm,
+                    CambridgeCoreOrange,
+                    domain=-1:0,
+                    samples=10
+                ] plot ( 
+                    {\fptwo + (1 - exp(-x)) * (1.8 - \fptwo)}, 
+                    {\fptwo + (1 - exp(-\sval*\bval*x)) * (1.4 - \fptwo)}
+                );
+                \addplot[
+                    smooth,
+                    line width=0.3mm,
+                    CambridgeCoreOrange,
+                    domain=-4:0,
+                    samples=5
+                ] plot ( 
+                    {\fptwo + (1 - exp(-\sval/\bval*x)) * (0.6 - \fptwo)}, 
+                    {\fptwo + (1 - exp(-x)) * (0.2 - \fptwo)}
+                );
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+        \end{tikzpicture}
+        
+    \caption{$\dfrac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}} < r_2 < r_1$}    
+    \end{subfigure}%both $\leq \varphi_c$
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        % \centering
+
+        \pgfmathsetmacro{\arrowlength}{0.25}
+        \pgfmathsetmacro{\fpone}{0.6838}
+        \pgfmathsetmacro{\fptwo}{1.3161}
+        \pgfmathsetmacro{\bval}{1}
+        \pgfmathsetmacro{\sval}{3}
+        \pgfmathsetmacro{\qzero}{1}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-5, ymax=5,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreGreen, domain=0:0.2-0.01, samples=10] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=0.2+0.01:1.4-0.01, samples=50] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=1.4+0.01:2, samples=20] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, black] {$f_\perp$};
+            \node at (0,1) [left, font=\small] {1};
+            \draw[dotted, CambridgeCoreGreen] (1.4,0) -- (1.4,2) ;
+            \draw[dotted, CambridgeCoreGreen] (0.2,0) -- (0.2,2) ;
+            
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-3, ymax=3,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreBlue, domain=0:\qzero-0.01, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+                
+                \addplot[CambridgeCoreBlue, domain=\qzero+0.01:2, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, text=black] {$f_\parallel$};
+            \node at (0,1) [left, font=\small] {0};
+            \draw[dotted, CambridgeCoreBlue] (\qzero,0) -- (\qzero,2) ;
+
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                % see notes 240903
+                
+                \addplot[black, domain=0.5:2, samples=50] {
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2) ;
+
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fpone-\arrowlength, \fpone-\arrowlength) -- ++(\arrowlength, \arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fpone+\arrowlength, \fpone+\arrowlength) -- ++(-\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fptwo-\arrowlength, \fptwo-\arrowlength) -- ++(\arrowlength, \arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fptwo+\arrowlength, \fptwo+\arrowlength) -- ++(-\arrowlength, -\arrowlength);
+
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fpone+\arrowlength, \fpone-\arrowlength) -- ++(-\arrowlength, +\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.55, thick] (\fpone-\arrowlength, \fpone+\arrowlength) -- ++(\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(+\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(-\arrowlength, +\arrowlength);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=black, draw=black] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo}; 
+
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % Scale the width to match your scaling
+                height=2cm, % Adjust for aspect ratio
+                % axis equal,
+                axis line style={draw=none}, % Hide the default axis
+                ticks=none, % Hide the ticks
+                clip=true, % Hide parts of streamlines outside the axes
+                scale only axis,
+                % at={(-2, -2)}, % Positioning within the parent tikzpicture
+                % anchor=south east, % Align the bottom-left corner of axis at (0,0)
+                % xshift=-1cm, % Custom shift in x-direction
+                % yshift=-1cm % Custom shift in y-direction
+            ] 
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/32/streamlines-convergence-2.csv};
+    
+                \addplot[
+                    smooth,
+                    line width=0.3mm,
+                    CambridgeCoreOrange,
+                    domain=-1:0,
+                    samples=10
+                ] plot ( 
+                    {1.2 + (1 - exp(-x)) * (1.8 - 1.2)}, 
+                    {1.2 + (1 - exp(-\sval*\bval*x)) * (1.4 - 1.2)}
+                );
+                \addplot[
+                    smooth,
+                    line width=0.3mm,
+                    CambridgeCoreOrange,
+                    domain=0:1,
+                    samples=2
+                ] plot ( 
+                    {x*1.2 + (1-x)*2}, 
+                    {x*1.2 + (1-x)*2}
+                );
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+    
+        \end{tikzpicture}
+        
+        \caption{$r_2 < \dfrac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}} < r_1$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        % \centering
+
+        \pgfmathsetmacro{\arrowlength}{0.25}
+        \pgfmathsetmacro{\fpone}{0.6838}
+        \pgfmathsetmacro{\fptwo}{1.3161}
+        \pgfmathsetmacro{\bval}{1/2.9}
+        \pgfmathsetmacro{\sval}{3}
+        \pgfmathsetmacro{\qzero}{0.6036}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-15, ymax=15,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreGreen, domain=0:0.2-0.01, samples=10] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=0.2+0.01:1.4-0.01, samples=50] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+                \addplot[CambridgeCoreGreen, domain=1.4+0.01:2, samples=20] {
+                (1*(1.8-x))/(\sval*\bval*(1.4-x)) * (\sval/\bval*(0.6-x))/(1*(0.2-x)) -1 };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, black] {$f_\perp$};
+            \node at (0,1) [left, font=\small] {1};
+            \draw[dotted, CambridgeCoreGreen] (1.4,0) -- (1.4,2) ;
+            \draw[dotted, CambridgeCoreGreen] (0.2,0) -- (0.2,2) ;
+            
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo}; 
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=-3, ymax=3,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[CambridgeCoreBlue, domain=0:\qzero-0.01, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+                
+                \addplot[CambridgeCoreBlue, domain=\qzero+0.01:2, samples=50] {
+                (1*1*(1.8-x)*(0.2-x) - \sval*\sval*(1.4-x)*(0.6-x))
+                /
+                (1*(1.8-x) - \sval*\bval*(1.4-x) + 1*(0.2-x) - \sval/\bval*(0.6-x))
+                };
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,1) -- (2,1) node[above left, font=\small] {$x$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\small, text=black] {$f_\parallel$};
+            \node at (0,1) [left, font=\small] {0};
+            \draw[dotted, CambridgeCoreBlue] (\qzero,0) -- (\qzero,2) ;
+
+            \filldraw[fill=black, draw=black] (\fpone,1) circle (1pt) node[below, font=\small] {$x_1$} ;
+            \filldraw[fill=black, draw=black] (\fptwo,1) circle (1pt) node[below, font=\small] {$x_2$} ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo}; 
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+            ]
+                \addplot[black, domain=0.5:2, samples=50] {
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( \sval*(\sval*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2) ;
+
+            \draw[CambridgeCoreBlue, middle arrow=0.65, thick] (\fpone, \fpone) -- ++(\arrowlength, \arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.65, thick] (\fpone, \fpone) -- ++(-\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fptwo-\arrowlength, \fptwo-\arrowlength) -- ++(+\arrowlength, +\arrowlength);
+            \draw[CambridgeCoreBlue, middle arrow=0.55, thick] (\fptwo+\arrowlength, \fptwo+\arrowlength) -- ++(-\arrowlength, -\arrowlength);
+
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fpone, \fpone) -- ++(-\arrowlength, +\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fpone, \fpone) -- ++(\arrowlength, -\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(-\arrowlength, +\arrowlength);
+            \draw[CambridgeCoreGreen, middle arrow=0.65, thick] (\fptwo, \fptwo) -- ++(\arrowlength, -\arrowlength);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=black, draw=black] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo}; 
+    
+        \end{tikzpicture}
+
+        \vspace{0.3cm}
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                width=2cm, % Scale the width to match your scaling
+                height=2cm, % Adjust for aspect ratio
+                % axis equal,
+                axis line style={draw=none}, % Hide the default axis
+                ticks=none, % Hide the ticks
+                clip=true, % Hide parts of streamlines outside the axes
+                scale only axis,
+                % at={(-2, -2)}, % Positioning within the parent tikzpicture
+                % anchor=south east, % Align the bottom-left corner of axis at (0,0)
+                % xshift=-1cm, % Custom shift in x-direction
+                % yshift=-1cm % Custom shift in y-direction
+            ] 
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/32/streamlines-convergence-3.csv};
+            \end{axis}
+
+            % Draw the grid and axes
+            \draw[->] (0,0) -- (2,0) node[above left, font=\footnotesize] {$q(s, \best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[below right, font=\footnotesize] {$q(s, \worst{\pol})$};
+
+            \draw[black,dotted] (0,0) -- (2,2);
+
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=CambridgeCoreOrange, draw=CambridgeCoreOrange] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \filldraw[fill=black, draw=black] (\fpone,\fpone) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (\fptwo,\fptwo) circle (1pt) ;
+
+            \node at (0,0) [left, font=\small, text=white] {ooo};
+    
+        \end{tikzpicture}
+
+        \caption{$r_2 < r_1 < \dfrac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}}$}
+    \end{subfigure}%
+    \caption{The functions $f_\perp$ and $f_\parallel$
+    defined in \eqref{eq: f perp} and \eqref{eq: f para}
+    describe the stability of the fixed points at $x_1$ and $x_2$.
+    Near a fixed point, solutions contract towards the boundary when $f_\perp < 1$ and expand away from the boundary when $f_\perp > 1$.
+    They slide upwards along the boundary when $f_\parallel > 0$ and downwards when $f_\parallel < 0$.
+    Each combination of these behaviours occurs for a different ratio $\varrho_{\best{\pol}}/\varrho_{\worst{\pol}}$ defined in \eqref{eq: definition parameters of bifurcation} relative to the thresholds $r_1$ and $r_2$ defined in \eqref{eq: fixed point stability} and \eqref{eq: fixed point stability second}.
+    Overall, a suboptimal fixed point appears when the update distribution under policy $\best{\pol}$ is so strongly biased towards the suboptimal action that some solutions are consistently driven out of the optimal region.
+    % the non-greedy bias under policy $\best{\pol}$ is sufficiently large compared to the non-greedy bias under policy $\worst{\pol}$.
+    }
+    \label{fig: explain stability of fixed points}
+\end{figure}

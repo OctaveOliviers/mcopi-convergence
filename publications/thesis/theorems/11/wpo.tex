@@ -1,0 +1,21 @@
+\begin{definition}[Convergence with probability one]
+Let $(\xset, d)$ be a metric space.
+A sequence $(x_k)_{k \geq 0}$ taking random values in $\xset$ converges with probability one to a point $x \in \xset$ if
+\begin{align*}
+    \prob \left( \limsup_{k \to \infty} d( x, x_k) \leq \epsilon \right)
+    % =
+    % \prob \big( 
+    % \exists K , \forall k \geq K : \| x - x_k \| \leq \epsilon 
+    % \big)
+    = 1
+\end{align*}
+for every $\epsilon>0$.
+The same sequence converges with probability one to a set $\xset' \subset \xset$ if
+\begin{align*}
+    \prob \left( \limsup_{k \to \infty} \inf_{x \in \xset'} d( x, x_k) \leq \epsilon \right)
+    % =
+    % \prob \big( \exists K , \forall k \geq K : \inf_{x \in \xset} \| x - x_k \| \leq \epsilon \big)
+    = 1
+\end{align*}
+for every $\epsilon>0$.
+\end{definition}

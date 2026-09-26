@@ -1,0 +1,210 @@
+% \newpage
+\section{Introduction}
+
+
+% Many variants exist of the PI scheme
+% on-off-policy
+% used for planning (MCTS)
+% bootstrapping
+% optimism
+
+% Many reinforcement-learning algorithms can be understood as instances of policy iteration, 
+% alternating between estimating the action values of a policy and improving that policy using these estimates. This scheme is fundamental; it can learn an optimal policy in an unknown MDP using only sampled rewards and transitions. Optimistic reinforcement learning algorithms improve their policy before policy evaluation
+% has converged. This makes them computationally attractive, but also difficult to analyse:
+% the value estimate is stochastic and small
+% changes near policy boundaries can drastically alter the subsequent dynamics.
+
+Many reinforcement-learning algorithms follow the policy-iteration paradigm, which alternates between 
+estimating the action values of a policy 
+and improving the policy using those estimates. 
+This framework is fundamental because it can learn an optimal policy for an unknown Markov decision process (MDP) using only sampled rewards and transitions.
+Classical policy iteration improves the policy once the action-value estimates have converged.
+In contrast, optimistic variants improve the policy after partial evaluation.
+This reduces computation as it requires fewer evaluation steps between each improvement step.
+However, it complicates the analysis because 
+% the value estimates remain stochastic and 
+small perturbations 
+% near policy boundaries
+to the value estimates
+can drastically affect the policy and alter the subsequent dynamics.
+
+
+% Convergence guarantees for optimistic policy-iteration algorithms are limited, even in the tabular setting.
+% At one end of the spectrum, one-step bootstrapped algorithms such as Q-learning converge under standard asynchronous stochastic-approximation conditions.
+% Convergence to optimality can also be guaranteed for some multi-step return-based algorithms by imposing additional structure on the update, 
+% for instance by combining several multi-step approximations~\citep{Harutyunyan2016QCorrections, Munos2016SafeLearning}
+% or by using a look-ahead mechanism~\citep{Winnicki2023OnEvaluation}.
+% At the other end of the spectrum is Monte Carlo Optimistic Policy Iteration
+% (MC-O-PI), which estimates action values from full-episode returns.
+% Even though MC-O-PI is one of the simplest RL algorithms, its convergence has been an open question for 3 decades \citep{Sutton1999OpenLearning}.
+% Convergence to optimality is guaranteed when the MDP exhibits a feedforward structure \citep{Wang2022OnLearning, Lubars2021OptimisticStructure},
+% but the only known condition for general MDPs requires that all state-action pairs are updated at the same frequency \citep{Tsitsiklis2002OnIteration, Chen2018OnProblem, Liu2021OnStarts}.
+% 
+% There are very few optimistic model-free
+% reinforcement learning algorithms which come with guarantees on convergence to optimality for general finite Markov decision processes. The first is Q-learning, which converges under broad asynchronous stochastic approximation conditions.
+% The second is Monte Carlo optimistic policy iteration (MC-O-PI), for which \citet{Tsitsiklis2002OnIteration}, \citet{Chen2018OnProblem}, and \citet{Liu2021OnStarts} proved convergence under the unnatural and restrictive assumption that are uniform over all state-action pairs. These two algorithms sit at opposite ends of a natural spectrum: Q-learning uses one-step bootstrapped targets, while MC-O-PI uses full Monte Carlo returns.
+
+
+Convergence guarantees for optimistic policy-iteration algorithms remain limited, even in the tabular setting.
+Algorithms that use one-step bootstrapped estimates for evaluation, such as $Q$-learning, converge to optimality under standard asynchronous stochastic-approximation conditions.
+When using multi-step bootstrapped estimates, convergence to optimality requires additional structure, such as combining several multi-step approximations~\citep{Harutyunyan2016QCorrections, Munos2016SafeLearning} or using a look-ahead mechanism~\citep{Winnicki2023OnEvaluation}.
+Monte Carlo Optimistic Policy Iteration (MC-O-PI), which uses full-episode returns for evaluation, remains poorly understood. Despite its simplicity, the asymptotic behaviour of this foundational algorithm has been an open question for three decades~\citep{Sutton1999OpenLearning}.
+Convergence to optimality is guaranteed when the MDP exhibits a feedforward structure \citep{Wang2022OnLearning, Lubars2021OptimisticStructure}
+or when the discount factor is smaller than $1/2$ \citep{Delattre2025MarkovAlgorithm},
+but, when the structure of the MDP is unknown, the only existing condition requires that all state-action pairs are updated at the same frequency \citep{Tsitsiklis2002OnIteration, Chen2018OnProblem, Liu2021OnStarts}.
+
+
+% The requirement of uniform updating over all state-action pairs is
+% often unrealistic in large problems,
+% where the state distribution may be generated by the
+% environment or by a search procedure. 
+% In contrast, once a state has been selected, sampling
+% uniformly among its available actions is usually straightforward.
+% This paper proves that this weaker condition is in fact sufficient. That is, we show that initial-visit
+% MC-O-PI converges almost surely to the optimal action values when updates are uniform
+% only over the actions within each state. Different states may be updated with arbitrary
+% frequencies. This strictly extends the previous convergence guarantees and makes MC-O-PI practical in settings where uniform state sampling is infeasible but uniform action sampling is easy, including when function approximation is being used over a large state-space.
+
+
+Updating all pairs as frequently requires that episodes are initialised uniformly over the entire state-action space.
+This condition is unrealistic in practice, especially when the state space is large.
+However, once the initial state of an episode is selected, uniformly sampling the initial action is usually straightforward.
+This paper proves that this weaker condition is sufficient.
+Specifically, initial-visit MC-O-PI converges almost surely to the optimal action values when updates are uniform over the actions within each state.
+Different states may thus be updated at arbitrary frequencies.
+This result strictly extends the previous convergence guarantees 
+and applies in settings where uniform state sampling is not feasible but uniform action sampling is easy.
+% including when function approximation is being used over a large state-space.
+
+% The proof of this new theorem, stated as \autoref{thm: convergence mcopi uniform} below, requires new tools. The argument of \citet{Tsitsiklis2002OnIteration} relies
+% centrally on a commutativity property of the update operators, which holds only under uniform state-action updates, in order to show convergence of the value function. 
+% We instead track the evolution of the greedy policy. Under action-wise
+% uniform updates, the mean-field dynamics exhibit a monotone policy-improvement structure;
+% whenever the greedy policy genuinely changes, the new policy is better than the old one.
+% Since there are finitely many deterministic policies, the mean-field process must reach an optimal policy. 
+% We then show that the stochastic Monte Carlo perturbations cannot systematically defeat this improvement mechanism; 
+% working directly with the discrete-time process, 
+% we control policy transitions by tracking the gaps between the current greedy action and actions that would worsen the policy. A seed, growth, and lock-in argument gives a fixed positive probability that the next transition either improves the policy, or never occurs if the  optimal policy
+% has already been reached. Repeating this argument over the finite set of deterministic policies yields almost sure convergence to the optimal action values.
+
+% \textcolor{red}{Suggest we remove this, as we don't really say anything at the moment:
+% Beyond MC-O-PI, this policy-transition viewpoint suggests a new way to analyse
+% optimistic reinforcement learning algorithms between Q-learning and Monte Carlo policy
+% iteration. In particular, the family of $Q(\lambda)$ methods interpolates between one-step
+% bootstrapping and full Monte Carlo returns. Our analysis indicates that, for such methods,
+% one may be able to prove convergence by studying the induced sequence of greedy policies
+% rather than relying solely on contraction or value-function arguments.}
+
+
+The proof of this new theorem, stated as \autoref{thm: convergence mcopi uniform} below, requires new tools. 
+Previous work demonstrates convergence by studying the evolution of the value estimates. The arguments rely centrally on a commutativity property of the Bellman operator that fails when updates are not uniform over all state-action pairs.
+Instead, we track the evolution of the policy and find that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions within each state.
+We then show that stochastic perturbations cannot systematically defeat this improvement because,
+at any time step, a fixed positive constant lower bounds for the probability that ``if the current greedy policy is suboptimal, the next one is strictly better; if it is optimal, it remains optimal forever.''
+As a result, almost surely, solutions eventually reach the optimal policy and remain there, causing the value estimate to converge to the corresponding optimal action values.
+
+
+
+This paper is organised as follows. Section~2 introduces finite Markov decision
+processes and formulates MC-O-PI as a stochastic difference inclusion. Section~3 proves the
+main convergence theorem, first for the mean-field dynamics and then for the stochastic
+algorithm. Section~4 discusses the practical implications of action-wise uniform updates
+and possible extensions to related optimistic methods. 
+% Section~5 concludes.
+Unless stated otherwise, operations and relations between functions are elementwise. For instance, given functions $f, g : \mathcal X \to \mathcal Y$ we write
+\begin{align*}
+&(f + g)(x) = f(x) + g(x), \qquad \forall \, x \in \xset ,
+    \\
+&f \le g \iff f(x) \le g(x), \qquad \forall \, x \in \xset .
+\end{align*}
+Moreover, we compute norms as $\|f\| := \sup_{x \in \xset} |f(x)|$ 
+and adopt the convention $\inf \varnothing = \infty$.
+% notation
+
+
+% Its variants differ along several axes: evaluation may be on-policy or off-policy; value estimates may use full Monte Carlo returns or bootstrapped temporal-difference targets; improvement may be conservative, after evaluation has essentially converged, or optimistic, after only finitely many evaluation updates. This perspective includes classical methods such as Monte Carlo control, Sarsa, Q-learning, and eligibility-trace algorithms, and it also underlies planning methods such as Monte Carlo tree search, which has been used in systems such as AlphaZero and MuZero. More broadly, actor-critic and policy-gradient methods can also be viewed as related schemes in which policy evaluation and policy improvement are interleaved. Policy iteration therefore provides one of the central organising principles of reinforcement learning.
+
+% Among these algorithms, Monte Carlo optimistic policy iteration is one of the simplest and most important cases. It alternates between Monte Carlo policy evaluation, in which action values are estimated from complete sampled episodes, and optimistic policy improvement, in which the policy is updated before these estimates have fully converged. In its tabular form, this is essentially the Monte Carlo exploring starts algorithm, also known as Monte Carlo control. Yet its convergence is much less well understood than that of neighbouring policy-iteration methods. Non-optimistic Monte Carlo policy iteration follows from the policy improvement theorem once evaluation is accurate enough, while one-step temporal-difference optimistic methods such as Q-learning and Sarsa converge under standard exploration and stepsize assumptions. By contrast, Monte Carlo optimistic policy iteration is known to admit counterexamples and can converge to suboptimal fixed points under conditions where related algorithms behave well \citep{bertsekas1996neuro, sutton1999open, sutton2018reinforcement}. This indicates that some additional statistical regularity is necessary, but the precise conditions under which Monte Carlo optimistic policy iteration converges to the optimal policy remain only partially understood. Establishing such conditions is therefore a basic theoretical problem for reinforcement learning.
+
+
+
+
+
+% policy iteration with function approximation is linked to policy gradient, which power today's AI breakthgourhs in LLMs and robotics
+% so huge potential impact
+
+
+% A striking application of MC methods is MuZero~\cite{Schrittwieser2020MasteringModel}. This
+% model achieved state-of-the-art performance in chess, Go, shogi and 57
+% Atari games using self-play without knowing the rules of each game.
+
+
+% % NEED: among OPI algorithms, one family is poorly understood because there are no tools to study its behaviour
+% - updates are non-contractive, discontinuous and non-convex
+% - existing convergence guarantees are impractical
+% - easy to build counterexamples when do not converge to optimality
+
+% % TASK: we develop a new approach 
+% - to apply the strategy of ODE method, despite discontinuous and nonconvex dynamics
+% - allows to derive convergence properties from mean-field dynamics
+
+
+% CONTRIBUTIONS
+
+% even though it is one of the simples algorithms. its convergence has been an open question for three decades.
+% convegrence analysis is not straightforward because it does not follow into the standard pattern of a contracting iteration perturbed by noise
+
+
+% find new method proof to unlock convergence of all other TD($\lambda$) 
+
+% Works saying "if deterministic ODE / DI converges then stochastic approximation converges" (global result)
+% - \cite{Borkar2000TheLearning} Theorem 2.2
+% - \cite{Benaim2005StochasticInclusions} Theorem 3.6
+% - \cite{Ramaswamy2017AInclusions} Theorem 2
+% But cannot apply these results because they claim results on the entire space "solutions converge to a fixed point of the ODE"
+
+% Works discussing "visit some region infinitely often $\implies$ converge to attractor of ODE" (local conditions) = regional "lock-in" for SA algorithms, but confined to systems whose mean-field is an ODE
+% - \cite{Kushner1978StochasticSystems} Theorem 2.3.1 and 2.5.4
+% - \cite{Kushner2003StochasticApplications} Section 5.4
+% - \cite{Brandiere1996Les} half way down p. 397
+% - \cite{Borkar2002OnApproximation} Theorem 2.1
+% - \cite{Borkar2003AvoidanceApproximation} Corollary 2.1
+% - \cite{Borkar2022StochasticViewpoint} Corollary 2.3
+% essentially by showing that the probability of remaining in the region converges to 1 as visit infinitely often
+
+% Works generalising lock-in to DI
+% - \cite{Faure2010StochasticAttractor} Theorem 1.5 (if visit region of attraction some times, then probability SA converges to attractor is non zero)
+% - \cite{Yaji2020AnalysisStabilization} Corollary 3.3
+
+
+% \subsection{Contributions}
+
+% - we extend convergence result of Tsitsiklis to case with uniform updates over actions in each state (is this oversell?).
+
+% to more practical conditions on the algorithm
+% This algorithm is implementable when each state offers a small number of actions.
+
+% \textcolor{red}{state main theorem and assumption}
+
+
+% % NEED
+% Previous research applied standard frameworks to establish the convergence of MC-O-PI to the optimal action values. However, these proofs rely on impractical assumptions: sampling uniformly over the state-action space is not feasible for large state-spaces, and verifying that the optimal policy is feedforward is rarely possible.
+
+% % TASK
+% Instead of directly analysing noisy updates, we studied the mean-field dynamics.
+% Averaging out stochastic perturbations allowed us to understand MC-O-PI solutions from the parallel evolution of the action values $(q_k)$ and the greedy policies $(\pi_k)$.
+
+%  % FINDINGS
+% We identified monotone strict improvements in the greedy policies when update distributions are only uniform over all actions in each state.
+% We then proved that stochastic perturbations cannot consistently prevent this improvement, and hence, that MC-O-PI solutions eventually reach the optimal policy $\pi_*$ and converge to the associated action values $q_{\pi_*}$.
+
+
+% \subsection{Notation}
+
+% always use $\infty$ norm, except when stated otherwise
+
+% functions, and componentwise inequalities
+
+% $\inf \varnothing = \infty$
+
+% % \clearpage

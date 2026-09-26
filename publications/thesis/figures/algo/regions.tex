@@ -1,0 +1,84 @@
+\begin{figure}[hb!]
+    \centering
+    \hrule
+    \begin{subfigure}[c]{\textwidth}
+        \centering
+        \vspace{0.6cm}
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=black] node[pos=0.5, left, text=black] {\textcolor{mygrey}{$\pi(s) :=$} $a$} (s1)
+                (s1) edge[out=20, in=340, loop, looseness=8, draw=black] node[pos=0.5, right, text=black] {$a'$ \textcolor{mygrey}{$ =: \pi'(s)$}} (s1) ;
+        \end{tikzpicture}
+        \vspace{0.3cm}
+        \caption{MDP}
+        \label{fig: description region smallest MDP}
+    \end{subfigure}%
+    % 
+    \\[3ex]
+    \pgfmathsetmacro{\boxsize}{2.4}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+                % \filldraw[fill=mylightgrey, draw=none] (0,0) rectangle (\boxsize,\boxsize);
+                
+                \draw[->] (0,0) -- (\boxsize,0) node[below] {$q(s,a)$};
+                \draw[->] (0,0) -- (0,\boxsize) node[above] {$q(s,a')$};
+
+                \draw[thick, CambridgeCoreBlue] (0,0) -- (\boxsize,\boxsize);
+
+                \node at (\boxsize/2,\boxsize/2) [font=\small, color=CambridgeCoreBlue, rotate=45, anchor=north] {$q(s,a) = q(s,a')$};
+                
+                \node at (1.8, 0.6) [font=\small, color=black] {$\region(\pi)$};
+                \node at (0.8,1.6) [font=\small, color=black] {$\region(\pi')$};
+        
+            \end{tikzpicture}
+        \caption{Regions of policies $\pi$ and $\pi'$ \\as defined in \eqref{eq: greedy action values}}
+        \label{fig: show regions}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+            \draw[->] (0,0) -- (\boxsize,0) node[below] {$q(s,a)$};
+            \draw[->] (0,0) -- (0,\boxsize) node[above] {$q(s,a')$};
+
+            \draw[black, dotted] (0,0) -- (\boxsize,\boxsize);
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=\boxsize,
+                ymin=0, ymax=\boxsize,
+                width=\boxsize cm,
+                height=\boxsize cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/algo/stream-regions-explain.csv};
+            \end{axis}
+            
+            \filldraw[fill=black, draw=black] (2,1.4) circle (1pt) node[right, text=black, font=\small] {$q_\pol$};
+            \filldraw[fill=black, draw=black] (1.2,0.4) circle (1pt) node[left, text=black, font=\small] {$q_{\pol'}$};
+
+        \end{tikzpicture}
+        \caption{Mean-field dynamics \eqref{eq: switched ode for interpretation} \\with uniform update distributions}
+        \label{fig: explain regions with streamlines}
+    \end{subfigure}%
+    \caption{MC-O-PI is a switched linear system whose dynamics are constant over the region of each policy.}
+    \label{fig: description of region of policy}
+\end{figure}

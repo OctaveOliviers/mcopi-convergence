@@ -1,0 +1,115 @@
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s_1$};
+            \node[state] (s2) at (2,0) {$s_2$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8] node[pos=0.5, left] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=20, in=340, loop, looseness=8] node[pos=0.5, right] {0} (s2)
+                (s1) edge[bend right=20] node[pos=0.5, below] {1} (s2);
+        \end{tikzpicture}
+        \caption{MDP}
+    \end{subfigure}%
+   
+    \vfill
+    \vspace{1cm}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s_1$};
+            \node[state] (s2) at (2,0) {$s_2$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=mylightgrey] node[pos=0.5, left, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=20, in=340, loop, looseness=8, draw=mylightgrey] node[pos=0.5, right, text=mylightgrey] {0} (s2)
+                (s1) edge[bend right=20] node[pos=0.5, below] {1} (s2);
+        \end{tikzpicture}
+        \caption{Policy $\best{\pol}$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s_1$};
+            \node[state] (s2) at (2,0) {$s_2$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8] node[pos=0.5, left] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=20, in=340, loop, looseness=8] node[pos=0.5, right] {0} (s2)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {1} (s2);
+        \end{tikzpicture}
+        \caption{Policy $\worst{\pol}$}
+    \end{subfigure}%
+   
+    \vfill
+    \vspace{1cm}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s_1$};
+            \node[state] (s2) at (2,0) {$s_2$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8, draw=mylightgrey] node[pos=0.5, left, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=20, in=340, loop, looseness=8] node[pos=0.5, right] {0} (s2)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {1} (s2);
+        \end{tikzpicture}
+        \caption{Policy $\pol_1$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,0) {$s_1$};
+            \node[state] (s2) at (2,0) {$s_2$};
+            % Edges
+            \path[->]
+                (s1) edge[out=160, in=200, loop, looseness=8] node[pos=0.5, left] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=20, in=340, loop, looseness=8, draw=mylightgrey] node[pos=0.5, right, text=mylightgrey] {0} (s2)
+                (s1) edge[bend right=20] node[pos=0.5, below] {1} (s2);
+        \end{tikzpicture}
+        \caption{Policy $\pol_2$}
+    \end{subfigure}
+    \caption{MDP description}
+    \label{fig: experiment uniform bias MDP}
+\end{figure}

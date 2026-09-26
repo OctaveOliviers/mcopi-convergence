@@ -1,0 +1,119 @@
+\begin{lemma}
+\label{thm: mcopi outer semicontinuous}
+    The difference inclusion \eqref{eq: mcopi determ time inv} is outer semicontinuous 
+    % on $\qset$
+    for all $k \geq 0$.
+\end{lemma}
+
+\begin{proof} 
+For every $q \in \qset$, the set $\grpol(q)$ defined in \eqref{eq: greedy pol} as
+\begin{align*}
+    \grpol(q) \coloneqq \big\{ \pol \in \polset : q(s, \pol) = \max_{a \in \aset(s)} q(s,a), \ \forall s \in \sset \big\} 
+\end{align*}
+consists of all deterministic policies that are greedy with respect to $q$. Thus, there exists an $\epsilon>0$ such that, for every policy $\pol \in \grpol(q)$ and state $s \in \sset$, we have
+\begin{align*}
+    a \notin \argmax_{\aset(s)} q(s,\cdot)
+    \quad\implies\quad 
+    q(s, \pol) > q(s, a) + \epsilon ,
+\end{align*}
+and by contraposition
+\begin{align}
+\label{eq: action in greedy pol}
+    q(s, a) \geq q(s, \pol) - \epsilon
+    \quad\implies\quad
+    a \in \argmax_{\aset(s)} q(s,\cdot) .
+\end{align}
+
+Further, for every sequence $(q_n)_{n \geq 0}$ that converges to $q$, there exists by definition an index $N \geq 0$ such that, for all $n \geq N$,
+\begin{align*}
+    \|q - q_n\| = \max_{s,a} | q(s,a) - q_n(s,a) | < \frac{\epsilon}{2} .
+\end{align*}
+So for every policy $\pol \in \grpol(q)$, $\pol_n \in \grpol(q_n)$ with $n \geq N$, and state $s \in \sset$,
+\begin{align}
+    \nonumber
+    q(s, \pol_n)
+    &> q_n(s, \pol_n) - \frac{\epsilon}{2}
+    \\
+    \nonumber
+    &= \max_{a \in \aset(s)} q_n(s, a) - \frac{\epsilon}{2}
+    \\
+    \nonumber
+    &\geq q_n(s, \pol) - \frac{\epsilon}{2}
+    \\
+    \label{eq: poln in greedy pol}
+    &> q(s, \pol) - \frac{\epsilon}{2} - \frac{\epsilon}{2} .
+\end{align}
+The statement in \eqref{eq: action in greedy pol} shows that $\pol_n \in \grpol(q)$ for all $n \geq N$. 
+As a result, for every $q \in \qset$ and sequence $(q_n)$ converging to $q$,
+there exist an index $N$ and a policy $\pol \in \grpol(q)$ such that for all  $\pol_n \in \grpol(q_n)$ where $n \geq N$
+\begin{align*}
+    \begin{cases}
+        \ q_{\pol_n} = q_\pol ,
+        \\
+        \ \update_{k, n} = \update(\start_k, \pol_n, f_k) = \update(\start_k, \pol, f_k) = \update_k .
+    \end{cases}
+\end{align*}
+Therefore, by linearity we obtain that
+\begin{align*}
+    &\lim_{n \to \infty}
+    \begin{bmatrix}
+        q_n + \lrate_k \update_{k,n} ( q_{\pol_n} - q_n )
+        \\
+        k +1
+    \end{bmatrix}
+    \in
+    \Bigg\{ 
+    \begin{bmatrix}
+        q + \lrate_k \update_k ( q_{\pol} - q )
+        \\
+        k +1
+    \end{bmatrix}
+    :
+    \pol \in \grpol(q) \Bigg\} ,
+\end{align*}
+which shows that \eqref{eq: mcopi determ time inv} is outer semicontinuous for every $k \geq 0$.
+\end{proof}
+
+% The set-valued map of system \eqref{eq: mcopi determ time inv} is
+% \begin{align*}
+%     F(q, k) \coloneqq
+%     \bigg\{ 
+%     \begin{bmatrix}
+%         q + \lrate_k \update_k ( q_{\pol} - q )
+%         \\
+%         k +1
+%     \end{bmatrix}
+%     :
+%     \pol \in \grpol(q)
+%     \bigg \} .
+% \end{align*}
+% Let us define the metric on $\qset \times \integers_{\geq 0}$ as
+% \begin{align}
+% \label{eq: metric for time invariant system}
+%     d((q, k), (q', k')) = \|q - q'\| + |k - k'| .
+% \end{align}
+% Then for every pair $(q, k) \in \qset \times \integers_{\geq 0}$, if and a sequence $((q_n, k_n))_{n \geq 0}$ converges to $(q, k)$, 
+% the individual sequences $(q_n)$ and $(k_n)$ converge to $q$ and $k$, respectively,
+% because for every $\epsilon>0$ there exists an $N$ such that for all $n \geq N$
+% \begin{align*}
+%     d((q, k), (q_n, k_n)) \leq \epsilon ,
+% \end{align*}
+% and consequently
+% \begin{align*}
+%     \|q - q_n\| &\leq d((q, k), (q_n, k_n)) \leq \epsilon ,
+%     \\
+%     | k - k_n | &\leq d((q, k), (q_n, k_n)) \leq \epsilon .
+% \end{align*}
+
+% Next, for every sequence $(k_n)$ converging to a positive integer $k$ there exists an $N'$ such that
+% \begin{align*}
+%     k_n = k
+% \end{align*}
+% for all $n \geq N'$.
+% Thus, for all $n \geq \max[N, N']$ it holds that
+% \begin{align*}
+%     \lrate_{k_n} &= \lrate_k
+%     \\
+%     \update_{k_n} &= \update(p_{k_n}, \pol_n, f_{k_n}) = \update(p_k, \pol, f_k) = \update_k
+% \end{align*}
+% for some policy $\pol \in \grpol(q)$.

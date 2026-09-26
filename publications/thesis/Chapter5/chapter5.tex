@@ -1,0 +1,1183 @@
+\chapter[Biased updates towards non-greedy actions]{Biased updates towards \\ non-greedy actions}
+\label{ch: non-greedy bias}
+
+% \vspace{-1.3cm}
+
+
+% The previous chapter showed that MC-O-PI converges to $\qopt$ when all state-action pairs are updated equally often. However, update distributions are rarely uniform in practice. Depending on how exploration and exploitation are balanced, updates can become biased towards greedy or non-greedy actions.
+
+We established that MC-O-PI converges to $\qopt$ under uniform updates. 
+In practice, however, updates are often biased towards greedy or non-greedy actions depending on how exploration and exploitation are balanced (\autoref{rmk: exploration-exploitation tradeoff}).
+
+% \vspace{-0.2cm}
+
+This chapter studies non-greedy bias.
+This can arise when favouring exploration, for instance if the value estimates of non-greedy actions are more uncertain because they received fewer updates,
+% when aiming to reduce uncertainty in the estimates (exploration) and non-greedy actions received fewer updates so far.
+or when favouring exploitation,
+% when greedy actions are updated more frequently during exploitation and 
+for instance when using sample averaging learning rates $\lrate_k(s,a) = 1 / n_k(s,a)$. In the latter case, the larger learning rates of rarely updated non-greedy actions can compensate for their smaller update probability and, overall, bias the effective learning rates $(\lrate_k \mu_k)$ towards non-greedy actions,
+as in the example of Section \ref{sec: counter 3s es st}.
+
+% \vspace{-0.2cm}
+
+\input{theorems/32-off-policy/assumption-bias}
+
+% \vspace{-0.6cm}
+
+% this uniformity may be impractical
+% as it excludes first-visit updates which use episode data more efficiently but yield non-uniform update distributions.
+
+
+
+% For instance, first-visit updates use episode data more efficiently than initial-visit but yield non-uniform update distributions.
+
+% This chapter clarifies why a large non-greedy bias in the update distributions often prevents some solutions of MC-O-PI from converging to $\qopt$.
+
+
+We show that updating non-greedy actions more frequently can
+consistently drive solutions out of the optimal region,
+and thereby lead MC-O-PI to suboptimal equilibria.
+We identify conditions on the MDP to admit stable suboptimal equilibria.
+By contraposition, we obtain sufficient conditions that guarantee convergence to $\qopt$ for \textit{any} update distributions, extending the theorem of \citet{Wang2022OnLearning}.
+
+
+% because solutions are consistently pushed out of the optimal region.
+% As the learning rate decreases, this endless switching forms a stable suboptimal fixed point. 
+% We define a non-greedy bias as follows:
+
+
+\vspace{-0.3cm}
+
+
+% We first build a counterexample and derive necessary conditions for a suboptimal fixed point to exist.
+% Under these conditions, a large non-greedy bias ensures the fixed point is stable.
+% Conversely, we obtain sufficient conditions for single- and multi-state MDPs that guarantee MC-O-PI converges to $\qopt$ for \textit{any} update distributions, extending the theorem of \citet{Wang2022OnLearning}.
+% for feedforward optimal policies.
+% Henceforth, we define non-greedy bias
+
+% \vspace{-0.2cm}
+
+
+
+% We then derive conditions on the action values and the update distributions for the existence and stability of such fixed points.
+% Nevertheless, the action values are unknown in practice, making it difficult to verify the conditions directly. Therefore, we conclude that using a non-greedy bias is not recommended even though the inherent noise of MC-O-PI can offset some of its negative effects.
+
+% if that condition is satisfied it is often possible to make that fixed point exists and is stable using strong enough non-greedy updates
+% - we prove this in the noiseless case of exact MC-O-PI
+% - with noise often oscillate between more than two policies but same phenomenon emerges
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Counterexample with initial-visit updates}
+\label{sec: countered non-greedy bias}
+
+\vspace{-0.2cm}
+
+Consider the 
+% discounted, single-state, deterministic 
+MDP in \autoref{fig: mdp for unconditional experiment} with discount factor $\discount = 2/3$. The state $s$ offers two actions: \textit{left} yields a reward of one and \textit{right} yields a reward of zero. The best policy $\best{\pol}$ follows the \textit{left} action, 
+% denoted by $\best{a}$, 
+whereas the worst policy $\worst{\pol}$ follows the \textit{right} action.
+% , denoted by $\worst{a}$. 
+% For clarity, we denote the best action by $\best{a}$ and the suboptimal action by $\worst{a}$.
+This example demonstrates that when update distributions are biased towards non-greedy actions, solutions of MC-O-PI can converge to a suboptimal fixed point, even for this elementary MDP.
+
+
+% The action-values of policies $\best{\pol}$ and $\worst{\pol}$ are:
+% \begin{align*}
+%     &q_{\best{\pol}}(s, \best{\pol}) = 1 + \discount + \discount^2 + \cdots = \dfrac{1}{1-\discount}
+%     \\
+%     &q_{\best{\pol}}(s, \worst{\pol}) = 0 + \discount + \discount^2 + \cdots = \dfrac{\discount}{1-\discount}
+%     \\
+%     &q_{\worst{\pol}}(s, \best{\pol}) = 1 + 0 + 0 + \cdots = 1
+%     \\
+%     &q_{\worst{\pol}}(s, \worst{\pol}) = 0 + 0 + 0 + \cdots = 0
+% \end{align*}
+
+\input{figures/32/counter-MDP}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Updating strategy}
+
+\vspace{-0.2cm}
+
+
+% parameters to specify
+% - sampling bias
+% - update method
+
+Given a policy $\pol_k$, we will initiate the $k^\nth$ episode by selecting the non-greedy action $a \neq \pol_k(s)$ with probability $\epsilon$ and the greedy action $\pol_k(s)$ with probability $1-\epsilon$.
+Combining this sampling strategy with initial-visit updates yields the update distributions
+\begin{align}
+% \label{eq: update distribution 4s cycle}
+    \begin{array}{lcccc}
+    & & \pol_k = \best{\pol} & & \pol_k = \worst{\pol}
+    \\
+    \begin{bmatrix}
+        \update_k(s, \best{\pol})
+        \\
+        \update_k(s, \worst{\pol})
+    \end{bmatrix}
+    &
+    =
+    &
+    \begin{bmatrix}
+        1-\epsilon
+        \\
+        \epsilon
+    \end{bmatrix}
+    & 
+    \tor
+    &
+    \begin{bmatrix}
+        \epsilon
+        \\
+        1 - \epsilon
+    \end{bmatrix}
+    \end{array}
+\end{align}
+% \begin{align*}
+%     \update_{\best{\pol}}(s, \best{a}) &= 1-\epsilon ,
+%     \\
+%     \update_{\best{\pol}}(s, \worst{a}) &= \epsilon ,
+% \end{align*}
+% and
+% \begin{align*}
+%     \update_{\worst{\pol}}(s, \best{a}) &= \epsilon ,
+%     \\
+%     \update_{\worst{\pol}}(s, \worst{a}) &= 1-\epsilon .
+% \end{align*}
+% the distributions $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ 
+Both are biased towards the non-greedy action as long as $\epsilon > 0.5$.
+The bias also increases as $\epsilon$ increases.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Initial condition}
+
+\vspace{-0.2cm}
+
+\input{figures/32/off-policy-simulation}
+
+\autoref{fig: experiment for off-policy bias} depicts the mean-field streamlines.
+% i.e. the update inclusion where the effects of noise are averaged out.
+% 
+When $\epsilon=0.6$, the bias towards the non-greedy action is small and all mean-field solutions converge to $\qopt$. 
+% Consequently, by \autoref{thm: if det converges then stoch converges}, all solutions of MC-O-PI also converge to $\qopt$ with probability one.
+
+In contrast, when $\epsilon=0.9$ the non-greedy bias is large. Mean-field solutions starting to the left of the separatrix then converge to a suboptimal fixed point on the boundary, while those starting to the right converge to $\qopt$.
+Solutions of MC-O-PI may cross the separatrix due to noise.
+Yet as the learning rate decreases, they follow the mean-field streamlines more closely. Hence, crossing the separatrix becomes increasingly unlikely.
+In general, MC-O-PI solutions starting left of the separatrix converge to the suboptimal fixed point,
+% provided the learning rates are sufficiently small, 
+while those starting right converge to $\qopt$.
+The two simulations of MC-O-PI in \autoref{fig: experiment for off-policy bias large} with learning rates $\lrate_k = 1/(k+10)$ confirm this conclusion.
+
+% Second, we show that the fixed points appear as a bifurcation
+% It is possible to check whether these points exist and compute their location based on $\update$, $\update'$, $q_\pol$ and $q_{\pol'}$. In practice, however, the action-values $q_\pol$ and $q_{\pol'}$ are unknown. So, we do not recommend implementing MC-O-PI with an off-policy bias.
+% how to avoid fixed points
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Fixed point remains with stochastic transitions}
+
+\vspace{-0.2cm}
+
+Suppose we introduce stochastic transitions in the undiscounted MDP by terminating the episode after each action with probability $1-\discount$.
+The action values are then the same as in the discounted MDP, but the policy evaluation is now stochastic.
+As a result, at every time step the value $q_{\pol_k}(s,a)$ can be over- or underestimated, increasing the amplitude of the noise.
+Nevertheless, if the learning rates are sufficiently small, solutions starting left of the separatrix still converge to the suboptimal fixed point on the boundary.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Fixed point disappears with greedy bias or first-visit updates}
+\label{sec: fp disappears w greedy bias}
+
+\vspace{-0.2cm}
+
+
+% maybe link to on-policy bias? the reason why on-pol is good is the same reason why off-pol is bad
+
+When decreasing $\epsilon$ below 0.5, the update distributions are biased towards the greedy actions. All mean-field solutions and MC-O-PI solutions then converge to $\qopt$.
+The same phenomenon occurs when switching from initial-visit to first-visit updates because the update distributions become biased towards the greedy actions, regardless of the value of $\epsilon$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conclusion}
+
+This example shows that solutions of MC-O-PI can converge to a suboptimal fixed point when update distributions are biased towards non-greedy actions even for the simplest MDP.
+This result disproves the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} when first-visit updates are replaced with initial-visit updates. 
+% not true: Furthermore, it shows that when sampling the initial state-action pair with an epsilon-greedy policy, 
+
+Unlike the counterexample in \autoref{sec: existing counter} where the update distributions depend on the precise location of the estimate $q_k$, in our example they only depend on the policy $\pol_k$.
+This assumption is more realistic because update distributions are often policy-dependent in practice, such as when using first-visit updates, off-policy evaluation or sampling the initial state-action pair of each episode with an epsilon-greedy strategy.
+Furthermore, the update distributions in this example satisfy exploring starts, which was not the case in \autoref{sec: existing counter}.
+
+The following section examines the bifurcation that creates the stable suboptimal fixed point disrupting the convergence of MC-O-PI.
+
+% \vspace{0.1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conditions for stable suboptimal fixed points}
+\label{sec: bifurcation}
+
+
+Building on the single-state MDP from the previous section, we derive necessary conditions under which a suboptimal fixed point emerges on the boundary between the two policies.
+When these conditions hold, there always exists a sufficiently large non-greedy bias that ensures the fixed point is present and stable.
+
+This conclusion extends to multiple-state MDPs in the absence of noise.
+However, when MC-O-PI updates are noisy due to asynchronous updates of state-action pairs or stochastic episode simulations, solutions rarely oscillate between just two policies.
+% \mytodo{introduce optimal region somewhere earlier}
+Still, the single-state analysis explains why a non-greedy bias enables solutions to consistently jump in and out of the optimal region, which forms a stable suboptimal fixed point as the learning rate decreases.
+
+% and consequently make it often possible to build a counterexample.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Existence of fixed points}
+
+% \autoref{thm: fixed points are on the boundary} showed that suboptimal fixed points can only appear on the boundary between the regions $\region(\pol)$ and $\region(\pol')$.
+% In particular, they 
+
+The single-state MDP in \autoref{fig: mdp for unconditional experiment} has only two deterministic policies, namely $\best{\pol}$ and $\worst{\pol}$.
+Let $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ denote the update distributions obtained with $\best{\pol}$ and $\worst{\pol}$, respectively, and assume without loss of generality that these distributions are fixed.
+
+Suboptimal fixed points appear where the MC-O-PI steps $\update_{\best{\pol}} (q_{\best{\pol}} - q)$ and $\update_{\worst{\pol}} (q_{\worst{\pol}} - q)$ act along the same line but in opposite directions.
+Thus, $q$ is a fixed point if it lies on the boundary between the policies $\best{\pol}$ and $\worst{\pol}$, and there exists a strictly negative scalar $\varphi$ such that
+\begin{align}
+    \update_{\best{\pol}} (q_{\best{\pol}} - q) = \varphi \update_{\worst{\pol}} (q_{\worst{\pol}} - q) ,
+\end{align}
+or, elementwise, if in state $s$ it holds that $q(s, \best{\pol}) = q(s, \worst{\pol})$ and
+\begin{multline}
+\label{eq: flows phi}
+    % \varphi
+    % =
+    \dfrac{\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - q(s, \best{\pol}))}
+    {\update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - q(s, \best{\pol}))}
+    \\
+    =
+    \dfrac{\update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - q(s, \worst{\pol}))}
+    {\update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - q(s, \worst{\pol}))}
+    < 0 .
+\end{multline}
+
+Since both fractions are strictly negative but all update distributions are positive, every fixed point $q$ must lie in the intervals
+\begin{align}
+    \label{eq: box of q}
+    \begin{cases}
+        % \label{eq: box of q(s, pol)}
+        &q_{\worst{\pol}}(s, \best{\pol}) < q(s, \best{\pol}) < q_{\best{\pol}}(s, \best{\pol}) ,
+        \\
+    % \label{eq: box of q(s, pol')}
+        &q_{\worst{\pol}}(s, \worst{\pol}) < q(s, \worst{\pol}) < q_{\best{\pol}}(s, \worst{\pol}) .
+    \end{cases}
+\end{align}
+Given that $q$ also lies on the boundary between policies $\best{\pol}$ and $\worst{\pol}$, i.e. $q(s, \best{\pol}) = q(s, \worst{\pol})$,
+a suboptimal fixed point can emerge only if the action values satisfy
+\begin{align}
+\label{eq: condition non greedy fp}
+    q_{\worst{\pol}}(s, \best{\pol}) 
+    < q_{\best{\pol}}(s, \worst{\pol}) .
+\end{align}
+Therefore, in the remainder of this analysis, we assume that
+\begin{align}
+\label{eq: condition on aval for non greedy fp}
+    q_{\worst{\pol}}(s, \worst{\pol})
+    < q_{\worst{\pol}}(s, \best{\pol}) 
+    < q_{\best{\pol}}(s, \worst{\pol})
+    < q_{\best{\pol}}(s, \best{\pol}) .
+\end{align}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Position of fixed points}
+
+
+
+Using the insight from equation \eqref{eq: flows phi}, let us define a set $L$ as
+\begin{align}
+% \label{eq: definition line of bifurcation}
+    L 
+    \coloneqq 
+    \bigg\{ q \in \qset :  
+    \varrho \cdot 
+    \dfrac{q_{\best{\pol}}(s, \best{\pol})-q(s, \best{\pol})}{q_{\worst{\pol}}(s, \best{\pol})-q(s, \best{\pol})}
+    =
+    \dfrac{q_{\best{\pol}}(s, \worst{\pol})-q(s, \worst{\pol})}{q_{\worst{\pol}}(s, \worst{\pol})-q(s, \worst{\pol})}
+    % \leq 0
+    % , \forall s \in \sset
+    \bigg\}
+\end{align}
+with parameter
+\begin{align}
+\label{eq: definition parameters of bifurcation}
+    \varrho
+    % = \dfrac{ \sigma_\pol }{ \sigma_{\pol'}}
+    \coloneqq \varrho_{\best{\pol}} 
+    \cdot 
+    \varrho_{\worst{\pol}}
+    % = \dfrac{\update(s, \pol) / \update (s, \pol')}{\update'(s, \pol) / \update'(s, \pol')} .
+    \coloneqq \dfrac{\update_{\best{\pol}}(s, \best{\pol})}{\update_{\best{\pol}} (s, \worst{\pol})} 
+    \cdot
+    \dfrac{\update_{\worst{\pol}}(s, \worst{\pol})}{\update_{\worst{\pol}}(s, \best{\pol})}
+    .
+\end{align}
+The set $L$ contains all points $q$ where the MC-O-PI steps act along the same line. Hence, fixed points lie at the intersections of $L$ with the boundary.
+If we define an $x$-axis along the boundary, these intersections correspond to the solutions of the quadratic equation
+\begin{align}
+\label{eq: quadratic for fixed points}
+    \varrho \cdot 
+    \dfrac{q_{\best{\pol}}(s, \best{\pol}) - x}{q_{\worst{\pol}}(s, \best{\pol}) - x}
+    =
+    \dfrac{q_{\best{\pol}}(s, \worst{\pol}) - x}{q_{\worst{\pol}}(s, \worst{\pol}) - x} .
+\end{align}
+% and the $x$-axis runs along the boundary.
+Its discriminant is
+\begin{align}
+\label{eq: discriminant}
+    \Delta(\varrho) 
+    % = \big( q_{\best{\pol}}(s, \worst{\pol}) + q_{\worst{\pol}}(s, \best{\pol}) - \varrho (q_{\best{\pol}}(s, \best{\pol}) + q_{\worst{\pol}}(s, \worst{\pol})) \big)^2 
+    % \\
+    % - 4(1-\varrho) \big( q_{\best{\pol}}(s, \worst{\pol}) q_{\worst{\pol}}(s, \best{\pol}) - \varrho q_{\best{\pol}}(s, \best{\pol}) q_{\worst{\pol}}(s, \worst{\pol}) \big) .
+    % 
+    \coloneqq a \varrho^2 + b \varrho + c
+\end{align}
+where
+\begin{align*}
+    a 
+    &\coloneqq (q_{\best{\pol}}(s, \best{\pol}) - q_{\worst{\pol}}(s, \worst{\pol}))^2 ,
+    \\
+    b 
+    &\coloneqq -2 ( q_{\best{\pol}}(s, \best{\pol}) - q_{\worst{\pol}}(s, \best{\pol}))( q_{\best{\pol}}(s, \worst{\pol}) - q_{\worst{\pol}}(s, \worst{\pol}))
+    \\
+    &\hspace{2.55cm} -2 ( q_{\best{\pol}}(s, \best{\pol}) - q_{\best{\pol}}(s, \worst{\pol})) ( q_{\worst{\pol}}(s, \best{\pol}) - q_{\worst{\pol}}(s, \worst{\pol})) ,
+    \\
+    c 
+    &\coloneqq (q_{\best{\pol}}(s, \worst{\pol}) - q_{\worst{\pol}}(s, \best{\pol}))^2 .
+\end{align*}
+% If the update distributions are uniform, $L$ is a straight line through $q_{\pol}$ and $q_{\pol'}$.
+% The line bends one way or another by introducing a bias in the update distribution.
+% 
+% Note that if the action values $q_{\pol}$ and $q_{\pol'}$ are on opposite sides of the boundary in all states, condition \eqref{eq: flows phi} is easily satisfied because the flows always point towards opposite regions with uniform update distributions.
+% However, \autoref{thm: contra general pit} indicates that the MDP structure prevents this possibility.
+% In other words, for every pair of policies, there exists a state where the action values lie on the same side of the boundary.
+% Therefore, we focus in this discussion on the state where both action values are on the same side of the boundary. Without loss of generality, we assume they lie in region $\region(\pol)$:
+% \begin{align*}
+%     q_{\pol}(s, \pol) &> q_{\pol}(s, \pol')
+%     \\
+%     q_{\pol'}(s, \pol) &> q_{\pol'}(s, \pol')
+% \end{align*}
+% 
+% The parameter $\varrho$ controls the solutions of equation \eqref{eq: quadratic for fixed points} and, thereby, the position of the fixed points.
+The sign of the discriminant $\Delta$ indicates how often $L$ intersects the boundary.
+The coefficients $a$ and $c$ are strictly positive, whereas $b$ is strictly negative.
+After simplifications, we obtain
+\begin{multline*}
+    b^2 - 4ac 
+    = 16(q_{\best{\pol}}(s, \best{\pol}) - q_{\best{\pol}}(s, \worst{\pol}))
+    (q_{\best{\pol}}(s, \best{\pol}) - q_{\worst{\pol}}(s, \best{\pol}))
+    \\
+    \times (q_{\best{\pol}}(s, \worst{\pol}) - q_{\worst{\pol}}(s, \worst{\pol}))
+    (q_{\worst{\pol}}(s, \best{\pol}) - q_{\worst{\pol}}(s, \worst{\pol})) ,
+\end{multline*}
+which is positive as well.
+Thus $\Delta(\varrho)$ is a convex parabola with roots
+\begin{align}
+\label{eq: threshold for position}
+    &\varrho_1 \coloneqq \frac{-b - \sqrt{b^2 - 4ac} }{2a} ,
+    \\
+\label{eq: threshold for position 2}
+    &\varrho_2 \coloneqq \frac{-b + \sqrt{b^2 - 4ac} }{2a} .
+\end{align}
+They satisfy $\varrho_1 < \varrho_2$ and are both strictly positive since
+\begin{align*}
+    &\varrho_1 + \varrho_2 = \frac{-b}{a} > 0 ,
+    \\
+    &\varrho_1 \cdot \varrho_2 = \frac{c}{a} > 0 .
+\end{align*}
+
+\vspace{-0.2cm}
+
+\autoref{fig: explain bifurcation} shows that when $\varrho_1 < \varrho < \varrho_2$ the set $L$ does not intersect the boundary because the discriminant $\Delta(\varrho)$ is negative.
+On the other hand, when $\varrho < \varrho_1$ or $\varrho > \varrho_2$, $L$ intersects the boundary at 
+\begin{align}
+\label{eq: position fixed point}
+    x_1 &\coloneqq
+    \dfrac{ q_{\best{\pol}}(s, \worst{\pol}) + q_{\worst{\pol}}(s, \best{\pol}) - \varrho (q_{\best{\pol}}(s, \best{\pol}) + q_{\worst{\pol}}(s, \worst{\pol})) - \sqrt{\Delta(\varrho)}}{2(1-\varrho)} ,
+    \\
+    x_2 &\coloneqq
+    \dfrac{ q_{\best{\pol}}(s, \worst{\pol}) + q_{\worst{\pol}}(s, \best{\pol}) - \varrho (q_{\best{\pol}}(s, \best{\pol}) + q_{\worst{\pol}}(s, \worst{\pol})) + \sqrt{\Delta(\varrho)}}{2(1-\varrho)} .
+\end{align}
+Note that, when $\varrho>\varrho_2$, the points $x_1$ and $x_2$ lie outside the region defined in \eqref{eq: box of q}. In that case, the MC-O-PI steps act along the same line but not in opposite directions. Thus, $x_1$ and $x_2$ are not fixed points.
+
+
+The bifurcation thus occurs at $\varrho = \varrho_1$, where the threshold satisfies
+\begin{align}
+    0 < \varrho_1 < \frac{-b}{2a} < 1 .
+\end{align}
+Therefore, under 
+% condition \eqref{eq: condition on aval for non greedy fp}
+condition \eqref{eq: condition non greedy fp}
+% ensures that it is always possible to choose a set of update distributions $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ 
+it is always possible to sufficiently bias the update distributions towards the non-greedy actions such that $\varrho < \varrho_1$, which guarantees that there exists a fixed point on the boundary 
+% in the range $[q_{\worst{\pol}}(s, \best{\pol}), q_{\best{\pol}}(s, \worst{\pol})]$ 
+where the MC-O-PI steps oppose each other.
+Conversely, biasing the update distributions towards the greedy actions, as described in \autoref{sec: fp disappears w greedy bias}, yields $\varrho > 1 > \varrho_1$ and eliminates the fixed point.
+
+\input{figures/32/bifurcation-explanation}
+
+
+% As $\varrho$ increases, $x_1$ and $x_2$ move closer together until they coalesce when $\varrho = \varrho_1$. At this point, $L$ intersects the boundary once at
+% \begin{align*}
+%     % q(s, \pol) = q(s, \pol') = 
+%     x_0 =
+%     \dfrac{ q_{\best{\pol}}(s, \worst{\pol}) + q_{\worst{\pol}}(s, \best{\pol}) - \varrho_1 (q_{\best{\pol}}(s, \best{\pol}) + q_{\worst{\pol}}(s, \worst{\pol})) }{2(1-\varrho_1)} .
+% \end{align*}
+% After this bifurcation, when $\varrho_1 < \varrho < \varrho_2$, $L$ does not intersect the boundary. But if $\varrho$ increases beyond $\varrho_2$, $L$ intersects the boundary again.
+% The difference, this time, is that the flows do not act in opposite directions anymore. So, the intersections are not fixed points.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stability of fixed points}
+
+Fix update distributions such that $\varrho < \varrho_1$. The boundary then contains suboptimal fixed points at $x=x_1$ and $x=x_2$.
+Their stability depends on the contraction of solutions along two independent axes.
+We use one axis along the line of action of the MC-O-PI steps to determine the expansion or contraction perpendicular to the boundary,
+and another axis aligned with the boundary itself to measure the expansion or contraction parallel to it.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Perpendicular to the boundary}
+% \paragraph{Along the line of action of the flow}
+
+By definition, the MC-O-PI steps $\update_{\best{\pol}}(q_{\best{\pol}} - x \onefun)$ and $\update_{\worst{\pol}}(q_{\worst{\pol}} - x \onefun)$ oppose each other exactly at $x = x_1$ and at $x = x_2$.
+% If in a fixed point both flows point towards the boundary, i.e.
+Thus, for all $x$ sufficiently close to $x_1$ or $x_2$, the steps point towards each other, i.e.
+\begin{align}
+\label{eq: contract to boundary}
+   %  f(x)[s, \pol] < f(x)[s, \pol']
+   %  \quad \text{and} \quad
+   % f'(x)[s, \pol] > f'(x)[s, \pol'] ,
+   \begin{cases}
+       &\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x)
+       <
+       \update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x)
+       \\
+       &\update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x)
+       >
+       \update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x)
+   \end{cases}
+\end{align}
+% then the sliding mode is stable.
+% On the other hand, if both flows point away from the boundary, i.e.
+or away from each other, i.e.
+\begin{align}
+\label{eq: away from boundary}
+   %  f(x)[s, \pol] > f(x)[s, \pol']
+   %  \quad \text{and} \quad
+   % f'(x)[s, \pol] < f'(x)[s, \pol'] .
+   \begin{cases}
+       &\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x)
+       >
+       \update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x)
+       \\
+       &\update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x)
+       <
+       \update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x)
+   \end{cases}
+\end{align}
+% then the sliding mode is unstable.
+Either way, condition \eqref{eq: box of q} indicates that both terms in the first inequality are positive and both terms in the second inequality are negative.
+Therefore, the function $f_\perp : \real \to \real$ defined as 
+\begin{align}
+\nonumber
+    f_\perp(x) 
+    &\coloneqq
+    % f(x)[s, \pol] - f(x)[s, \pol'] + f'(x)[s, \pol'] - f'(x)[s, \pol]
+    \dfrac{\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x)}{\update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x)}
+    \cdot
+    \dfrac{\update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x)}{\update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x)}
+    \\
+    \label{eq: f perp}
+    &=
+    \dfrac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}}
+    \cdot
+    \dfrac{q_{\best{\pol}}(s, \best{\pol}) - x}{q_{\best{\pol}}(s, \worst{\pol}) - x}
+    \cdot
+    \dfrac{q_{\worst{\pol}}(s, \best{\pol}) - x}{q_{\worst{\pol}}(s, \worst{\pol}) - x}
+\end{align}
+is smaller than one if solutions contract towards the boundary at $x$,
+but larger than one if they expand away from the boundary.
+
+The ratio $\varrho_{\best{\pol}}/\varrho_{\worst{\pol}}$ is the only parameter of $f_\perp$. Thus, changing the update distributions while keeping $\varrho$ constant impacts the stability of $x_1$ and $x_2$.
+For instance, if the non-greedy bias is stronger under policy $\best{\pol}$ than policy $\worst{\pol}$ such that
+\begin{align}
+\label{eq: fixed point stability}
+    \frac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}}
+    <
+    r_1 
+    \coloneqq 
+    \dfrac{q_{\best{\pol}}(s, \worst{\pol}) - x_1}{q_{\best{\pol}}(s, \best{\pol}) - x_1}
+    \cdot
+    \dfrac{q_{\worst{\pol}}(s, \worst{\pol}) - x_1}{q_{\worst{\pol}}(s, \best{\pol}) - x_1} ,
+\end{align}
+then $f_\perp(x_1) < 1$, which means that solutions contract towards the boundary around that fixed point.
+Vice versa, if $\varrho_{\best{\pol}}/\varrho_{\worst{\pol}} > r_1$,
+solutions expand away from the boundary around $x_1$.
+The same conclusion holds for $x_2$ using the critical value
+\begin{align}
+\label{eq: fixed point stability second}
+    r_2 \coloneqq
+    \dfrac{q_{\best{\pol}}(s, \worst{\pol}) - x_2}{q_{\best{\pol}}(s, \best{\pol}) - x_2}
+    \cdot
+    \dfrac{q_{\worst{\pol}}(s, \worst{\pol}) - x_2}{q_{\worst{\pol}}(s, \best{\pol}) - x_2} .
+\end{align}
+Note that $f_\perp$ increases monotonically in $x$. Hence, $x_1 < x_2$ implies that $r_1 > r_2$, being inversely proportional to $f_\perp$. Furthermore, expression \eqref{eq: box of q} implies that $r_1$ and $r_2$ are strictly positive.
+Consequently, it is always possible to make the non-greedy bias under policy $\best{\pol}$ sufficiently large relative to the non-greedy bias under policy $\worst{\pol}$ so that solutions contract towards the boundary in the neighbourhood of $x_1$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Parallel to the boundary}
+
+As the effective learning rate tends to zero, a sliding mode emerges wherever the steps $\update_{\best{\pol}}(q_{\best{\pol}} - x \onefun)$ and $\update_{\worst{\pol}}(q_{\worst{\pol}} - x \onefun)$ act in opposite directions.
+The following convex combination describes this flow along the boundary:
+\begin{align}
+\label{eq: sliding mode convex combi}
+    \lambda(x) \update_{\best{\pol}}(q_{\best{\pol}} - x \onefun) 
+    + (1-\lambda(x)) \update_{\worst{\pol}}(q_{\worst{\pol}} - x \onefun) .
+\end{align}
+The coefficient $\lambda : \real \to [0,1]$ ensures that the resulting update is the same for both state-action pairs, meaning that
+\begin{multline*}
+% \label{eq: lambda of sliding}
+    \lambda(x) \update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x) 
+    + (1-\lambda(x)) \update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x)
+    \\
+    = 
+    \lambda(x) \update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x) 
+    + (1-\lambda(x)) \update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x) .
+\end{multline*}
+Solving the latter for $\lambda(x)$ and substituting it in \eqref{eq: sliding mode convex combi} yields a function $f_\parallel : \real \to \real$ that indicates whether the sliding mode moves up or down the boundary.
+After simplifications, we find that
+\begin{align}
+\label{eq: f para}
+    f_\parallel(x)
+    % &= \lambda(x) F[q](s, \pol) + (1-\lambda(x)) F'[q](s, \pol)
+    % \\
+    % &= \dfrac{ f(x)[s, \pol] f'(x)[s, \pol'] - f'(x)[s, \pol] f(x)[s, \pol'] }
+    % {f(x)[s, \pol] - f(x)[s, \pol'] + f'(x)[s, \pol'] - f'(x)[s, \pol]} .
+    % 
+    &\coloneqq \frac{
+    \begin{aligned}
+        &\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x)
+        \update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x)
+        \\
+        &\quad - \update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x)
+        \update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x)
+    \end{aligned}}
+    {\begin{aligned}
+        &\update_{\best{\pol}}(s, \best{\pol})(q_{\best{\pol}}(s, \best{\pol}) - x) - \update_{\best{\pol}}(s, \worst{\pol})(q_{\best{\pol}}(s, \worst{\pol}) - x) 
+        \\
+        &\quad + \update_{\worst{\pol}}(s, \worst{\pol})(q_{\worst{\pol}}(s, \worst{\pol}) - x) - \update_{\worst{\pol}}(s, \best{\pol})(q_{\worst{\pol}}(s, \best{\pol}) - x) 
+    \end{aligned}}
+    .
+\end{align}
+% Thus, for any $x$ close to $x_1$ or $x_2$,
+% when $f_\parallel (x)>0$ the solution slides upwards, and when $f_\parallel (x)<0$ the solution slides downwards.
+% 
+The numerator's roots correspond to the solutions of \eqref{eq: quadratic for fixed points}, making $f_\parallel$ zero at $x=x_1$ and $x=x_2$.
+% when the line $L$ crosses the boundary.
+% Since $\rho$ is fixed, $L$ and, thereby, the zeros of $f_\parallel$ are fixed as well.
+The denominator is negative under
+condition \eqref{eq: contract to boundary}, but positive under \eqref{eq: away from boundary}. Hence, the behaviour of $f_\parallel$ around $x_1$ or $x_2$ also switches when $\varrho_{\best{\pol}}/\varrho_{\worst{\pol}}$ equals $r_1$ or $r_2$.
+
+\input{figures/32/bifurcation-stability}
+
+\autoref{fig: explain stability of fixed points} summarises stability along both axes.
+The fixed point at $x_2$ is never attractive along both axes. So it cannot trap MC-O-PI solutions.
+In contrast, $x_1$ attracts solutions as long as $\varrho_{\best{\pol}} / \varrho_{\worst{\pol}} < r_1$.
+% meaning that the update distribution under $\best{\pol}$ is so strongly biased towards $\worst{\pol}(s)$ that certain solutions are consistently driven out of the optimal region.
+
+
+% Importantly, the functions $f_\perp$ and $f_\parallel$ are only valid near $x_1$ or $x_2$. For instance, the asymptote of $f_\parallel$ does not create another fixed point as it always intersects the boundary where the MC-O-PI steps point to the same region.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conclusion}
+
+
+% Given the condition
+% \begin{align}
+% \label{eq: condition for subopt fp}
+%     q_{\worst{\pol}}(s, \best{\pol}) < q_{\best{\pol}}(s, \worst{\pol}) ,
+% \end{align}
+When $q_{\worst{\pol}}(s, \best{\pol}) < q_{\best{\pol}}(s, \worst{\pol})$,
+there always exist update distributions $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ that introduce a stable suboptimal fixed point on the boundary between the policies $\best{\pol}$ and $\worst{\pol}$ in the MDP of \autoref{fig: experiment off-policy bias MDP}.
+This occurs when $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ exhibit a sufficient non-greedy bias, i.e.
+\begin{align}
+    % &\varrho_{\best{\pol}} \cdot \varrho_{\worst{\pol}} < \varrho_1 ,
+    0
+    <
+    \dfrac{\update_{\best{\pol}}(s, \best{\pol})}{\update_{\best{\pol}}(s, \worst{\pol})} 
+    \cdot
+    \dfrac{\update_{\worst{\pol}}(s, \worst{\pol})}{\update_{\worst{\pol}}(s, \best{\pol})}
+    < 
+    \varrho_1
+\end{align}
+% The first condition ensures the existence of fixed points on the boundary by requiring a sufficiently large non-greedy bias under both policies.
+and the non-greedy bias in $\update_{\best{\pol}}$ is sufficiently larger than in $\update_{\worst{\pol}}$, i.e.
+\begin{align}
+    % &\dfrac{\varrho_{\best{\pol}}}{\varrho_{\worst{\pol}}} < r_1 .
+    0
+    <
+    \dfrac{\update_{\best{\pol}}(s, \best{\pol})}{\update_{\best{\pol}}(s, \worst{\pol})} 
+    \cdot
+    \dfrac{\update_{\worst{\pol}}(s, \best{\pol})}{\update_{\worst{\pol}}(s, \worst{\pol})}
+    < 
+    r_1
+\end{align}
+where $\varrho_1$ and $r_1$ are the thresholds defined in \eqref{eq: threshold for position} and \eqref{eq: fixed point stability}.
+Both conditions essentially bias the update distribution under policy $\best{\pol}$ so strongly towards action $\worst{\pol}(s)$ that certain solutions are consistently pushed out of the optimal region.
+These solutions thus switch indefinitely between policies, which generates a suboptimal fixed point on the boundary as learning rates decrease.
+Its position follows from \eqref{eq: position fixed point}.
+
+
+% The second condition guarantees the stability of a fixed point by requiring the non-greedy bias under policy $\best{\pol}$ to be large enough compared to policy $\worst{\pol}$. 
+% The threshold $\varrho_1$ only depends only on the action values $\qopt$ and $q_{\worst{\pol}}$, while $r_1$ depends on $\qopt$, $q_{\worst{\pol}}$ and the value of $\varrho$ chosen with the first inequality.
+% When this condition fails, the set $L$ cannot intersect the boundary at points where the MC-O-PI steps oppose each other, making fixed points on the boundary impossible.
+
+
+This analysis extends to multiple-state MDPs in the absence of noise. 
+In other words, if there exists a policy $\pol \in \polset$ such that
+\begin{align*}
+% \label{eq: pol polopt long term box}
+    q_{\pol}(s, \best{\pol}) \leq q_{\best{\pol}}(s, \pol)
+\end{align*}
+for every state,
+and $\best{\pol}$ is greedy with respect to $\qpol$, 
+some mean-field solutions cycle indefinitely between $\pol$ and $\best{\pol}$ and converge to a suboptimal fixed point if the update distribution under $\best{\pol}$ is sufficiently biased towards the actions of $\pol$, and vice versa.
+This situation typically occurs when the MDP under policy $\best{\pol}$ contains loops and the discount factor is sufficiently large, as for the counterexample in \autoref{sec: countered non-greedy bias}.
+% In that case, the above analysis demonstrates why solutions consistently jump in and out of the region $\region(\best{\pol})$ when the non-greedy bias is sufficiently strong.
+
+
+When MC-O-PI updates are noisy, solutions rarely oscillate between just two policies, especially if they differ in several states. Nevertheless, the single-state analysis highlights that a strong non-greedy bias in the region of policy $\best{\pol}$ allows solutions to consistently jump in and out of the optimal region, which creates a suboptimal fixed point even when cycling between several policies.
+This explains why solutions of MC-O-PI often converge to suboptimal fixed points when non-greedy actions are updated more frequently in one or more states.
+
+\vspace{-0.1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convergence with any update distributions}
+
+\vspace{-0.1cm}
+
+
+The previous analysis shows that a stable suboptimal fixed point can emerge only if there exists a deterministic policy $\pol \in \polset$ such that
+\begin{align*}
+% \label{eq: pol polopt long term box}
+    q_{\pol}(s, \best{\pol}) \leq q_{\best{\pol}}(s, \pol)
+\end{align*}
+for all states.
+By contraposition, there is no suboptimal fixed point if for every policy $\pol$ there exists a state $s$ where
+\begin{align*}
+    q_{\pol}(s, \best{\pol}) > q_{\best{\pol}}(s, \pol) .
+\end{align*}
+As we show in the following lemma, this condition guarantees that MC-O-PI solutions are eventually confined to the optimal region and consequently converge almost surely to $\qopt$ for \textit{any} update distributions.
+% that satisfies the modified Robbins-Monro conditions.
+
+% In this case, the action $\pol(s)$ cannot be greedy in the long term because \autoref{thm: bounded solution} indicates that we almost surely have
+% \begin{align*}
+%     q_k(s, \pol)
+%     \leq q_{\best{\pol}}(s, \pol)
+%     < q_{\pol}(s, \best{\pol})
+%     \leq q_k(s, \best{\pol})
+% \end{align*}
+% for sufficiently large $k$.
+
+
+\input{theorems/32-off-policy/four-conditions}
+
+% this is iff proof? cannot find general counterexample when solution is not satisfied
+% is NOT n&s conditions bc best and worst action values could cover the boundary, but if the other action values are in bottom right corner mcopi still converges (see notes thesis-v1 p109)
+% - if all policies non-greedy bias
+% - if best and worst non-greedy bias and rest is uniform need to guarantee that jump from best to worst (= switch in several states simultaneously, but not always possible with initial visit or first visit)
+
+
+% This condition guarantees that solutions can reach the boundary between policies $\pol$ and $\best{\pol}$ in the long term.
+
+% The proof of \autoref{thm: lemma for no long term region}
+% Condition \eqref{eq: condition of lemma almost iff} implies that in the limit all solutions of MC-O-PI are confined to the region of the optimal policy, regardless of the update distributions.
+% In that case, all updates are directed towards $\qopt$, which ensures convergence to it.
+% Conversely, to find counterexamples where MC-O-PI does not converge,
+% % \autoref{thm: lemma for no long term region} establishes that 
+% it suffices to focus on MDPs that include a policy $\pol$ that satisfies
+% \begin{align*}
+%     q_{\pol}(s, a') \leq \qopt(s, a)
+% \end{align*}
+% for all states $s \in \sset$ and actions $a, a' \in \aset(s)$.
+% and, in particular,
+% \begin{align*}
+%     \qopt(s, \pol) \geq q_{\pol}(s, \best{\pol}) .
+% \end{align*}
+
+
+% Such MDPs satisfy the conditions for a bifurcation since
+% \begin{align}
+%     q_{\pol}(s, \best{\pol}) \leq q_{\best{\pol}}(s, \pol)
+% \end{align}
+% for every state $s$.
+% Therefore, if $\pol$ and $\best{\pol}$ differ in only one state 
+% and policy $\best{\pol}$ is greedy with respect to the action values $\qpol$, 
+% the strategy outlined in the counterexample of \autoref{sec: countered non-greedy bias} guarantees that some solutions of MC-O-PI converge to a suboptimal fixed point 
+% % on the boundary between the regions of policies $\pol$ and $\best{\pol}$ 
+% when the corresponding update distributions have a strong non-greedy bias. This situation typically occurs when the MDP under policy $\best{\pol}$ contains loops and the discount factor is sufficiently large, as in \autoref{sec: countered non-greedy bias}.
+
+
+% When $\pol$ and $\best{\pol}$ differ in multiple states, solutions converge to the suboptimal fixed point only if the learning rates, the start distributions and the update functions ensure consistent, simultaneous transitions in those states, which is generally impractical.
+% For instance, consecutive policies differ in at most one state under initial visits.
+% Yet, even under first visits, noise from sampling the initial state-action pair and policy evaluation disrupts the required consistency.
+% We conclude that noise can be beneficial for the convergence of MC-O-PI by neutralising the negative effects of a non-greedy bias.
+
+% every such MDP contains a smaller MDP where can apply strategy from previous section
+
+% need policy $\best{\pol}$ to be greedy on $q_\pol$
+% otherwise as shatter between both region, a third action could take over and get solution out of the fixed point
+
+% \input{figures/32/bifurcation-convergence}
+
+\input{theorems/32-off-policy/extension-feedforward}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+This chapter demonstrated how a large non-greedy bias in the update distributions can prevent solutions of MC-O-PI from converging to $\qopt$.
+Namely, even if solutions visit the optimal policy infinitely often, some are consistently pushed out of the optimal region when the update distribution under $\best{\pol}$ is sufficiently biased towards suboptimal actions. As a result, solutions switch indefinitely between policies, which creates a suboptimal fixed point on the boundary as learning rates decrease.
+
+
+% To establish this result, 
+% we constructed a single-state counterexample with two policies, 
+% derived necessary conditions on the action values for the existence of a suboptimal fixed point,
+% and provided sufficient conditions on the update distributions for its stability.
+% This not only disproves the conjecture of \citet[p. 99]{Sutton2018ReinforcementIntroduction} when first-visit updates are replaced with initial-visit ones,
+% but also highlights that it is the non-greedy bias in the region of policy $\best{\pol}$ that causes the suboptimal fixed point
+
+% this example clarified why solutions of MC-O-PI often converge to suboptimal fixed points, even when cycling between more than two policies in multiple-state MDPs.
+
+
+Our analysis provided two key insights.
+First, we obtained sufficient conditions on the underlying MDP so that
+% when the existence conditions do not hold, 
+solutions of MC-O-PI converge to $\qopt$ with probability one for \textit{any} update distributions that satisfy the modified Robbins-Monro conditions.
+These conditions define a strictly larger class of MDPs than those covered by \cite{Wang2022OnLearning}.
+Second, solutions cannot cycle indefinitely between two policies when the update distributions exhibit a greedy bias in all states. Therefore, the next chapter investigates whether a greedy bias similarly prevents solutions from cycling between more than two policies.
+
+
+% Our analysis provided two important insights.
+% First, when the conditions on the action values are not satisfied, all solutions are confined to the region of the optimal policy in the long term and, therefore, converge to $\qopt$ regardless of the update distributions.
+
+% it suffices to focus on MDPs that include a policy $\pol$ that satisfies
+% \begin{align*}
+%     q_{\pol}(s, a') \leq \qopt(s, a)
+% \end{align*}
+% for all states $s \in \sset$ and actions $a, a' \in \aset(s)$.
+
+% and then showed that the conditions on the action values essentially guarantee that solutions can reach the boundary in the long term.
+% In other words, because if they are not satisfied, then all solutions are confined to the region of the optimal policy in the long term.
+
+
+\clearpage
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Position}
+
+% Consider two policies $\pol$ and $\pol'$ that differ in a state $s$. 
+% Denote the update distributions $\update = \update(\start, \pol, f)$ and $\update' = \update(\start', \pol', f')$
+% and let us assume that they are fixed for now
+
+% % \autoref{thm: fixed points are on the boundary} showed that suboptimal fixed points can only appear on the boundary between the regions $\region(\pol)$ and $\region(\pol')$.
+% % In particular, they 
+% Suboptimal fixed points appear where the flows on either side of a boundary act along the same line but in opposite directions.
+% Thus, a point $q$ is a fixed point if it lies on the boundary between regions $\graval(\pol)$ and $\graval(\pol')$, and there exists a negative scalar $\varphi$ such that
+% \begin{align}
+% \label{eq: flows phi}
+%     \update (q_\pol - q) = \varphi \update' (q_{\pol'} - q) .
+% \end{align}
+% Thus, in every state $s$ it must hold that
+% \begin{align*}
+%     \dfrac{\update(s, \pol)(q_\pol(s, \pol)-q(s, \pol))}{\update'(s, \pol)(q_{\pol'}(s, \pol)-q(s, \pol))}
+%     =
+%     \dfrac{\update(s, \pol')(q_\pol(s, \pol')-q(s, \pol'))}{\update'(s, \pol')(q_{\pol'}(s, \pol')-q(s, \pol'))}
+%     = \varphi < 0 .
+% \end{align*}
+
+% need to have same $\phi$ in all states, so given $\phi$, compute $\update$ and $\update'$
+
+% Consider the graph
+% \begin{align*}
+% % \label{eq: definition line of bifurcation}
+%     L \coloneqq \bigg\{ q \in \qset :  
+%     \varrho(s) \cdot \dfrac{q_\pol(s, \pol)-q(s, \pol)}{q_{\pol'}(s, \pol)-q(s, \pol)}
+%     =
+%     \dfrac{q_\pol(s, \pol')-q(s, \pol')}{q_{\pol'}(s, \pol')-q(s, \pol')} 
+%     % \leq 0
+%     , \forall s \in \sset
+%     \bigg\}
+% \end{align*}
+% with
+% \begin{align}
+% \label{eq: definition parameters of bifurcation}
+%     \varrho(s) 
+%     % = \dfrac{ \sigma_\pol }{ \sigma_{\pol'}}
+%     \coloneqq \varrho_\pol(s) \cdot \varrho_{\pol'}(s)
+%     % = \dfrac{\update(s, \pol) / \update (s, \pol')}{\update'(s, \pol) / \update'(s, \pol')} .
+%     \coloneqq \dfrac{\update(s, \pol)}{\update (s, \pol')} \cdot \dfrac{\update'(s, \pol')}{\update'(s, \pol)}
+%     .
+% \end{align}
+% If the update distributions are uniform, $L$ is a straight line through $q_{\pol}$ and $q_{\pol'}$.
+% The line bends one way or another by introducing a bias in the update distribution.
+
+% Note that if the action values $q_{\pol}$ and $q_{\pol'}$ are on opposite sides of the boundary in all states, condition \eqref{eq: flows phi} is easily satisfied because the flows always point towards opposite regions with uniform update distributions.
+% However, \autoref{thm: contra general pit} indicates that the MDP structure prevents this possibility.
+% In other words, for every pair of policies, there exists a state where the action values lie on the same side of the boundary.
+% Therefore, we focus in this discussion on the state where both action values are on the same side of the boundary. Without loss of generality, we assume they lie in region $\region(\pol)$:
+% \begin{align*}
+%     q_{\pol}(s, \pol) &> q_{\pol}(s, \pol')
+%     \\
+%     q_{\pol'}(s, \pol) &> q_{\pol'}(s, \pol')
+% \end{align*}
+% Further, the numerator and denominator on either side have opposite signs. As a result, for any fixed point $q$ we observe that
+% yields the conditions
+% \begin{align}
+% \label{eq: box of q(s, pol)}
+%     &q_{\pol'}(s, \pol) \leq q(s, \pol) \leq q_{\pol}(s, \pol) ,
+%     \\
+% \label{eq: box of q(s, pol')}
+%     &q_{\pol'}(s, \pol') \leq q(s, \pol') \leq q_{\pol}(s, \pol') ,
+% \end{align}
+% given that $q(s, \pol) = q(s, \pol')$. 
+
+
+% \textcolor{red}{? already introduce axis along boundary here after saying "can only have fixed point on the boundary"}
+% $L$ contains every point $q$ where the flows $\update (q_\pol - q)$ and $\update' (q_{\pol'} - q)$ act along the same line. So every fixed point lies at an intersection of $L$ with the boundary.
+% % but in opposite directions.
+% It intersects the boundary in $q(s, \pol) = q(s, \pol') = x$, where $x$ is the solution of the quadratic equation
+% \begin{align}
+% \label{eq: quadratic for fixed points}
+%     \varrho(s) \cdot
+%     \dfrac{q_\pol(s, \pol)-x}{q_{\pol'}(s, \pol)-x}
+%     =
+%     \dfrac{q_\pol(s, \pol')-x}{q_{\pol'}(s, \pol')-x} ,
+% \end{align}
+% with discriminant
+% \begin{multline*}
+%     \Delta(\varrho) = \big( q_{\pol}(s, \pol') + q_{\pol'}(s, \pol) - \varrho(q_{\pol}(s, \pol) + q_{\pol'}(s, \pol')) \big)^2 
+%     \\
+%     - 4(\varrho-1)( \varrho q_{\pol}(s, \pol) q_{\pol'}(s, \pol') - q_{\pol}(s, \pol') q_{\pol'}(s, \pol) ) .
+% \end{multline*}
+
+% \input{figures/32/bifurcation-explanation}
+
+% As depicted in \autoref{fig: explain bifurcation}, the sign of $\Delta(\varrho)$ indicates if $L$ intersects the boundary.
+% Specifically, $\Delta(\varrho) < 0$ implies that $L$ does not intersect the boundary.
+% If, however, $\Delta(\varrho) = 0$, $L$ intersects the boundary once at
+% \begin{align*}
+%     % q(s, \pol) = q(s, \pol') = 
+%     x_0 =
+%     \dfrac{\varrho(q_{\pol}(s, \pol) + q_{\pol'}(s, \pol')) - q_{\pol}(s, \pol') - q_{\pol'}(s, \pol)}{2(\varrho-1)} ,
+% \end{align*}
+% and if $\Delta(\varrho) > 0$, $L$ intersects the boundary twice at 
+% \begin{align*}
+%     % q(s, \pol) = q(s, \pol') = 
+%     x_1 &=
+%     \dfrac{ \varrho(q_{\pol}(s, \pol) + q_{\pol'}(s, \pol')) - q_{\pol}(s, \pol') - q_{\pol'}(s, \pol) + \sqrt{\Delta(\varrho)}}{2(\varrho-1)} ,
+%     \\
+%     x_2 &=
+%     \dfrac{ \varrho(q_{\pol}(s, \pol) + q_{\pol'}(s, \pol')) - q_{\pol}(s, \pol') - q_{\pol'}(s, \pol) - \sqrt{\Delta(\varrho)}}{2(\varrho-1)} .
+% \end{align*}
+% In the intersections, the flows act along the same line, but not necessarily in opposite directions.
+% Thus, we additionally need to substitute the values $x_0$, $x_1$ and $x_2$ in either side of equation \eqref{eq: quadratic for fixed points}. If the result is negative, the flows oppose each other and the intersection is a fixed point.
+
+
+% $\varrho = 1$ then $\Delta(\varrho)$ is always positive?
+
+% rephrase to 
+% if fourth condition holds, and $\varrho$ is large enough then L always crosses the boundary and the ration is always negative (bc of fourth condiiton)
+
+
+% \mytodo{rewrite, do not put two ideas in one paragraph}
+% The only parameter of $L$ is the ratio $\varrho$.
+% So, when the biases $\update$ and $\update'$ change without affecting $\varrho$, the fixed points do not move.
+% However, changes in $\varrho$ causes the fixed points to move along the boundary.
+% For instance, $\varrho = 0$ corresponds to the limit where the on-policy actions are not updated. 
+% The discriminant is then strictly positive. This indicates that, given the continuity of $\Delta$ in $\varrho$, there always exists an off-policy bias that introduces fixed points on the boundary, under conditions \eqref{eq: bifurcation condition v} to \eqref{eq: bifurcation condition cross qvals}.
+% As $\varrho$ increases, $\Delta(\varrho)$ decreases, causing the fixed points to approach each other, until they collide and mutually annihilate at the bifurcation point.
+
+% \textcolor{red}{? don't need first three conditions}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Stability}
+
+% The stability of the fixed points is determined by the contraction of the flow around them along two independent axes.
+% % depends on the direction of the flows on both sides of the boundary. 
+% % since looking on boundary, cannot compute the Jacobian of the system and check whether eigenvalues are negative
+% % Instead, we look at the contraction of the system along two separate axis
+% Specifically, the line of action of the flows captures the expansion or contraction perpendicular to the boundary,
+% % which we denote by $f_\perp$
+% while the axis along the boundary captures the expansion or contraction parallel to it.
+% % which we denote by $f_\parallel$
+
+% \textcolor{red}{actually only study flow in one state}
+% \textcolor{red}{can satisfy all conditions in all states simultaneously?}
+
+% To simplify our notation, we introduce an $x$-axis along the boundary and denote the flows on either side of the boundary in $q = (x,x)$ by:
+% \begin{align*}
+%     f(x) &= 
+%     \update(q_{\pol} - x \onefun) ,
+%     % =
+%     % \begin{bmatrix}
+%     %     \update(s, \pol)
+%     %     \\
+%     %     \update(s, \pol')
+%     % \end{bmatrix}
+%     % \Bigg(
+%     % \begin{bmatrix}
+%     %     q_{\pol}(s, \pol)
+%     %     \\
+%     %     q_{\pol}(s, \pol')
+%     % \end{bmatrix}
+%     % - 
+%     % \begin{bmatrix}
+%     %     x
+%     %     \\
+%     %     x
+%     % \end{bmatrix}
+%     % \Bigg)
+%     \\
+%     f'(x) &= 
+%     \update'(q_{\pol'} - x \onefun) .
+%     % =
+%     % \begin{bmatrix}
+%     %     \update'(s, \pol)
+%     %     \\
+%     %     \update'(s, \pol')
+%     % \end{bmatrix}
+%     % \Bigg(
+%     % \begin{bmatrix}
+%     %     q_{\pol'}(s, \pol)
+%     %     \\
+%     %     q_{\pol'}(s, \pol')
+%     % \end{bmatrix}
+%     % - 
+%     % \begin{bmatrix}
+%     %     x
+%     %     \\
+%     %     x
+%     % \end{bmatrix}
+%     % \Bigg)
+% \end{align*}
+% Here, $f(x)[s, \pol]$ denotes element $(s, \pol)$ of $f(x)$.
+% Additionally, we fix $\varrho$ and assume that $\Delta(\varrho)> 0$ to ensure that the positions of the fixed points, $x_1$ and $x_2$, remain constant.
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Flow perpendicular to the boundary}
+% % \paragraph{Along the line of action of the flow}
+
+% The flows $f$ and $f'$ are continuous in $x$
+% and they exactly oppose each other in $x_1$ and $x_2$.
+% % Thus, the solution enters a sliding mode.
+% % If in a fixed point both flows point towards the boundary, i.e.
+% Thus, for any $x$ close to $x_1$ or $x_2$, the flows either point towards each other, i.e.
+% \begin{align*}
+%     f(x)[s, \pol] < f(x)[s, \pol']
+%     \quad \text{and} \quad
+%    f'(x)[s, \pol] > f'(x)[s, \pol'] ,
+% \end{align*}
+% % then the sliding mode is stable.
+% % On the other hand, if both flows point away from the boundary, i.e.
+% or they point away from each other, i.e.
+% \begin{align*}
+%     f(x)[s, \pol] > f(x)[s, \pol']
+%     \quad \text{and} \quad
+%    f'(x)[s, \pol] < f'(x)[s, \pol'] .
+% \end{align*}
+% % then the sliding mode is unstable.
+% Consequently, the sign of
+% \begin{align}
+%     f_\perp(x) = f(x)[s, \pol] - f(x)[s, \pol'] + f'(x)[s, \pol'] - f'(x)[s, \pol]
+%     % \update(s, \pol)(q_{\pol}(s, \pol)-x) - \update(s, \pol')(q_{\pol}(s, \pol')-x) + \update'(s, \pol')(q_{\pol'}(s, \pol')-x) - \update'(s, \pol)(q_{\pol'}(s, \pol')-x)
+% \end{align}
+% indicates whether the flow contracts towards the boundary, i.e. $f_\perp(x)<0$,
+% or if it expands away from the boundary, i.e. $f_\perp(x)>0$.
+
+
+% The root of $f_\perp$ is
+% \begin{align*}
+%     x_\perp = \dfrac{ \update(s, \pol)q_{\pol}(s, \pol) - \update(s, \pol')q_{\pol}(s, \pol') + \update'(s, \pol')q_{\pol'}(s, \pol') - \update'(s, \pol)q_{\pol'}(s, \pol) }{\update(s, \pol) - \update(s, \pol') + \update'(s, \pol') - \update'(s, \pol)} .
+%     % \update(s, \pol)(q_{\pol}(s, \pol)-x) - \update(s, \pol')(q_{\pol}(s, \pol')-x) + \update'(s, \pol')(q_{\pol'}(s, \pol')-x) - \update'(s, \pol)(q_{\pol'}(s, \pol')-x)
+% \end{align*}
+% \textcolor{red}{cannot use ratio $\sigma_\pol / \sigma_{\pol'}$}
+% \autoref{fig: explain stability of fixed points} shows that, for a fixed $\varrho$, the position of $x_\perp$ depends on the relative sizes of $\sigma_\pol$ and $\sigma_{\pol'}$.
+% If the off-policy bias is much larger in region $\region(\pol)$ than in region $\region(\pol')$, namely $\sigma_\pol \ll \sigma_{\pol'}$, then $x_1 < x_2 < x_\perp$. The solution then contracts towards the boundary in both fixed points.
+% If the off-policy bias is approximately as large in both regions, namely $\sigma_\pol \approx \sigma_{\pol'}$, then $x_1 < x_\perp < x_2$. The solution then contracts in $x_1$ but expands in $x_2$.
+% If the off-policy bias is much larger in region $\region(\pol')$ than in region $\region(\pol)$, namely $\sigma_\pol \gg \sigma_{\pol'}$, then $x_\perp< x_1 < x_2$. The solution then expands away form the boundary in both fixed points.
+
+% \mytodo{if have time make $\sigma_\pol / \sigma_{\pol'}$ apparent in equations}
+
+% % If we multiply every term in the definition of $L$ by the negative term
+% % \begin{align*}
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol)-q(s, \pol)}{q_{\pol}(s, \pol')-q(s, \pol')} ,
+% % \end{align*}
+% % we observe that
+% % \begin{align*}
+% %     L \equiv \bigg\{ \ q \in \qset \ : \ 
+% %     \sigma_\pol \cdot \dfrac{q_\pol(s, \pol)-q(s, \pol)}{q_{\pol}(s, \pol')-q(s, \pol')}
+% %     =
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol)-q(s, \pol)}{q_{\pol'}(s, \pol')-q(s, \pol')} 
+% %     \geq 0
+% %     \ \bigg\} .
+% % \end{align*}
+% % % Similarly as in the previous definition. When the right-hand side is 0, then $q = q_\pol$. Yet as the right-hand side tends to $+\infty$, q approaches $q_{\pol'}$.
+
+% % An important point along $L$ is $q_c$ that is the solution of the system
+% % \begin{align*}
+% %     \sigma_\pol \cdot \dfrac{q_\pol(s, \pol)-q_c(s, \pol)}{q_{\pol}(s, \pol')-q_c(s, \pol')}
+% %     =
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol)-q_c(s, \pol)}{q_{\pol'}(s, \pol')-q_c(s, \pol')} 
+% %     =1 .
+% % \end{align*}
+% % In $q_c$, the size of the flow in action $\pol(s)$ is the same as in action $\pol('s)$.
+% % Because, for any $q$ that lies between $q_\pol$ and $q_c$ it holds that
+% % \begin{align*}
+% %     \sigma_\pol \cdot \dfrac{q_\pol(s, \pol)-q(s, \pol)}{q_{\pol}(s, \pol')-q(s, \pol')}
+% %     =
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol)-q(s, \pol)}{q_{\pol'}(s, \pol')-q(s, \pol')} 
+% %     < 1
+% % \end{align*}
+% % and, consequently, is stable along the line of action because
+% % \begin{align*}
+% %     \update(s, \pol)(q_{\pol}(s, \pol) - q(s, \pol)) &< \update(s, \pol')(q_{\pol}(s, \pol') - q(s, \pol'))
+% %     \\
+% %     \update'(s, \pol)(q_{\pol'}(s, \pol) - q(s, \pol)) &> \update'(s, \pol')(q_{\pol'}(s, \pol') - q(s, \pol'))
+% % \end{align*}
+% % given that $q_{\pol'}(s, \pol') - q(s, \pol') < 0$, as shown in equation \eqref{eq: box of q(s, pol)}.
+% % On the other hand, for any $q$ that lies between $q_c$ and $q_{\pol'}$ it holds that
+% % \begin{align*}
+% %     \sigma_\pol \cdot \dfrac{q_\pol(s, \pol)-q(s, \pol)}{q_{\pol}(s, \pol')-q(s, \pol')}
+% %     =
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol)-q(s, \pol)}{q_{\pol'}(s, \pol')-q(s, \pol')} 
+% %     > 1
+% % \end{align*}
+% % and, consequently, is unstable along the line of action because
+% % \begin{align*}
+% %     \update(s, \pol)(q_{\pol}(s, \pol) - q(s, \pol)) &> \update(s, \pol')(q_{\pol}(s, \pol') - q(s, \pol'))
+% %     \\
+% %     \update'(s, \pol)(q_{\pol'}(s, \pol) - q(s, \pol)) &< \update'(s, \pol')(q_{\pol'}(s, \pol') - q(s, \pol'))
+% % \end{align*}
+% % given that $q_{\pol'}(s, \pol') - q(s, \pol') < 0$, as shown in equation \eqref{eq: box of q(s, pol)}.
+
+% % As shown in \autoref{fig: explain stability of fixed points},
+% % The position of $q_c$ depends on $\sigma_{\pol} / \sigma_{\pol'}$ because
+% % \begin{align*}
+% %     \dfrac{\sigma_\pol}{\sigma_{}} 
+% %     \cdot 
+% %     \dfrac{q_\pol(s, \pol)-q_c(s, \pol)}{q_{\pol}(s, )-q_c(s, )}
+% %     \cdot
+% %     \dfrac{q_{}(s, \pol)-q_c(s, \pol)}{q_{}(s, )-q_c(s, )}
+% %     = 1 
+% % \end{align*}
+% % So, if $\sigma_{\pol} / \sigma_{}$ is small, then $q_c$ is close to $q_\pol$.
+% % If $\sigma_{\pol} / \sigma_{}$ is large, then $q_c$ is close to $q_\pol$.
+% % The critical values where $q_c$ crosses the boundary, and thus affect the stability of the fixed points are
+% % \begin{align}
+% %     b_1(\varrho) = \dfrac{(q_{\pol}(s, )-q_1(\varrho))(q_{})(s, \pol')-q_1(\varrho))}{(q_{\pol}(s, \pol)-q_1(\varrho))(q_{\pol'})(s, \pol)-q_1(\varrho))}
+% % \end{align}
+% % and
+% % \begin{align}
+% %     b_2(\varrho) = \dfrac{(q_{\pol}(s, \pol')-q_2(\varrho))(q_{\pol'})(s, \pol')-q_2(\varrho))}{(q_{\pol}(s, \pol)-q_2(\varrho))(q_{\pol'})(s, \pol)-q_2(\varrho))}
+% % \end{align}
+
+% % Thus, the line 
+% % \begin{align*}
+% %     L_{\pol} = 
+% %     \{ \ 
+% %     q \in \qset \ : \ 
+% %     \update(s, \pol) (q_\pol(s, \pol) - q(s,\pol))
+% %     =
+% %     \update(s, \pol') (q_\pol(s, \pol') - q(s,\pol'))
+% %     \ \}
+% % \end{align*}
+% % splits the boundary into a region where solutions are pushed inside $\region(\pol)$ and a region where solutions are pushed into $\region(\pol')$.
+
+% % Let $q_c$ denote the intersection of $L_\pol$ and $L_{\pol'}$, i.e. the solution of the system
+% % \begin{align}
+% %     \sigma_\pol \cdot \dfrac{q_{\pol}(s, \pol) - q_c(s, \pol) }{q_{\pol}(s, \pol') - q_c(s, \pol')}
+% %     =
+% %     \dfrac{1}{\sigma_{\pol'}} \cdot \dfrac{q_{\pol'}(s, \pol) - q_c(s, \pol) }{q_{\pol'}(s, \pol') - q_c(s, \pol')}
+% %     = 1
+% % \end{align}
+% % given the definitions of $\sigma_\pol$ and $\sigma_{\pol'}$ in equation \eqref{eq: definition parameters of bifurcation}.
+% % Note that $q_c \in L$.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Flow along the boundary}
+
+
+% As the effective learning rate tends to zero, a sliding mode emerges on the boundary wherever $f$ and $f'$ point to different regions.
+% This flow along the boundary is described by the convex combination
+% \begin{align*}
+%     f_\parallel(x) = \lambda(x) f(x) + (1-\lambda(x)) f'(x) ,
+% \end{align*}
+% where the coefficient $\lambda(x)$ guarantees that
+% \begin{multline*}
+%     \lambda(x) f(x)[s, \pol] + (1-\lambda(x)) f'(x)[s, \pol] 
+%     \\
+%     = 
+%     \lambda(x) f(x)[s, \pol'] + (1-\lambda(x)) f'(x)[s, \pol'] .
+% \end{multline*}
+% % Intuitively, if we follow one step of $F[q]$ and cross the boundary, then the solution requires $(1-\lambda)/\lambda$ steps $F'[q]$ to cross the boundary again.
+% After solving for $\lambda(x)$, we observe that
+% % the flow along the boundary around any fixed points $q=(x,x)$ is
+% \begin{align}
+%     f_\parallel(x) 
+%     % &= \lambda(x) F[q](s, \pol) + (1-\lambda(x)) F'[q](s, \pol)
+%     % \\
+%     &= \dfrac{ f(x)[s, \pol] f'(x)[s, \pol'] - f'(x)[s, \pol] f(x)[s, \pol'] }
+%     {f(x)[s, \pol] - f(x)[s, \pol'] + f'(x)[s, \pol'] - f'(x)[s, \pol]} .
+% \end{align}
+% Thus, for any $x$ close to $x_1$ or $x_2$,
+% when $f_\parallel (x)>0$ the solution slides upwards, and when $f_\parallel (x)<0$ the solution slides downwards.
+
+% The roots of the numerator are equal to the solutions of equation \eqref{eq: quadratic for fixed points}. Thus, $f_\parallel$ is zero when the line $L$ crosses the boundary.
+% Since $\rho$ is fixed, $L$ and, thereby, the zeros of $f_\parallel$ are fixed as well.
+% Further, the denominator corresponds to $f_\perp$. Thus, $f_\parallel$ has an asymptote in $x_\perp$ that moves depending on the relative sizes of $\sigma_\pol$ and $\sigma_{\pol'}$.
+% \autoref{fig: explain stability of fixed points} illustrates the stability of the fixed points that appear on the boundary along both axes.
+
+% \input{figures/32/bifurcation-stability}
+
+% Note that the functions $f_\perp$ and $f_\parallel$ are only valid in the neighbourhood of a fixed point because the flows oppose each other. For instance, the asymptote of $f_\parallel$ does not create an additional fixed point because it always intersects the boundary in a region where $f$ and $f'$ point to the same region.
+
+
+% % gether all conditions for stable suboptimal fixed point
+% Overall,
+% for every pair of deterministic policies $\pol$ and $\pol'$, a strong non-greedy bias in the update distributions $\update$ and $\update'$ can introduce a stable suboptimal fixed point on the boundary between the regions $\region(\pol)$ and $\region(\pol')$
+% if in every states $s$ where $\pol(s) \neq \pol'(s)$ we have
+% \begin{align}
+% \label{eq: condition for subopt fp}
+%     q_{\pol'}(s, \pol) < q_{\pol}(s, \pol') .
+% \end{align}
+
+
+% for it to be a fixed point for MC-O-PI, need it to be a fixed point in all states.
+% thus in states where policies are different
+% in the other states need to make sure that
+
+% thus apply it to the optimal policy
+
+% \textcolor{red}{conditions so that conditions satisfied in all states simultaneously?}

@@ -1,0 +1,21 @@
+\begin{lemma}
+\label{thm: greedy bias mces policy improves}
+Suppose $q$ and $q_+$ satisfy \eqref{eq: definition of q+ greedy section}.
+For all policies $\pol \in \grpol(q)$ and $\pol_+ \in \grpol(q_+)$ we have $\pol \preceq \pol_+$ if for all states $s$ where $\pol(s) \neq \pol_+(s)$, the update distribution $\update$ is biased towards the action $\pol(s)$ and
+\begin{align}
+\label{eq: condition approach below e mcopi proof}
+    q(s, \pol_+) \leq q_\pol(s, \pol) .
+\end{align}
+\end{lemma}
+\vspace{-0.8cm}
+\begin{proof}
+The contraposition of \autoref{thm: cannot exit sliding mode if not all states are better}(1) indicates that
+if the update distribution has a greedy bias in state $s$, condition \eqref{eq: condition approach below e mcopi proof} implies that
+\begin{align}
+    q_{\pol}(s, \pol_+) \geq q_{\pol}(s, \pol) .
+\end{align}
+As a result, if for all states where the policies differ, condition \eqref{eq: condition approach below e mcopi proof} holds and $\update$ has a greedy bias,
+% the advantage is positive in all states where the policies differ and, by 
+\autoref{thm: general PIT} ensures that $\pol \preceq \pol_+$.
+% policy $\pol_+$ is as good as or better than policy $\pol$.
+\end{proof}

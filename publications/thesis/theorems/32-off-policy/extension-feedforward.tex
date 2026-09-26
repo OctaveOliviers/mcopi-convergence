@@ -1,0 +1,38 @@
+\begin{remark}
+% [Strict extension of \cite{Wang2022OnLearning}]
+The proof of \autoref{thm: lemma for no long term region} resembles the proof of \autoref{thm: optimal feedforward} by \citet{Wang2022OnLearning}. Both proofs progressively prune the state-action pairs that cannot be greedy in the long term until only the optimal ones remain.
+% regardless of the update distribution.
+Nevertheless, \autoref{thm: lemma for no long term region} does not require a feedforward optimal policy $\best{\pol}$.
+On the contrary, if the optimal policy is feedforward, the MDP satisfies the conditions of \autoref{thm: lemma for no long term region}. 
+
+Indeed, recall that a feedforward optimal policy $\best{\pol}$ induces an order on the state space such that each state-action pair $(s_n, \best{\pol})$ transitions only to states $s_{n'}$ where $n' > n$.
+Since the state space is also finite, say of size $N$, for every policy $\pol$ that differs from $\best{\pol}$ in state $s_N$, we observe that
+\begin{align*}
+    q_{\pol}(s_N, \best{\pol}) 
+    = r(s_N, \best{\pol})
+    = q_{\best{\pol}}(s_N, \best{\pol}) .
+\end{align*}
+Thus for every suboptimal action $a \neq \best{\pol}(s_N)$ it follows that
+\begin{align*}
+    q_{\best{\pol}}(s_N, a) < q_{\best{\pol}}(s_N, \best{\pol}) = q_{\pol}(s_N, \best{\pol})  .
+\end{align*}
+Further, for every policy $\pol'$ that equals $\best{\pol}$ in state $s_N$ but differs in state $s_{N-1}$, we observe that
+\begin{align*}
+    q_{\pol'}(s_{N-1}, \best{\pol}) 
+    = r(s_{N-1}, \best{\pol}) + \discount r(s_{N}, \best{\pol})
+    = q_{\best{\pol}}(s_{N-1}, \best{\pol}) .
+\end{align*}
+Thus, for every suboptimal action $a \neq \best{\pol}(s_{N-1})$ it follows that
+\begin{align*}
+    q_{\best{\pol}}(s_{N-1}, a) < q_{\best{\pol}}(s_{N-1}, \best{\pol}) = q_{\pol'}(s_{N-1}, \best{\pol}) .
+\end{align*}
+Repeating this argument for decreasing indices allows us to loop over all deterministic policies, each time confirming that condition \eqref{eq: condition of lemma almost iff} is satisfied.
+Combining this observation with the fact that MDPs can satisfy the conditions of \autoref{thm: lemma for no long term region} without a feedforward optimal policy, such as the MDP in \autoref{fig: experiment off-policy bias MDP} with $\discount<1/2$,
+we conclude that \autoref{thm: lemma for no long term region} strictly extends Theorem~2 in \citep{Wang2022OnLearning}.
+% indicates that
+% for every policy $\pol$, there exists a state $s$ and actions $\best{a} = \best{\pol}(s)$ and $a \neq \best{\pol}(s)$ such that
+% \begin{align*}
+%     q_{\best{\pol}}(s_n, a) < q_{\pol}(s_n, \best{a})
+% \end{align*}
+% which satisfies 
+\end{remark}

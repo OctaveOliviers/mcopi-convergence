@@ -1,0 +1,77 @@
+\begin{figure}[hb!]
+    \centering
+    \hrule
+    \vspace{0.4cm}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.4]
+
+                \filldraw[fill=CambridgeSuperLightBlue, draw=none] (1,0) rectangle (2,2);
+                
+                \draw[->] (0,0) -- (3.2,0) node[below, font=\small] {$q(s,\best{a})$};
+                \draw[->] (0,0) -- (0,2.2) node[above, font=\small] {$q(s,\worst{a})$};
+
+                \draw[dotted, black] (0,0) -- (2.2,2.2);
+                
+                \filldraw[fill=none, draw=black] (1,0) rectangle (2.5,2);
+    
+                % \draw[black] (2,2) -- (2,1.25);
+                % \draw[black] (2,0) -- (2,0.75);
+                
+                \node at (1.5, 1) [font=\small, color=CambridgeCoreBlue] {$\region_0$};
+                \node at (2,1) [font=\small, color=black] {$\region_\infty$};
+        
+                % Add labels to the axes
+                \draw (2.5,0.1) -- (2.5,-0.1) node[below, font=\small] {$\frac{1}{1-\discount}$};
+                \draw (0.1,2) -- (-0.1,2) node[left, font=\small] {$\frac{\discount}{1-\discount}$};
+                \draw (1,0.1) -- (1,-0.1) node[below, font=\small] {$1$};
+                \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+                \draw (-0.1,0) -- (0.1,0) node[font=\small] {};
+    
+                % Add the points with associated text
+                \filldraw[fill=black, draw=black] (2.5,2) circle (1pt) node[above, text=black] {$q_{\best{\pol}}$};
+                \filldraw[fill=black, draw=black] (1,0) circle (1pt) node[above left, text=black] {$q_{\worst{\pol}}$};
+            
+            \end{tikzpicture}
+        \caption{Initial condition}
+        \label{fig: smallest counter initial condition}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.4]
+                \draw[->] (0,0) -- (3.2,0) node[below, font=\small] {$q(s,\best{a})$};
+                \draw[->] (0,0) -- (0,2.2) node[above, font=\small] {$q(s,\worst{a})$};
+
+                \draw[dotted, black] (0,0) -- (2.2,2.2);
+                
+                \filldraw[fill=mylightgrey, draw=black] (1,0) rectangle (2,2);
+                \draw[black] (1.4,0) -- (1.4,2);
+                \draw[black] (1,1) -- (2,2);
+                
+                \node at (1, 0.5) [left, font=\small] {$\region_1$};
+                \node at (2, 0.5) [right, font=\small] {$\region_2$};
+                \node at (1.7, 2) [above, font=\small] {$\region_3$};
+                \node at (1, 1.5) [left, font=\small] {$\region_4$};
+
+                % Add labels to the axes
+                \draw (2.5,0.1) -- (2.5,-0.1) node[below, font=\small] {$\frac{1}{1-\discount}$};
+                \draw (0.1,2) -- (-0.1,2) node[left, font=\small] {$\frac{\discount}{1-\discount}$};
+                \draw (1,0.1) -- (1,-0.1) node[below, font=\small] {$1$};
+                \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+                \draw (-0.1,0) -- (0.1,0) node[font=\small] {};
+    
+                % Add the points with associated text
+                \filldraw[fill=black, draw=black] (2.5,2) circle (1pt) node[above, text=black] {$q_{\best{\pol}}$};
+                \filldraw[fill=black, draw=black] (1,0) circle (1pt) node[above left, text=black] {$q_{\worst{\pol}}$};
+                \filldraw[fill=black, draw=black] (1.4, 1.4) circle (1pt) node[below right, text=black, xshift=-2.5pt] {$\hat{q}$};
+                
+                \draw[->, CambridgeCoreBlue, thick] (1.2, 0.4) -- (1.8, 0.4) -- (1.8, 1.9) -- (1.2, 1.9) -- (1.2, 0.8) -- (1.6, 0.8) -- (1.6, 1.7) -- (1.45, 1.7) ;
+                
+            \end{tikzpicture}
+        \caption{Updating strategy}
+        \label{fig: smallest counter update}
+    \end{subfigure}
+    \caption{Solutions of MC-O-PI can converge to any point $\hat{q}$ along the boundary in $\qset_0$ when starting in $\qset_0$ and using the updating strategy described on page \pageref{enum: existing update distrib}.}
+    \label{fig: experiment for unconditional bias}
+\end{figure}

@@ -1,0 +1,122 @@
+\begin{lemma}
+\label{eq: properties of noise}
+    There exist two constants $c_1, c_2 \in \real_{\geq 0}$ independent of $\update$
+    such that
+    for every point $q \in \qset$, policy $\pol \in \polset$, state $s \in \sset$ and action $a \in \aset(s)$,
+    the noise $w$ defined in equation \eqref{eq: definition combined noise} satisfies
+    \begin{align}
+        \label{eq: noise prop exp}
+        &\E\big[ \update(s,a) w(s,a) \big] = 0 ,
+        \\
+        \label{eq: noise prop var}
+        % &\E\big[ \update^2(s,a) w^2(s,a) \big] \leq c_1 + c_2 \| q \|^2 .
+        &\E\big[ w^2(s,a) \big] \leq c_w(1 + \| q \|^2) .
+\end{align}
+\end{lemma}
+\mytodo{update with proof from paper}
+
+\begin{proof}
+\textcolor{red}{check if the paper proof does not rely on the paper's standing assumptions}
+
+Fix $k\ge 0$ and $(s,a)$. When $\mu_k(s,a)=0$, the coordinate is not updated. By our convention $w_k(s,a)=0$. So equations \eqref{eq: muw_mds} and \eqref{eq: muw_second_moment} hold trivially. Assume henceforth that $\mu_k(s,a)>0$.
+
+Recall that $u_k=\mu_k+v'_k$.
+% with $\mu_k=\E[u_k\mid \mathcal F_k]$.
+The definition of $w_k$ in \eqref{eq: definition combined noise} thus yields
+\begin{align}
+\label{eq: algebra_rewrite_muw}
+\mu_k w_k
+&= \mu_k v_k + (u_k-\mu_k)(q_{\pi_k}-q_k+v_k) \nonumber\\
+&= u_k v_k + (u_k-\mu_k)(q_{\pi_k} - q_k).
+\end{align}
+Taking conditional expectations and using the facts that $q_k$ and $q_{\pi_k}$ are $\mathcal F_k$-measurable and $\mu_k=\E[u_k\mid \mathcal F_k]$, we get
+\begin{align}
+\label{eq: refactor noise}
+\E[\mu_k w_k \mid \mathcal F_k] &= \E[u_k v_k \mid \mathcal F_k] + \big(q_{\pi_k}-q_k\big)\E[u_k-\mu_k\mid \mathcal F_k] 
+\nonumber \\
+&= \E[u_k v_k\mid \mathcal F_k] .
+\end{align}
+% because the second term vanishes from the definition $\mu_k = \E[u_k \mid \mathcal F_k]$.
+Using the law of total expectation, we can factor out the indicator $u_k(s,a)$:
+\begin{align}
+\label{eq: showter expectation}
+\E[u_k(s,a)v_k(s,a)\mid \mathcal F_k] 
+= \E\big[
+u_k(s,a)\,\E[v_k(s,a)\mid \mathcal F_k,\ u_k(s,a)]\mid \mathcal F_k
+\big] .
+\end{align}
+If $(s,a)$ is not updated after the $k^{\text{th}}$ episode we have $u_k(s,a)=0$, and arbitrarily define $v_k(s,a) = 0$ to maintain consistency with $w_k(s,a)=0$.
+Therefore, 
+equation \eqref{eq: muw_mds} is equivalent to $\E[v_k(s,a)\mid \mathcal F_k, u_k(s,a)=1] = 0$.
+
+With initial- or first-visit updates, the event that a state-action pair is updated, i.e. $u_k(s,a) = 1$, depends entirely on the episode's history prior to that first occurrence of $(s,a)$. By the Markov property, the simulated episode from that point onward depends exclusively on the pair $(s,a)$ and the current policy $\pi_k$. In other words, it is completely independent of the events that led to the first visit of $(s,a)$. Consequently, the return noise $v_k(s,a)$ behaves exactly as the intrinsic zero-mean noise of a fresh rollout from $(s,a)$, guaranteeing that $\E[v_k(s,a) \mid \mathcal{F}_k, u_k(s,a)=1] = 0$.
+As a result, 
+% equations \eqref{eq: refactor noise} and \eqref{eq: showter expectation} indicate that 
+the unbiased noise property holds for every state-action pair at every time step.
+
+
+Applying the standard inequality $(x+y)^2 \le 2x^2 + 2y^2$ to equation \eqref{eq: algebra_rewrite_muw}
+and noting that $u_k^2 \le 1$ and $(u_k-\mu_k)^2 \le 1$, we find
+\[
+(\mu_k w_k)^2 \le 2v_k^2 + 2(q_{\pi_k}-q_k)^2 .
+\]
+Taking the conditional expectation yields
+\[
+\E\!\left[\mu_k^2 w_k^2 \mid \mathcal F_k\right] \le 2\E\!\left[v_k^2 \mid \mathcal F_k\right] + 2(q_{\pi_k}-q_k)^2
+\]
+Since $v_k$ is the noise on the observed returns after simulating an episode of the MDP with policy $\pi_k$,
+there exists a constant $C_v<\infty$ such that $\E[v_k^2(s,a) \mid \mathcal F_k] \le C_v$ for every state-action pair at every time step. 
+Moreover, the action value $q_{\pi_k}(s,a)$ is uniformly bounded by the constant $C_\pi \coloneqq \max_{s,a} r(s,a)/(1-\discount)$. Applying $(x-y)^2 \le 2x^2 + 2y^2$, we see that
+\[
+\big( q_{\pi_k}(s,a) - q_k(s,a) \big)^2 \le 2 q_{\pi_k}(s,a)^2 + 2 q_k(s,a)^2 \le 2C_\pi^2 + 2 \max_{s,a} |q_k(s,a)|^2
+\]
+% where $\|\cdot\|$ is any norm dominating the coordinate magnitude.
+Substituting these into our expectation bound yields
+\[
+\E [ \mu_k^2(s,a) w_k^2(s,a) \mid \mathcal F_k ] \le 2C_v + 4C_\pi^2 + 4\|q_k\|_\infty^2
+\]
+Setting $C \coloneqq \max \{ 2C_v + 4C_\pi^2, 4\}$ gives \eqref{eq: muw_second_moment},
+independently of $\mu_k$.
+
+
+% \hline
+\textcolor{red}{false}
+Since the variables $w_1$ and $w_2$ defined in \eqref{eq: def noise qpol} and \eqref{eq: def noise u} are independent, we know that
+\begin{align*}
+    \E \big[ w_1 w_2 \big]
+    =     \E \big[ w_1 \big]  \E \big[ w_2 \big] = \zerofun 
+\end{align*}
+where $\zerofun$ is the constant function $\zerofun(s,a) = 0$.
+Thus it follows that
+\begin{align*}
+    \E \big[ \update w \big] 
+    &= \E \big[ \update w_1 + w_2 ( q_\pol - q + w_1 ) \big] 
+    \\
+    &= \update \E[w_1] + \E [w_2] \big( q_\pol - q + \E[ w_1 ] \big) 
+    \\
+    &= \zerofun.
+\end{align*}
+Further, we know that for all state-action pairs $0 \leq \update(s,a) \leq 1$ and $-1 \leq w_2(s,a) \leq 1$. Thus we obtain that
+\begin{align*}
+    \E \big[ \update^2 w^2 \big]
+    &= \E \big[ ( \update w_1 + w_2 ( q_\pol - q + w_1 ) )^2 \big]
+    \\
+    % &= \E \Big[ w_1^2 + \frac{w_2^2}{\update^2} ( q_\pol - q + w_1 )^2 + 2 \frac{w_1 w_2}{\update} ( q_\pol - q + w_1 ) \Big]
+    % \\
+    % &= \E \big[ w_1^2 \big] + \E \Big[ \frac{w_2^2}{\update^2} ( q_\pol - q + w_1 )^2 \Big] + 2 \E \Big[ \frac{w_1 w_2}{\update} ( q_\pol - q ) \Big] + 2 \E \Big[ \frac{w_1^2 w_2}{\update} \Big]
+    % \\
+    &= \update^2 \E \big[ w_1^2 \big] + \E \big[ w_2^2 ( q_\pol - q + w_1 )^2 \big] +  2 \E \big[ \update w_1 w_2 ( q_\pol - q + w_1 ) \big] 
+    \\
+    &= \update^2 \E \big[ w_1^2 \big] + \E \big[ w_2^2 ( q_\pol - q + w_1 )^2 \big]
+    \\
+    &\leq \E \big[ w_1^2 \big] + \E \big[ ( q_\pol - q + w_1 )^2 \big]
+    \\
+    &= \E \big[ w_1^2 \big] + (q_\pol - q)^2 + \E \big[ w_1^2 \big] + 2 (q_\pol - q) \E \big[ w_1 \big]
+    \\
+    &\leq c_1 \onefun + c_2 q^2
+    % \\
+    % &\leq (c_1 + c_2 \|q\|^2) \onefun
+\end{align*}
+for some constants $c_1, c_2 \in \real_{\geq 0}$ when every action-value function $q_\pol$ is bounded.
+Finally, \eqref{eq: noise prop var} follows from the inequality $q(s,a)^2 \leq \|q\|^2$.
+\end{proof}

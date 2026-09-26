@@ -1,0 +1,131 @@
+\begin{lemma}
+\label{thm: all inequalities when switching policy}
+
+% \textcolor{red}{just write for states where $\pol(s) \neq \pol_\kpo(s)$, because for other states the equalities are trivial}
+
+% For all action values $q$ and $q_+$ that satisfy equation \eqref{eq: definition of q+ bias section},
+% the following inequalities hold in all states
+% and for all policies $\pol \in \grpol(q)$ and $\pol_+ \in \grpol(q_+)$:
+
+For any point $q \in \qset$ and policy $\pi \in \grpol(q)$,
+% greedy with respect to $q$,
+let $q_+$ satisfy \eqref{eq: definition of q+ bias section}.
+% using policy $\pi$.
+Then, for every greedy policy $\pi_+ \in \grpol(q_+)$,
+% greedy with respect to $q_+$, 
+and for every state $s \in \sset$, the following conditions hold:
+% where $\pol(s) \neq \pol_+(s)$:
+\vspace{-0.4cm}
+\begin{enumerate}
+    \item 
+    $\update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol) )
+    \leq
+    \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol) )$
+
+    \item 
+    $\update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol_+) ) 
+    \leq
+    \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol_+) )$
+
+    \item 
+    $\update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol) ) 
+    \leq
+    \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol_+) )$
+\end{enumerate}
+% \begin{align}
+%     % \begin{cases}
+%     \label{eq: ineq on boundary pol pol}
+%     \update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol) )
+%     &\leq
+%     \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol) )
+%     \\
+%     \label{eq: ineq on boundary pol+ pol+}
+%     \update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol_+) ) 
+%     &\leq
+%     \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol_+) )
+%     \\
+%     \label{eq: ineq on boundary pol pol+}
+%     \update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol) ) 
+%     &\leq
+%     \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol_+) )
+%     % \end{cases}
+% \end{align}
+% These inequalities are strict if $q(s, \pol) > q(s, \pol_+)$ or $q_+(s, \pol) < q_+(s, \pol_+)$.
+\end{lemma}
+\vspace{-0.7cm}
+\begin{proof}
+% Take any greedy policy $\pi_+ \in \grpol(q_+)$. Then for every state $s \in \sset$ and action $a \in \aset(s)$, we have $q_+(s,a) \le q_+(s,\pi_+)$. In particular, for any policy $\pi\in\grpol(q)$, we find $q_+(s,\pi) \le q_+(s,\pi_+)$.
+For every policy $\pol \in \grpol(q)$, $\pol_+ \in \grpol(q_+)$ and state $s \in \sset$ we have
+% Since the policies $\pol$ and $\pol_+$ are greedy on $q$ and $q_+$, respectively,
+% % and that without loss of generality we can assume that $\lrate \update < 1$,
+% for every state $s$ it holds that 
+\begin{align}
+    \label{eq: pol greedy on q}
+    q(s, \pol) &\geq q(s, \pol_+) ,
+    \\
+    \label{eq: pol+ greedy on q+}
+    q_+(s, \pol) &\leq q_+(s, \pol_+) .
+\end{align}
+By assumption, $0 \le \lrate \update(s,a) < 1$ for every state-action pair $(s,a)$.
+
+(1)
+% We obtain inequality \eqref{eq: ineq on boundary pol pol} 
+After multiplying both sides of \eqref{eq: pol greedy on q} with the positive constant $ 1 - \lrate \update(s, \pol_+)$ and
+subtracting the products from \eqref{eq: pol+ greedy on q+} we obtain
+\begin{multline*}
+    q_+(s, \pol) - ( 1 - \lrate \update(s, \pol_+)) q(s, \pol)
+    \\
+    \leq q_+(s, \pol_+) - ( 1 - \lrate \update(s, \pol_+)) q(s, \pol_+) .
+\end{multline*}
+Substituting $q_+$ using its definition from \eqref{eq: definition of q+ bias section} 
+yields
+\begin{multline*}
+% \label{eq: ineq on boundary pol pol}
+    % &q_+(s, \pol) - ( 1 - \lrate \update(s, \pol_+)) q(s, \pol)
+    % \leq q_+(s, \pol_+) - ( 1 - \lrate \update(s, \pol_+)) q(s, \pol_+)
+    % \\
+    % &\iff 
+    \lrate \update(s, \pol)( q_{\pol}(s, \pol) - q(s, \pol) ) + \lrate \update(s, \pol_+) q(s, \pol)
+    \\
+    \leq \lrate \update(s, \pol_+) q_{\pol}(s, \pol_+) ,
+    % \\
+    % &\iff 
+    % \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol) )
+    % \leq \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol) )
+\end{multline*}
+which corresponds to the first inequality in \autoref{thm: all inequalities when switching policy}:
+\begin{align}
+\label{eq: ineq on boundary pol pol}
+    \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol) )
+    \leq \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol) ) .
+\end{align}
+
+(2)
+% We obtain inequality \eqref{eq: ineq on boundary pol+ pol+}
+Similarly, we obtain the second inequality
+by multiplying both sides of \eqref{eq: pol greedy on q} with $ 1 - \lrate \update(s, \pol)$,
+subtracting the products from \eqref{eq: pol+ greedy on q+}
+and substituting $q_+$ using its definition from \eqref{eq: definition of q+ bias section}.
+% we obtain
+% \begin{align}
+%     % &q_+(s, \pol) - ( 1 - \lrate \update(s, \pol)) q(s, \pol)
+%     % \leq q_+(s, \pol_+) - ( 1 - \lrate \update(s, \pol)) q(s, \pol_+)
+%     % \\
+%     % &\iff \lrate \update(s, \pol) q_{\pol}(s, \pol)
+%     % \leq \lrate \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol_+) ) + \lrate \update(s, \pol) q(s, \pol_+)
+%     % \\
+%     % &\iff 
+%     \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol_+) )
+%     \leq \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol_+) )
+% \end{align}
+
+(3)
+For the third inequality, we note that the update distribution $\update$ is positive for all state-action pairs. Thus, inequalities \eqref{eq: ineq on boundary pol pol} and \eqref{eq: pol greedy on q} imply that
+\begin{align*}
+    \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol) )
+    &\leq \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol) )
+    \\
+    &\leq \update(s, \pol_+)( q_{\pol}(s, \pol_+) - q(s, \pol_+) ) .
+\end{align*}
+\end{proof}
+% Finally, if inequalities \eqref{eq: pol greedy on q} or \eqref{eq: pol+ greedy on q+} are strict, then any other inequality is strict as well.

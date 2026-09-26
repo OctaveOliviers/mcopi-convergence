@@ -1,0 +1,276 @@
+% \newpage
+\section*{Appendix}
+\label{sec: Appendix}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Bellman operators}
+
+% \textcolor{red}{add definition in appendix}
+% The inherent recursive structure of action-value functions can be elegantly formalized using the Bellman evaluation operator $T_\pi$ and the Bellman optimality operator $T$. 
+% % acting on the space of action-value functions $\qset$.
+% We define these operators as
+% \begin{align}
+%     (T_\pol q) (s,a) &\coloneqq \reward(s,a) + \discount \sum_{s' \in \sset} p(s' \mid s,a) q(s', \pol(s')) ,
+%     \\
+%     (T q)(s,a) &\coloneqq \reward(s,a) + \discount \sum_{s' \in \sset} p(s' \mid s,a) \max_{a' \in \aset(s')} q(s',a') .
+% \end{align}
+% We can concisely write $T_\pi q = r + \discount P_\pi q$,
+% % \begin{align*}
+% %     T_\pi q = r + \discount P_\pi q ,
+% % \end{align*}
+% where $P_\pi$ is the transition operator defined as
+% \begin{align*}
+%     (P_\pi q)(s,a) \coloneqq \sum_{s' \in \sset} p(s' \mid s,a) q(s', \pol(s')) .
+% \end{align*}
+% For finite MDPs with bounded rewards, the operators $T_\pi$ and $T$ exhibit two fundamental properties.
+% They are monotone
+% and they are $\gamma$-contractions in the $L_\infty$-norm
+% provided the discount factor satisfies $\gamma \in [0,1)$
+% or the MDP is episodic (i.e. every policy eventually reaches a terminal state).
+% In other words, for every policy $\pi$ and any two action-value functions $q_1$ and $q_2$,
+% \[
+% q_1 \leq q_2 
+% \quad\implies\quad
+% T_\pi q_1 \leq T_\pi q_2 
+% \]
+% and
+% \[
+% \| T_\pi q_1 - T_\pi q_2 \|_\infty \leq \gamma \|q_1 - q_2 \|_\infty,
+% \]
+% and similarly for the optimality operator $T$.
+% These properties guarantee that $q_\pi$ and $\qopt$ are the \textit{unique} fixed points of $T_\pi$ and $T$, respectively~\citep{Puterman1994MarkovProgramming.}.
+% As a result, a policy $\pi$ is optimal if and only if it satisfies the Bellman optimality equation
+% \begin{align}
+% \label{eq: bellman optimality equation}
+%     q_\pi = T q_\pi .
+% \end{align}
+% or, given $q_\pi = T_\pi q_\pi$, if it is greedy with respect to its own action values, i.e. $T_\pi q_\pi = T q_\pi$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Proofs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Proof of \autoref{thm: properties of noise}}
+
+% \begin{proof}
+Fix a time $k\ge 0$, a state $s \in \mathcal S$ and an action $a \in \mathcal A(s)$.
+Let $\mathcal F_k'$ represent the available information right after selecting the policy $\pi_k$ but before sampling the initial state-action pair, so $\mathcal F_k \subseteq \mathcal F_k'$.
+
+By definition,
+\begin{align}
+\label{eq: noise def in appendix proof}
+w_k(s,a) = u_k(s,a) v_k(s,a) + \big( u_k(s,a)-\mu_k(s,a) \big) \big( q_{\pi_k}(s,a) - q_k(s,a) \big).
+\end{align}
+Since episode returns are unbiased under initial- or first-visit updates, 
+and $u_k(s,a) v_k(s,a) = 0$ on $\{u_k(s,a)=0\}$,
+it follows that
+\begin{align}
+\label{eq: unbiased noise p1}
+\mathbb E[ u_k(s,a) v_k(s,a) \mid \mathcal F_k']
+=
+\mathbb E \big[ 
+    \mathbf 1_{\{u_k(s,a)=1\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=1] 
+    % +
+    % \mathbf 1_{\{u_k(s,a)=0\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=o] 
+    \mid \mathcal F_k' \big]
+= 0 .
+\end{align}
+Also, $\mathbb E[u_k(s,a) \mid \mathcal F_k'] = \mu_k(s,a)$, and $\mu_k$ and $q_{\pi_k}-q_k$ are $\mathcal F_k'$-measurable. Hence,
+\begin{multline}
+\label{eq: unbiased noise p2}
+\mathbb E \!\left[
+\bigl( u_k(s,a)-\mu_k(s,a) \bigr) \bigl( q_{\pi_k}(s,a)-q_k(s,a) \bigr)
+\mid \mathcal F_k'
+\right]
+\\
+=
+\big( q_{\pi_k}(s,a)-q_k(s,a) \big) 
+\big( \mathbb E\!\left[ u_k(s,a) \mid \mathcal F_k'
+\right]
+-\mu_k(s,a) \big)
+=
+0 .
+\end{multline}
+Summing \eqref{eq: unbiased noise p1} and \eqref{eq: unbiased noise p2} yields $\mathbb E[w_k(s,a) \mid \mathcal F_k'] = 0$.
+Applying the tower property then proves \eqref{eq: muw_mds}:
+\[
+\mathbb E [ w_{k}(s,a) \mid \mathcal F_k ]
+= \mathbb E \!\left[ \mathbb E [ w_{k}(s,a) \mid \mathcal F_k'] \mid \mathcal F_k \right]
+= 0 .
+\]
+
+Finally, since $u_k^2(s,a) \le 1$ and $(u_k(s,a) - \mu_k(s,a))^2 \le 1$,
+using $(x+y)^2 \le 2 x^2 + 2 y^2$ on \eqref{eq: noise def in appendix proof} yields
+\begin{align*}
+w_k^2(s,a) 
+&\le 2 v_k^2(s,a) + 2 (q_{\pi_k}(s,a)-q_k(s,a) )^2 
+\\
+&\le 2 v_k^2(s,a) + 2 ( 2 q_{\pi_k}^2(s,a) + 2 q_k^2(s,a) ) .
+\end{align*}
+Since all action-values are bounded,
+there exists a constant $c_\polset < \infty$ such that $\|q_\pi\|^2 \leq c_\polset$ for every policy $\pi \in \polset$. As a result,
+\begin{align*}
+\mathbb E \!\big[ w_{k}^2(s,a) \mid \mathcal F_k \big]
+&\le
+2 c_v + 2 \, \mathbb E \!\left[ ( q_{\pi_k}(s,a)-q_k(s,a) )^2 \mid \mathcal F_k \right]
+\\
+&\le
+2 c_v + 4 c_\polset + 4 \|q_k\|^2
+\end{align*}
+So \eqref{eq: muw_second_moment} holds for example with $c_w := \max \{ 2 c_v + 4 c_\polset, 4\}$.
+% \end{proof}
+\hfill \BlackBox
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Proof of \autoref{thm: bounded limit sets}}
+
+% \begin{proof}
+Let $(q_k)_{k \ge 0}$ and $(\pol_k)_{k \ge 0}$ be solutions of the difference inclusion in \eqref{eq: mcopi sa} with initial condition $q_0$, learning rates $(\lrate_k)_{k \ge 0}$, update distributions $(\update_k)_{k \ge 0}$ and stochastic perturbations $(w_k)_{k \ge 0}$.
+    
+    By assumption, there exists a finite time $K$ such that
+    the sequence $(\pol_k)_{k \ge K}$ only contains policies in $\polset_\infty$.
+    % the estimate $q_k$ is updated towards action values $q_{\pi_k}$ where $\pi_k \in \polset_\infty$.
+    Thus for all $k \ge K$, each state-action pair of the estimate $q_k$ is updated towards a value $q_{\pol_k}(s,a)$ that satisfies
+    \begin{align}
+        \min_{\pi \in \polset_\infty} q_\pi(s,a) \leq q_{\pi_k}(s,a) \leq \max_{\pi \in \polset_\infty} q_\pi(s,a) .
+    \end{align}
+    Therefore, define the sequences $(x_k)_{k \ge K}$ and $(y_k)_{k \ge K}$ as
+    \begin{align}
+        x_\kpo &= x_k + \lrate_k \big( \update_k(s,a) 
+        ( \min_{\pi \in \polset_\infty} q_\pi(s,a) - x_k ) + w_k(s,a) \big) ,
+        \\
+        y_\kpo &= y_k + \lrate_k \big( \update_k(s,a) ( \max_{\pi \in \polset_\infty} q_\pi(s,a) - y_k ) + w_k(s,a) \big) ,
+    \end{align}
+    and initialised at $x_K = y_K = q_K(s,a)$. From time $K$ onwards we have
+    \begin{align*}
+        x_k \leq q_k(s,a) \leq y_k .
+    \end{align*}
+    Proposition~4.1 and Example~4.3 in \citep{Bertsekas1996Neuro-DynamicProgramming} show that $x_k$ and $y_k$ converge almost surely to $\min_{\pi \in \polset_\infty} q_\pi(s,a)$ and $\max_{\pi \in \polset_\infty} q_\pi(s,a)$, respectively.
+    % because the noise satisfies conditions \eqref{eq: muw_mds} and \eqref{eq: muw_second_moment}.
+    As a result, we conclude that, almost surely,
+    \begin{align*}
+        &\liminf_{k \to \infty} q_k(s,a)
+        \ge \min_{\pi \in \polset_\infty} q_\pi(s,a)
+        % \leq q_k(s,a) 
+        \\
+        &\limsup_{k \to \infty} q_k(s,a)
+        \le \max_{\pi \in \polset_\infty} q_\pi(s,a)
+    \end{align*}
+    for every state-action pair,
+    which proves the first part of the lemma.
+
+    Further,
+    given that there are a finite number of deterministic policies, $q_k$ converges almost surely to a bounded set.
+    As a result, 
+    % that sequence is almost surely bounded, meaning that 
+    its norm over all $k \geq 0$ is almost surely finite. So there exists an almost surely finite constant $c_Q$ such that $\sup_{k \geq 0} \|q_k\|_\infty^2 < c_Q$.
+% \end{proof}
+\hfill \BlackBox
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Proof of \autoref{thm: effects of noise decrease}}
+
+% \textcolor{red}{need to fix a state-action pair, otherwise x is not scalar}
+
+% % \begin{proof}[Proof of \autoref{thm: effects of noise decrease}]
+% Let $(q_k)_{k \ge 0}$ be a solution of the difference inclusion in \eqref{eq: complete difference inclusion} with initial condition $q_0$, learning rates $(\lrate_k)_{k \ge 0}$, update distributions $(\update_k)_{k \ge 0}$ and stochastic perturbations $(w_k)_{k \ge 0}$.
+    
+%     % \autoref{eq: properties of noise} shows that there exist two positive constants $c_1$ and $c_2$ such that, for every state-action pair and $k \ge 0$,
+%     % \begin{align*}
+%     %     &\E \big[ \update_k(s,a) w_k(s,a) \big] = 0 ,
+%     %     \\
+%     %     &\E \big[ \update_k^2(s,a) w_k^2(s,a) \big] \leq c_1 + c_2 \|q_k\|^2 ,
+%     % \end{align*}
+%     % while \autoref{thm: bounded solutions} establishes that there exists almost surely a positive constant $c_3$ such that, for all $k \geq 0$,
+%     % \begin{align*}
+%     %     \|q_k\|^2 < c_3 .
+%     % \end{align*}
+    
+%     Define a sequence of partial sums $(x_k)_{k \ge 0}$ as 
+%     \begin{align}
+%         x_k = \sum_{i = 0}^{k} \lrate_{i} w_{i} .
+%         % x_\kpo = x_k + \lrate_k \update_k w_k
+%     \end{align}
+%     % Let $\mathcal{F}_k$ be the filtration defined in \eqref{eq: filtration_def}. 
+%     By \autoref{thm: properties of noise}, the perturbations are conditionally unbiased, meaning that $\mathbb{E}[\lrate_k w_k \mid \mathcal{F}_k] = 0$. Therefore, $(x_k)_{k \ge 0}$ is a martingale adapted to the filtrations $(\mathcal{F}_{k})_{k \ge 0}$.
+    
+%     \autoref{thm: properties of noise} and \autoref{thm: bounded limit sets} 
+%     also imply that there exist almost surely finite constants $c_w, c_Q \in [0, \infty)$ such that the variance of the martingale increments satisfy
+%     \begin{align*}
+%     \E \left[(x_k - x_{k-1})^2 \mid \mathcal{F}_k \right] 
+%     =
+%     \alpha_k^2 \E [w_k^2 \mid \mathcal{F}_k] 
+%     % \le \lrate_k^2 C(1 + \|q_k\|^2)
+%     \le \lrate_k^2 c_w(1 + c_Q) .
+%     \end{align*}
+%     Thus if the learning rates satisfy $\sum_{k=0}^\infty \alpha_k^2 < \infty$, the sum of the variances is finite:
+%     \[
+%     \sum_{k=1}^\infty \mathbb{E}[(x_k - x_{k-1})^2] \le c_w(1 + c_Q) \sum_{k=1}^\infty \alpha_k^2 < \infty .
+%     \]
+%     Altogether, $(x_k)_{k \ge 0}$ is a martingale with bounded $L^2$ variations. Thus Doob's Martingale Convergence Theorem indicates that $x_k$ converges almost surely to a finite limit. Furthermore, since the sequence of partial sums converges, the individual terms $\alpha_k w_k$ almost surely converge to zero.
+% % \end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Proof of \autoref{thm: steps become small}}
+
+
+% \begin{proof}[Proof of \autoref{thm: steps become small}]
+% The Robbins-Monro conditions and the boundedness of the update distributions ensure that the sequence $(\lrate_k \update_k)$ converges to zero for all state-action pairs.
+% Additionally, \autoref{thm: bounded limit sets} implies that solutions of MC-O-PI converge almost surely to the region
+% \begin{align}
+%     \big\{q \in \qset : q_{\worst{\pi}} \le q \le \qopt \big\} .
+% \end{align}
+% where $q_{\worst{\pi}}$ and $\qopt$ are the action values of the worst and the best policies, respectively.
+% Therefore, for every $\epsilon > 0$, there exists almost surely a time step $K'$ such that, for all $k \geq K'$,
+% \begin{align*}
+%  \|\lrate_k \update_k (q_{\pol_k} - q_k)\| 
+%  &\leq \|\lrate_k \update_k \| \|q_{\pol_k} - q_k\| 
+%  \\
+%  &\leq \|\lrate_k \update_k \| \|\qopt - q_{\worst{\pol}}\|
+%  \\
+%  &\leq \frac{\epsilon}{2} .
+% \end{align*}
+% Further, \autoref{thm: effects of noise decrease} demonstrates that there exists almost surely a time step $K''$ such that, for all $k \geq K''$,
+% \begin{align*}
+%  \|\lrate_k \update_k w_k \| \leq \frac{\epsilon}{2} .
+% \end{align*}
+% As a result, for every $\epsilon > 0$,
+% there exists almost surely a time step $K \geq \max\{K', K''\}$ such that, for all $k \geq K$,
+% \begin{align*}
+%     \| q_\kpo - q_k \| 
+%     &= \| \lrate_k \update_k (q_{\pol_k} - q_k + w_k) \|
+%     \\
+%     &\leq \| \lrate_k \update_k (q_{\pol_k} - q_k) \| + \| \lrate_k \update_k w_k \|
+%     \\
+%     &\leq \epsilon ,
+% \end{align*}
+% indicating that the sequence $(\|q_\kpo - q_k\|)$ converges almost surely to zero.
+% \end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Proof of \autoref{thm: convergence deterministic mcopi}}
+
+% \begin{proof}
+Let $(\pi_k)_{k \ge 0}$ be the sequence of policies associated with a solution of \eqref{eq: mcopi sa}
+and let $(t_n)_{n \ge 0}$ be the corresponding transition times.
+By assumption, the update distributions are uniform over all actions in each state and satisfy exploring starts.
+\autoref{thm: improving policies} thus ensures that the sequence of action values $(q_{\pi_k})_{k \ge 0}$ is componentwise non-decreasing.
+
+Since the policy set is finite, the subsequence $(q_{\pi_{t_n}})_{n \ge 0}$ must settle after finitely many transitions.
+In other words, there exists a finite index \(N \ge 0\) such that
+$t_N < \infty$ and $t_{N+1} = \infty$.
+Moreover, policy $\pi_{t_N}$ must be optimal. Otherwise the modified Robbins-Monro and exploring starts conditions would force $q_k$ to converge to $q_{\pi_{t_N}}$, which in turn would cause the policy to improve and thus $t_{N+1}<\infty$ (as in \autoref{thm: suboptimal blocks finite}).
+
+As a result, for every $k \ge t_N$, the solution of \eqref{eq: deterministic mcopi} satisfies
+\[
+q_{k+1} = q_k + \alpha_k \mu(\sigma_k, \best{\pi}, f_k)( \qopt - q_k) .
+\]
+The Robbins-Monro and strict exploring starts conditions then guarantee that $q_k$ converges to $\qopt$ \citep[Proposition~4.1]{Bertsekas1996Neuro-DynamicProgramming}.
+% \end{proof}
+\hfill \BlackBox

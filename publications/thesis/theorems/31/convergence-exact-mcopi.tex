@@ -1,0 +1,45 @@
+\begin{proposition}
+\label{thm: convergence deterministic mcopi}
+    Solutions of the mean-field dynamics in \eqref{eq: deterministic mcopi} converge to the optimal action values $\qopt$,
+    if the 
+    sampling distributions $(\sigma_k)_{k \ge 0}$ satisfy exploring starts (\autoref{def: exploring starts}),
+    the update distributions $(\mu_k)_{k \ge 0}$ are uniform over all actions in each state (\autoref{asp: unbiased over policies}),
+    and, together with the learning rates $(\alpha_k)_{k \ge 0}$, they satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}).
+\end{proposition}
+\vspace{-0.8cm}
+\begin{proof}
+Let $(\pi_k)_{k \ge 0}$ be the sequence of policies associated with a solution of \eqref{eq: deterministic mcopi}
+and let $(t_n)_{n \ge 0}$ be the corresponding transition times.
+By assumption, the update distributions are uniform over all actions in each state and satisfy exploring starts.
+\autoref{thm: unbiased mces policy improves} thus ensures that the sequence of action values $(q_{\pi_k})_{k \ge 0}$ is componentwise non-decreasing.
+
+Since the policy set is finite, the subsequence $(q_{\pi_{t_n}})_{n \ge 0}$ must settle after finitely many transitions.
+In other words, there exists a finite index \(N \ge 0\) such that
+$t_N < \infty$ and $t_{N+1} = \infty$.
+Moreover, policy $\pi_{t_N}$ must be optimal. Otherwise the modified Robbins-Monro and exploring starts conditions would force $q_k$ to converge to $q_{\pi_{t_N}}$, which in turn would cause the policy to improve and thus $t_{N+1}<\infty$.
+
+
+As a result, for every $k \ge t_N$, the solution of \eqref{eq: deterministic mcopi} satisfies
+\[
+q_{k+1} = q_k + \alpha_k \mu(\sigma_k, \best{\pi}, f_k)( \qopt - q_k) .
+\]
+The modified Robbins-Monro and exploring starts conditions then guarantee that $q_k$ converges to $\qopt$.
+\end{proof}
+
+% Since each $q_{\pi_k}$ belongs to the finite set $\{q_\pi : \pi \in \polset\}$, this sequence must stabilize. Thus, there exists a time step $K' \ge K$ and a policy $\pi$ such that $q_{\pi_k} = q_\pi$ for all $k \ge K'$.
+
+% As a result, for $k \ge K'$ the solution follows the linear system
+% \[
+% q_{k+1} = q_k + \alpha_k \mu(\sigma_k, \pi_k, f_k)( q_\pi - q_k)
+% \]
+% The Robbins-Monro and exploring starts conditions in \autoref{asp: standing} guarantee that the sequence $(q_k)$ converges to $q_\pi$.
+
+% Since $\lim_{k \to \infty} q_k = q_\pi$, \autoref{thm: asymptotic set of policies} establishes that there exists a time step $K'' \ge K'$ such that $\grpol(q_k) \subseteq \grpol(q_\pi)$ for all $k \ge K''$.
+% By definition, the active policy $\pi_k$ always satisfies $\pi_k \in \grpol(q_k)$. 
+% Therefore, for all $k \ge K''$
+% \[
+% \pi_k \in \grpol(q_\pi)
+% \]
+% Since $q_\pi = q_{\pi_k}$ for all $k \ge K'$, substituting this into the relation above yields $\pi_k \in \grpol(q_{\pi_k})$.
+% This confirms that for all $k \ge K''$, the policy $\pi_k$ is greedy with respect to its own action values, and hence satisfies the Bellman optimality equation $q_{\pi_k} = T_{\pi_k} q_{\pi_k} = T q_{\pi_k}$.
+% Consequently, $\pi_k$ is an optimal policy and the sequence $(q_k)$ converges to $q_\pi = \qopt$.

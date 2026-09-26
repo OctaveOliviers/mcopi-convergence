@@ -1,0 +1,1311 @@
+\chapter{Biased updates towards greedy actions}
+\label{ch: greedy bias}
+
+
+
+% \vfill
+\vspace{-0.6cm}
+
+The previous chapter showed that MC-O-PI can converge to a suboptimal fixed point when non-greedy actions are updated more frequently in certain states.
+However, this behaviour disappeared when update distributions were biased towards greedy actions.
+% and solutions converged to the optimal action values.
+
+\vspace{-0.1cm}
+
+This chapter shows that counterexamples exist for initial-visit MC-O-PI and first-visit mean-field MC-O-PI even when update distributions exhibit a greedy bias in all states.
+Yet solutions remain trapped either because the learning rate cancels out the greedy bias or because the absence of noise prevents solutions from visiting the optimal policy.
+
+\vspace{-0.1cm}
+
+These findings suggest that if the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} holds, it is due to the combination of stochastic episode simulations and first-visit updates rather than either factor alone.
+% Based on these observations, 
+We further argue that when the effective learning rates exhibit a greedy bias in all states and updates are sufficiently noisy, MC-O-PI converges to the optimal action values
+because noise ensures solutions frequently visit the optimal policy and the greedy bias prevents them from consistently leaving it. Formally, we define a greedy bias as follows:
+
+\vspace{-0.2cm}
+
+\input{theorems/33/assumption-greedy-bias}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Counterexample with initial-visit updates}
+\label{sec: counter greedy 3s}
+% \vspace{-0.2cm}
+
+% The story goes as follows:
+% 3-state deterministic MDP with discount=1: the sampling strategy guarantees a cycle for all Robbins-Monro learning rates; solutions never visit the optimal policy.
+% 3-state deterministic MDP with discount=0.9: the same sampling strategy still guarantees a cycle for all Robbins-Monro learning rates, but the region of initial conditions becomes smaller; solutions never visit the optimal policy.
+% 3-state deterministic MDP, discount = 0.9 and exploring starts (90% follow the original sampling strategy, 10% choose initial state-action pair uniformly): simulations show that solutions consistently converge to a suboptimal fixed point on the boundary when using learning rates 1/n_k(s,a); the noise caused by the exploring starts occasionally pushes solutions into the optimal region but this does not prevent convergence to suboptimal fixed point.
+% 3-state stochastic MDP (10% probability of terminating episode after every action), discount = 0.9 and exploring starts (90% follow the original sampling strategy, 10% choose initial state-action pair uniformly): solutions still converge to a suboptimal fixed point on the boundary when using learning rates 1/n_k(s,a) despite the noise caused by the exploring starts that occasionally pushes solutions into the optimal region.
+% IV MC-O-PI remains stuck for the last two examples despite having greedy or uniform update distributions and visiting the optimal policy infinitely often. 
+
+% So the IV algorithm can exit the optimal region at any step because updates are only greedy "on average".
+% However, for this to happen consistently something must induce a non-greedy bias that forces solutions out of the optimal region. This non-greedy bias turns out to be caused by the 1/n_k(s,a) learning rates themselves.
+
+% When using a uniform learning rate (for every step, the same learning rate for all state-action pairs, e.g. a_k = 1/k) on either of the last two examples, the suboptimal fixed point disappears and solutions converge to q_opt.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{MDP}
+
+
+Consider the MDP in \autoref{fig: off-policy MDP}. Each state offers two actions: \textit{move} yields a reward of one and \textit{stay} yields no reward. The policy $\best{\pol}$ chooses \textit{move} everywhere, denoted by $\best{a}$, while $\worst{\pol}$ chooses \textit{stay}, denoted by $\worst{a}$.
+
+\input{figures/exp-on-policy-MDP}
+
+% On the undiscounted MDP,
+We first discuss the undiscounted MDP.
+% Even though the action values of the optimal policy are then unbounded, 
+For certain initial conditions and updating strategies, initial-visit MC-O-PI cycles indefinitely between suboptimal policies,
+% between $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$ 
+despite $\qopt$ being unbounded. % optimal action values.
+We then show this behaviour persists on the discounted MDP with stochastic transitions under exploring starts.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{-0.2cm}
+\subsection{Initial condition}
+\vspace{-0.1cm}
+
+% Consider the set of initial conditions $\qset_0$ defined as
+
+Solutions initialised in $\qset_0$ defined as
+\begin{align}
+\label{eq: initial cond for 3 state counter}
+    \qset_0 
+    \coloneqq 
+    \big\{ 
+    q \in \qset
+    :
+    1 < q(s,a) < 2 ,
+    % \forall s \in \sset, a \in \aset(s)
+    \forall (s, a)
+    % \in \sset \times \aset
+    % \\
+    % \tand \ q \notin )
+    % \in \region(\pol_1) \cup \region(\pol_2) \cup \region(\pol_3) \cup \region(\pol_4) \cup \region(\pol_5) \cup \region(\pol_6) 
+    \big\}
+    \setminus 
+    \big( \region(\worst{\pol}) \cup \region(\best{\pol}) \big)
+\end{align}
+remain in $\qset_0$ when learning rates are small.
+% provided it only visits the policies $\pol_1$ through $\pol_6$.
+For instance, \autoref{fig: explain stay in box for loop action best} shows that when $\best{a}$ is greedy in $s_1$, 
+solutions lie in the lower triangle of $\qset_0$, which corresponds to policies $\pol_3$, $\pol_4$ or $\pol_5$.
+They remain in $\qset_0$ after taking a small step
+% along $\update_k(q_{\pol_3} - q_k)$, $\update_k(q_{\pol_4} - q_k)$ or $\update_k(q_{\pol_5} - q_k)$ for every update distribution $\update_k$.
+towards $q_{\pol_3}$, $q_{\pol_4}$ or $q_{\pol_5}$ with any update distribution.
+% i.e. the solution lies in the lower-right triangle, then the solution can move towards $q_{\pol_3}$, $q_{\pol_4}$ or $q_{\pol_5}$. So, with any update function, the solution remains in the grey region $\region_0$.
+\autoref{fig: explain stay in box for loop action worst} confirms the same conclusion holds when $\worst{a}$ is greedy in $s_1$.
+% On the other hand, 
+% when $\worst{a}$ is greedy in $s_1$, 
+% the solution lies in the upper-left triangle of $\qset_0$, 
+% which corresponds to the policies $\pol_1$, $\pol_2$ or $\pol_6$.
+% The solution also remains in the region $\qset_0$ after moving towards $q_{\pol_1}$, $q_{\pol_2}$ or $q_{\pol_6}$.
+% i.e. the solution lies in the upper-left triangle, then the solution can move towards $q_{\pol_1}$, $q_{\pol_2}$ or $q_{\pol_6}$. So, with any update function, the solution also remains in the grey region $\region_0$.
+
+
+\input{figures/33/stay-in-box}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Updating strategy}
+\label{sec: 3 state sampling strat}
+
+% describe bias / loop
+The following sampling strategy combined with initial-visit updates forces MC-O-PI to cycle indefinitely between the suboptimal policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$ for every initial condition $q_0 \in \qset_0$:
+\begin{enumerate}
+    \item  \label{pg: sampling strat 3 states}
+    When $q_\kpz \in \region(\pol_1)$, start each episode in $(s_2, \best{a})$ or $(s_3, \best{a})$ with a probability of 0.4, or in $(s_2, \worst{a})$ with a probability of 0.2.
+    Given the initial-visit updates, this yields a greedy bias in states $s_2$ and $s_3$, and no updates in $s_1$.
+    As a result, MC-O-PI is expected to cross the boundary in state $s_3$ and transition to policy $\pol_2$.
+
+    \item
+    When $q_\kpz \in \region(\pol_2)$, start each episode in $(s_1, \worst{a})$. 
+    The bias is greedy in $s_1$. There are no updates in $s_2$ and $s_3$.
+    MC-O-PI thus crosses the boundary in $s_1$ and transitions to $\pol_3$.
+
+    \item
+    When $q_\kpz \in \region(\pol_3)$, start each episode in $(s_1, \best{a})$ or $(s_2, \best{a})$ with a probability of 0.4, or in $(s_1, \worst{a})$ with a probability of 0.2.
+    The bias is greedy in $s_1$ and $s_2$. There are no updates in $s_3$.
+    MC-O-PI is thus expected to cross the boundary in $s_2$ and transition to $\pol_4$.
+
+    \item
+    When $q_\kpz \in \region(\pol_4)$, start each episode in $(s_3, \worst{a})$. 
+    The bias is greedy in $s_3$. There are no updates in $s_1$ and $s_2$.
+    MC-O-PI thus crosses the boundary in $s_3$ and transitions to $\pol_5$.
+
+    \item
+    When $q_\kpz \in \region(\pol_5)$, start each episode in $(s_1, \best{a})$ or $(s_3, \best{a})$ with a probability of 0.4, or in $(s_3, \worst{a})$ with a probability of 0.2.
+    The bias is greedy in $s_1$ and $s_3$. There are no updates in $s_2$.
+    MC-O-PI is thus expected to cross the boundary in $s_1$ and transition to $\pol_6$.
+
+    \item
+    When $q_\kpz \in \region(\pol_6)$, start each episode in $(s_2, \worst{a})$. 
+    The bias is greedy in $s_2$. There are no updates in $s_1$ and $s_3$.
+    MC-O-PI thus crosses the boundary in $s_2$ and transitions to $\pol_1$.
+\end{enumerate}
+\label{enum: sampling greedy initial visit}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Solutions spiral to a point on the boundary}
+
+\input{figures/33/explain-loop}
+
+\autoref{fig: explain loop on-policy bias MDP} illustrates the expected cycle using constant learning rates. 
+When learning rates satisfy the Robbins-Monro conditions (\autoref{asp: stochastic approximation step size}) and start sufficiently small, 
+the cycle spirals onto the boundary anywhere in $\qset_0$.
+
+% Each cycle is made up of three segments: a horizontal, a vertical and a diagonal one.
+% The diagonal movement is formed by small horizontal updates of $\best{a}$ and vertical updates of $\worst{a}$. The sampling strategy described above ensures that horizontal updates are twice as frequent as vertical ones. Therefore solutions tend to move away from the boundary.
+% However, action $\worst{a}$ could be updated several times in a row thereby driving the solution across the boundary, back to the previous policy.
+% Nonetheless, the update distribution of the previous policy directly corrects this by updating $\worst{a}$ and pushing the solution back to policy $\pol_1$.
+
+
+This behaviour is robust to noise caused by sampling the initial state-action pairs in steps 1, 3 and 5.
+For example, if $(s_2, \worst{a})$ is updated several times in a row during step 1, the solution may switch to policy $\pol_6$ instead of $\pol_2$.
+Nevertheless, the update distribution under $\pol_6$ directly corrects this by updating $(s_2, \worst{a})$ and driving the solution back to $\pol_1$.
+Thus, while solutions may not strictly follow the order described in \autoref{fig: explain loop on-policy bias MDP}, the updating strategy guarantees that every policy in $(\pol_k)$ contains at least one suboptimal action but never all three. 
+This way, solutions cycle indefinitely without visiting the policies $\best{\pol}$ or $\worst{\pol}$.
+
+
+The spiral also persists when increasing the bias towards action $\best{a}$ during the diagonal movement upwards,
+for instance, when replacing the 2-to-1 sampling ratio of $(s_2, \best{a})$ to $(s_2, \worst{a})$ during step 1 with an epsilon-greedy strategy.
+The spiral may stretch horizontally depending on the learning rates,
+and it could take longer for solutions to cross the boundary in state $s_3$ depending on the sampling probability of $(s_3, \best{a})$ relative to $(s_2, \best{a})$.
+Regardless, solutions never visit $\best{\pol}$ or $\worst{\pol}$.
+
+
+\vspace{-0.1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Spiral persists when discounting rewards}
+
+\vspace{-0.2cm}
+
+% Solutions still spiral to a point 
+% % on the boundary 
+% in $\qset_0$ when $\discount < 1$. All action values are then bounded and lie in the interior of the region $\region(\best{\pol})$.
+When $\discount < 1$, all action values are bounded and lie in the region $\region(\best{\pol})$.
+% , but the sampling strategy described above still guarantees that solutions never visit policy $\best{\pol}$ when starting in $\qset_0$.
+\autoref{fig: explain stay in box for loop discounted} shows
+the impact of $\discount$ on $\qset_0$ in $s_1$.
+Notably, it does not extend to $q_{\pol_5}$ any more to ensure solutions cross the boundary when updating $(s_1, \best{a})$ towards $q_{\pol_5}$ in step 5.
+% For the same reason, the bottom left corner of $\qset_0$ in $s_2$ and $s_3$ is at $(1,1)$ instead of $q_{\pol_3}$ and $q_{\pol_1}$, respectively.
+We see that $\qset_0$ is not empty as long as $\discount + \discount^2 > 1$.
+Thus, the strategy described above forces MC-O-PI to cycle indefinitely for initial conditions in $\qset_0$ provided $\discount > 0.618$.
+
+\vspace{-0.5cm}
+
+\input{figures/33/bound-discounted-mdp}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Spiral persists under exploring starts}
+\label{sec: 3s es}
+
+\vspace{-0.3cm}
+
+
+Suppose we implement exploring starts by
+initialising each episode using the sampling strategy on page \pageref{pg: sampling strat 3 states}
+% from \autoref{sec: 3 state sampling strat} 
+with a probability of $1-1/(k+2)^2$ or by uniformly sampling a state-action pair with a probability of $1/(k+2)^2$. The probability that a solution starting in $\qset_0$ always follows the sampling strategy is then given by
+\begin{align*}
+    \prod_{k = 0}^{\infty} 1 - \dfrac{1}{(k+2)^2}
+    % &= \prod_{k' \geq 1} 1 - \dfrac{1}{(k'+1)^2}
+    % \\
+    = \prod_{k = 0}^{\infty} \dfrac{(k+1)(k+3)}{(k+2)^2}
+    % \\
+    = \dfrac{1 \cdot 3}{2^2} \cdot \dfrac{2 \cdot 4}{3^2} 
+    % \cdot \dfrac{3 \cdot 5}{4^2} 
+    \dots
+    % \\
+    = \dfrac{1}{2} .
+\end{align*}
+In other words, there is at least a 50\% chance that a solution starting in $\qset_0$ never visits $\best{\pol}$ or $\worst{\pol}$ because MC-O-PI never samples the wrong state-action pair at the wrong time.
+% even though the initial state-action pairs satisfy exploring starts
+
+% Solutions starting in $\qset_0$ spiral to a point on the boundary even
+% % when the initial state-action pairs satisfy 
+% under exploring starts.
+
+% This conclusion is independent of the learning rates
+% This shows that the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} breaks down when replacing first-visit updates with initial-visit updates even if the update distributions have a greedy bias at all times.
+
+
+% Suppose we increase the probability of exploring starts so that the algorithm samples the wrong state-action pair at the wrong time infinitely often.
+% Specifically, we initialise each episode using the sampling strategy from \autoref{sec: 3 state sampling strat} with a probability of 0.9 or by uniformly sampling a state-action pair with a probability of 0.1.
+% As a result, we have less control over which state-action pairs are updated and cannot guarantee that solutions do not visit the policies $\best{\pol}$ or $\worst{\pol}$.
+% So when solutions visit the policies $\best{\pol}$ and $\worst{\pol}$, we sample the initial state-action pair uniformly.
+% % Each state-action pair has then a non-zero probability of being the start of every episode.
+
+% Despite the additional variability of the initial state-action pair, solutions still converge to a suboptimal fixed point on the boundary when using learning rates $\lrate_k(s,a) = 1/n_k(s,a)$, where $n_k(s,a)$ denotes the number of times the algorithm has updated the state-action pair $(s,a)$ during the first $k$ time steps.
+% For instance, \autoref{fig: 3s IV ES} presents ten solutions of initial-visit MC-O-PI on the discounted MDP with $\discount = 0.9$.
+% All solutions start in the initial condition
+% \begin{align*}
+% \label{eq: init condition for 3s counter}
+% \begin{array}{lll}
+% q_0(s_1, \best{a}) = 2 & q_0(s_2, \best{a}) = 2 & q_0(s_3, \best{a}) = 1 \\
+% q_0(s_1, \worst{a}) = 1 & q_0(s_2, \worst{a}) = 1 & q_0(s_3, \worst{a}) = 2
+% \end{array}
+%     % &q_0(s_1, \best{a}) = 2
+%     % \\
+%     % &q_0(s_1, \worst{a}) = 1 
+%     % \\
+%     % &q_0(s_2, \best{a}) = 2
+%     % \\
+%     % &q_0(s_2, \worst{a}) = 1 
+%     % \\
+%     % &q_0(s_3, \best{a}) = 1
+%     % \\
+%     % &q_0(s_3, \worst{a}) = 2
+% \end{align*}
+% We see that solutions regularly leave the region $\qset_0$ but still converge to the boundary around 1.67.
+
+% \input{figures/33/3s-es}
+
+
+% We can still tune the learning rates to guarantee that the cycle remains. Namely, the policy evaluation at every step is exact. So, for every solution $q_k \in \qset_0$ we observe that
+% \begin{align*}
+%     \max_{s,a} | q_{\pol_k}(s,a) - q_k(s,a) | < 2 .
+% \end{align*} 
+% Thus, if at time step $k$ the algorithm samples a state-action pair $(s,a)$ that, ideally, should not be updated, and the solution is an $\epsilon$ away from the boundary, meaning that
+% \begin{align*}
+%     | q_k(s,\best{a}) - q_k(s,\worst{a}) | = \epsilon ,
+% \end{align*}
+% then the learning rate
+% \begin{align}
+%     \lrate_k < \dfrac{\epsilon}{2}
+% \end{align}
+% guarantees that 
+% \begin{align}
+%     | \lrate_k (q_{\pol_k}(s,a) - q_k(s,a)) | < \epsilon .
+% \end{align}
+% As a result, the update is not large enough to change the greedy action in state $s$.
+% In other words, we can always prevent unwanted transitions by temporarily imposing a Zeno behaviour through small learning rates.
+% The Robbins-Monro conditions are still satisfied as they were already satisfied without the exploring starts.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Spiral persists with exploring starts and stochastic transitions}
+\label{sec: counter 3s es st}
+
+\vspace{-0.3cm}
+
+Suppose we increase the probability of exploring starts
+% so that the algorithm samples the wrong state-action pair at the wrong time infinitely often.
+% Specifically, we
+by initialising each episode using the sampling strategy on page \pageref{pg: sampling strat 3 states} with a probability of 0.9 
+or by uniformly sampling a state-action pair with a probability of 0.1.
+Since the wrong state-action pairs are now sampled at the wrong time infinitely often,
+solutions can visit the policies $\best{\pol}$ or $\worst{\pol}$.
+When they do, let us uniformly sample the initial state-action pair.
+
+\vspace{-0.1cm}
+
+Additionally, suppose we introduce stochastic transitions by terminating each episode with a probability of 0.1 after each action.
+% Policy evaluation is then stochastic.
+The value $q_{\pol_k}(s,a)$ is then over- or underestimated at every time step, which yields a step size that potentially drives solutions out of $\qset_0$.
+
+\vspace{-0.1cm}
+
+
+Despite the variability of initial state-action pairs and the noisy action-value estimates, solutions still converge to a suboptimal fixed point when using sample averaging learning rates $\lrate_k(s,a) = 1/n_k(s,a)$, where $n_k(s,a)$ denotes the number of times the state-action pair $(s,a)$ has been updated during the first $k$ time steps.
+\autoref{fig: 3s IV ES ST} presents ten solutions of initial-visit MC-O-PI on the MDP with stochastic transitions and $\discount = 0.9$.
+All solutions start in the initial condition $q_0$ defined as
+\vspace{-0.2cm}
+\begin{align}
+\label{eq: init condition for 3s counter}
+\begin{array}{lll}
+q_0(s_1, \best{a}) = 2 &\qquad q_0(s_2, \best{a}) = 2 &\qquad q_0(s_3, \best{a}) = 1 \\
+q_0(s_1, \worst{a}) = 1 &\qquad q_0(s_2, \worst{a}) = 1 &\qquad q_0(s_3, \worst{a}) = 2
+\end{array}
+    % &q_0(s_1, \best{a}) = 2
+    % \\
+    % &q_0(s_1, \worst{a}) = 1 
+    % \\
+    % &q_0(s_2, \best{a}) = 2
+    % \\
+    % &q_0(s_2, \worst{a}) = 1 
+    % \\
+    % &q_0(s_3, \best{a}) = 1
+    % \\
+    % &q_0(s_3, \worst{a}) = 2
+\end{align}
+% We see that solutions regularly leave the region $\qset_0$ but still converge to the boundary around 1.61.
+% We conclude that the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} does not hold when replacing first-visit updates with initial-visit updates.
+
+
+% Despite the additional noise in the MC-O-PI updates, solutions still converge to a suboptimal fixed point on the boundary.
+% For instance, consider the discounted MDP with $\discount=0.9$.
+% \autoref{fig: 3s IV ES ST} presents ten solutions
+% % starting in the same initial condition $q_0$ as above
+% for initial-visit MC-O-PI with learning rates $1/n_k(s,a)$ and the sampling strategy that satisfies exploring starts.
+
+% The right column highlights that solutions are noticeably noisier compared to \autoref{fig: 3s IV ES}, due to the combined effects of stochastic initial state-action pairs and stochastic policy evaluation.
+
+
+\input{figures/33/3s-es-st}
+
+
+% same action values as above, but noise is from 
+% - sampling initial state action pair w ES
+% - simulating episode with stochastic transitions
+
+% This strategy is only applicable because we know the exact action values of the MDP.
+% In general, model-free reinforcement learning does not know these values.
+% % this is not the case because that is exactly what the algorithm tries to learn.
+% So, this strategy is unrealistic in practice.
+% Instead, as the cycle becomes smaller, the noise caused by stochastic policy evaluation eventually pushes the solution out of $\qset_0$ into the optimal region $\region(\best{\pol})$.
+% When the solution enters that region, the greedy bias drives the solution away from the boundary towards $\qopt$.
+% % but not really a problem in practice because need very specific learning rate that stalls the algorithm in particular state-action pairs
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Eliminating the suboptimal fixed point}
+
+
+\autoref{fig: 3s IV ES ST} demonstrates that solutions robustly converge to a suboptimal fixed point
+when using learning rates $1/n_k$ and update distributions with a greedy bias, even with exploring starts and on a discounted MDP with stochastic transitions.
+As expected, the data shows that solutions regularly visit the optimal policy $\best{\pol}$. 
+% Simulations show that solutions spend on average 7\% of the time in that region.
+% despite having greedy or uniform update distributions.
+Therefore, to understand the behaviour of MC-O-PI near this fixed point, it is crucial to examine why solutions consistently jump in and out of the optimal region
+despite the uniform update distributions under $\best{\pol}$.
+
+
+% Recall that, by \autoref{thm: bounded solution}, all solutions are eventually bounded above by the optimal action values. Thus, we only need to study the behaviour of MC-O-PI at points that satisfy $q \leq \qopt$.
+Consider a solution in the region of policy $\best{\pol}$ near the fixed point, i.e. for every state $q_k(s, \best{a}) > q_k(s, \worst{a})$.
+Since the solution lies below the optimal action values $\qopt$, there are two possible updates.
+Updating $(s, \best{a})$ results in a horizontal step to the right. This moves the solution away from the boundary, deeper into the region $\region(\best{\pol})$ as $q_k(s, \best{a})$ increases compared to $q_k(s, \worst{a})$.
+In contrast, updating $(s, \worst{a})$ results in a vertical step upwards. This guides the solution towards the boundary as $q_k(s, \worst{a})$ catches up to $q_k(s, \best{a})$. If the learning rate is large enough, the greedy action in $s$ may even change.
+Thus, solutions consistently leave the optimal region only if vertical steps upwards are larger or more frequent on average than horizontal steps to the right.
+% despite the uniform sampling strategy under policy $\best{\pol}$.
+
+
+This behaviour is caused by the sampling strategy, the initial-visit updates and the learning rates $1/n_k$.
+Specifically, the sampling strategy described 
+on page \pageref{pg: sampling strat 3 states}
+% in \autoref{sec: 3 state sampling strat} 
+combined with initial-visit updates implies that optimal actions are updated more frequently than suboptimal actions when solutions cycle between the policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$.
+Therefore, the learning rate $1/n_k(s, \best{a})$ decreases faster than $1/n_k(s, \worst{a})$ for each state.
+As a result, when noise pushes solutions into the optimal region, all actions are updated equally frequently but vertical updates of suboptimal actions are larger than horizontal updates of optimal ones,
+% due to the difference in learning rates, 
+which, on average, forces solutions out of the optimal region.
+In other words, the sampling strategy, the initial-visit updates and the learning rates bias the effective learning rate $\lrate_k \update_k = \update_k / n_k$ towards suboptimal actions when $\pol_k = \best{\pol}$. As discussed in \autoref{ch: non-greedy bias}, this non-greedy bias allows solutions to consistently jump in and out of the optimal region, creating a stable suboptimal fixed point when the learning rates decrease.
+
+% Together, these mechanisms allow solutions to jump in and out of the optimal region infinitely often despite the uniform update distribution under $\best{\pol}$ that should drive solutions away from the boundary.
+
+% The first mechanism thus generates a bias towards suboptimal actions when the solution is not in the optimal region.
+% The second then implies that due to the bias solutions leave the optimal region when they are in it.
+
+
+% can break them as follows
+The suboptimal fixed point disappears when the effective learning rate $\lrate_k \update_k$ under policy $\best{\pol}$ is biased towards optimal actions.
+There are three ways to achieve this greedy bias.
+First, we can adjust the sampling strategy so that episodes start in an optimal action more frequently than a suboptimal one when $\pol_k = \best{\pol}$.
+Second, we can replace initial-visit updates with first-visit updates. This ensures that the optimal actions are updated more frequently when episodes are simulated with $\best{\pol}$, regardless of the initial state-action pair.
+Third, we can use the same learning rate for all state-action pairs. This eliminates the bias introduced by $1/n_k$ towards suboptimal actions.
+These modifications increase the frequency and magnitude of horizontal steps relative to vertical ones,
+% make horizontal steps to the right on average larger and/or more frequent than vertical steps upwards, 
+pushing solutions on average away from the boundary, deeper into the region $\region(\best{\pol})$.
+As a result, solutions cannot consistently exit the optimal region any more. Instead, they eventually leave the boundary and converge to $\qopt$.
+
+
+% This example highlights the interaction of the learning rates and the update distributions.
+% \citet{Tsitsiklis2002OnIteration} points out that the proof for uniform update distributions remains valid when using learning rates $1/n_k$ with a constant nonuniform update distribution because the learning rates eventually cancel out the non-uniformity.
+% In the example described above, we saw that when the update distribution is not constant the learning rates $1/n_k$ can introduce in the effective learning rate which hinders MC-O-PI's convergence.
+
+% Although the learning rates $1/n_k(s,a)$ ensure that each estimate $q_k(s,a)$ is the exact average of all values $q_{\pol}(s,a)$ encountered up to step $k$, they can hinder MC-O-PI's convergence by biasing updates.
+
+
+
+% change sampling distribution
+% For instance, when the update distribution $\update_k$ is uniform under $\best{\pol}$, for sufficiently large $k$, we have $n_k(s, \best{a}) \approx 2.8 \ n_k(s, \worst{a})$ for all states. After changing $\update_k$ such that $\start_k(s, \best{a}) = 3 \ \start_k(s, \worst{a})$
+% 
+% change update function
+% first visit always updates optimal action in optimal region and also increases number of updates to suboptimal action in regions of policies
+% first visit updates also increases the frequency at which suboptimal actions are updated under policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ or $\pol_6$.
+% thereby decreasing the bias towards suboptimal actions.
+% if an episode starts in $(s, \best{a})$, the optimal action is updated in every state. If it starts in $(s, \worst{a})$, both $(s, \worst{a})$ and $(s, \best{a})$ are updated uniformly along with the optimal actions in the other states.
+% Either way, all optimal actions are always updated.
+% 
+% change learning rates
+% In theory, since we know the exact bounds of $\qset_0$, we could adjust the learning rates at every step depending on which state-action pair is updated so that solutions never leave $\qset_0$. This requires choosing a sufficiently small 
+% learning rate so that the noise caused by exploring starts and noisy policy evaluation has no impact on the greedy policy, effectively ignoring updates that would break the cycle.
+% The algorithm would remain stuck on the boundary despite using uniform learning rates. 
+% However, this strategy is unrealistic in practice because model-free reinforcement learning does not know the exact action values
+% Instead, as the cycle becomes smaller, the noise caused by stochastic policy evaluation eventually pushes the solution out of $\qset_0$ into the optimal region $\region(\best{\pol})$.
+% When the solution enters that region, the greedy bias drives the solution away from the boundary towards $\qopt$.
+% essentially acting as if there was no noise
+
+
+% effect first visit
+% Replacing initial-visit updates with first-visit updates significantly changes the update distributions.
+% For instance, every episode simulated with policy $\pol_1$ visits the state-action pair $(s_1, \worst{a})$. Thus, when $q_k \in \qset_0 \cap \region(\pol_1)$, 
+% the estimate $q_k(s_1, \worst{a})$ consistently decreases under first-visit updates.
+% Experiments show that this causes solutions to cross the boundary in state $s_1$ before state $s_3$, thereby transitioning to the optimal policy $\best{\pol}$.
+% % Overall, whenever the solution visits the policies $\pol_1$, $\pol_3$ or $\pol_5$, there is a non-zero probability of transitioning to $\best{\pol}$.
+% Then, under policy $\best{\pol}$ and with first-visit updates,
+% if an episode starts in $(s, \best{a})$, the optimal action is updated in every state.
+% If it starts in $(s, \worst{a})$, both $(s, \worst{a})$ and $(s, \best{a})$ are updated uniformly along with the optimal actions in the other states.
+% Either way, all optimal actions are always updated.
+% As a result, the update pushes solutions away from the boundary deeper into region $\region(\best{\pol})$ when $q_k \leq \qopt$. 
+% Since this condition eventually holds (\autoref{thm: bounded solution}), solutions eventually visit policy $\best{\pol}$, leave the boundary and converge to $\qopt$.
+% In other words, solutions do not remain on the boundary with first-visit updates because the update distribution under policy $\best{\pol}$ is greedy or uniform at every step, unlike with initial-visit updates where it is greedy or uniform on average.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conclusion}
+
+\vspace{-0.2cm}
+
+Solutions up to and including \autoref{sec: 3s es} converge to a suboptimal fixed point on the boundary in $\qset_0$ because they never visit the optimal policy $\best{\pol}$.
+The updating strategy guarantees this behaviour for every sequence of learning rates that satisfies the Robbins-Monro conditions.
+Thus the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} breaks down when replacing first-visit updates with initial-visit updates, even if the update distributions have a greedy bias at all times.
+
+In contrast, solutions in \autoref{sec: counter 3s es st} converge to a suboptimal fixed point despite visiting the optimal policy infinitely often.
+In this case, the problem is caused by the sample averaging learning rate $\lrate_k = 1/n_k$ that effectively causes a non-greedy bias under $\best{\pol}$.
+When changing the sampling strategy, the update functions or the learning rates so that $\lrate_k \update_k$ exhibits a greedy bias in all states, MC-O-PI eventually 
+% visits the optimal policy, 
+leaves the boundary and converges to the optimal action values.
+
+This example highlights the beneficial effects of noisy MC-O-PI updates and greedy effective learning rates. The former ensures that solutions frequently visit the optimal policy, while the latter prevents solutions from consistently leaving it.
+This raises the question: Can these effects arise from first-visit updates alone?
+The next counterexample shows that they cannot,
+implying that the conjecture of Sutton and Barto relies on both first-visit updates and noisy MC-O-PI updates.
+
+
+% The greedy bias typically arises when applying first-visit updates on MDPs whose optimal policy is not feedforward.
+
+
+
+% Thus we conclude that using the learning rate $1/n_k$ can hinder the convergence of MC-O-PI by introducing
+
+% The next counterexample illustrates that noise is essential to ensure that solutions visit the policy $\best{\pol}$ in the first place.
+
+% so don't use 1/n
+% - not very realistic
+% - can introduce additional bias that do not immediately see and hinders convergence => cause counterexample (making behaviour robust)
+
+\vspace{-0.1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newpage
+\section{Counterexample with mean-field first-visit updates}
+\label{sec: counter greedy 4s}
+
+\vspace{-0.1cm}
+
+Consider the undiscounted MDP in \autoref{fig: 4 state mdp}. Each state offers two actions: \textit{move} yields a reward of one and \textit{stay} yields no reward. When the agent chooses \textit{move}, it transitions to another state with a probability of $\tau$ or the episode terminates with a probability of $1-\tau$. 
+The policy $\best{\pol}$ chooses \textit{move} in each state, denoted by $\best{a}$, while $\worst{\pol}$ chooses \textit{stay}, denoted by $\worst{a}$.
+This example shows that even with a greedy bias in all update distributions,
+certain solutions of first-visit MC-O-PI cycle indefinitely between suboptimal policies when using exact action-value estimates and update distributions.
+% effectively removing noise.
+
+
+% for certain sampling strategies and initial conditions.
+
+\input{figures/33/4s-mdp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Updating strategy}
+\label{sec: 4s counter sampling}
+
+\vspace{-0.3cm}
+
+
+% We found a point on the boundary between the regions of policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$
+% where the convex combination of the updates $\update(q_\pol - q)$
+% - zero
+% - flows point towards each other
+
+% It is equivalent to the difference inclusion
+% \begin{align*}
+% % \label{eq: 4s counter exact update}
+%     q_\kpo
+%     \in
+%     \big\{ q_k + \lrate_k \update_k ( q_{\pol_k} - q_k )
+%     :
+%     \pol_k \in \grpol(q_k),
+%     \update_k = \update(\start_k, \pol_k, f_k)
+%     \big\} .
+% \end{align*}
+% with learning rates $(\lrate_k)$, start distributions $(\start_k)$ and update functions $(f_k)$.
+% where the start distribution $\start_k$ can be non-zero for one, some or all state-action pairs.
+% In case it is non-zero for a single state-action pair $(s,a)$, the algorithm computes exact action-values $q_{\pol_k}$ and update distributions $\update_k$ by averaging the results of many episodes starting from $(s,a)$.
+% In this example, we will consider first-visit updates $f_k = f_{FV}$
+Let us combine first-visit updates with the following sampling strategy:
+\vspace{-0.9cm}
+\begin{enumerate}
+    \item \label{pg: sampling 4 state}
+    % pol1 = [1, 0, 1, 0, 0, 1, 1, 0]
+    When $q_\kpz \in \region(\pol_1)$, start each episode in $(s_4, \worst{a})$.
+    % with probability $\sigma$,
+    % or in $(s_4, \worst{a})$ with probability $1-\sigma$.
+
+    \item
+    % pol2 = [1, 0, 0, 1, 1, 0, 1, 0]
+    When $q_\kpz \in \region(\pol_2)$, start each episode in $(s_1, \worst{a})$.
+    % with probability $\sigma$,
+    % or in $(s_3, \worst{a})$ with probability $1-\sigma$.
+
+    \item
+    % pol3 = [0, 1, 1, 0, 1, 0, 1, 0]
+    When $q_\kpz \in \region(\pol_3)$, start each episode in $(s_2, \worst{a})$.
+    % with probability $\sigma$,
+    % or in $(s_2, \worst{a})$ with probability $1-\sigma$.
+
+    \item
+    % pol4 = [1, 0, 1, 0, 1, 0, 0, 1]
+    When $q_\kpz \in \region(\pol_4)$, start each episode in $(s_3, \worst{a})$.
+    % with probability $\sigma$,
+    % or in $(s_1, \worst{a})$ with probability $1-\sigma$.
+\end{enumerate}
+The resulting update distributions are
+\begin{align}
+\label{eq: update distribution 4s cycle}
+    % \begin{array}{l|cccc}
+    % & \pol_1 & \pol_2 & \pol_3 & \pol_4 
+    % \\
+    % \hline
+    % \update(s_1, \best{a}) & 0 & 1 & \tau & \tau^2
+    % \\
+    % \update(s_1, \worst{a}) & \tau^3 & 1 & 0 & 0
+    % \\
+    % \hline
+    % \update(s_2, \best{a}) & \tau^2 & 0 & 1 & \tau
+    % \\
+    % \update(s_2, \worst{a}) & 0 & \tau^3 & 1 & 0
+    % \\
+    % \hline
+    % \update(s_3, \best{a}) & \tau & \tau^2 & 0 & 1 
+    % \\
+    % \update(s_3, \worst{a}) & 0 & 0 & \tau^3 & 1 
+    % \\
+    % \hline
+    % \update(s_4, \best{a}) & 1 & \tau & \tau^2 & 0
+    % \\
+    % \update(s_4, \worst{a}) & 1 & 0 & 0 & \tau^3
+    % \\
+    % \end{array}
+    \begin{array}{lcccccccc}
+    & & \pol_k = \pol_1 & & \pol_k = \pol_2 & & \pol_k = \pol_3 & & \pol_k = \pol_4 
+    \\
+    \begin{bmatrix}
+        \update_k(s_1, \best{a})
+        \\
+        \update_k(s_1, \worst{a})
+        \\
+        \update_k(s_2, \best{a})
+        \\
+        \update_k(s_2, \worst{a})
+        \\
+        \update_k(s_3, \best{a})
+        \\
+        \update_k(s_3, \worst{a})
+        \\
+        \update_k(s_4, \best{a})
+        \\
+        \update_k(s_4, \worst{a})
+    \end{bmatrix}
+    &
+    =
+    &
+    \begin{bmatrix}
+        0
+        \\
+        \tau^3
+        \\
+        \tau^2
+        \\
+        0
+        \\
+        \tau
+        \\
+        0
+        \\
+        1
+        \\
+        1
+    \end{bmatrix}
+    &
+    \tor
+    &
+    \begin{bmatrix}
+        1
+        \\
+        1
+        \\
+        0
+        \\
+        \tau^3
+        \\
+        \tau^2
+        \\
+        0
+        \\
+        \tau
+        \\
+        0
+    \end{bmatrix}
+    % & & & & & \\ & & &
+    & 
+    \tor
+    &
+    \begin{bmatrix}
+        \tau
+        \\
+        0
+        \\
+        1
+        \\
+        1
+        \\
+        0
+        \\
+        \tau^3
+        \\
+        \tau^2
+        \\
+        0
+    \end{bmatrix}
+    &
+    \tor
+    &
+    \begin{bmatrix}
+        \tau^2
+        \\
+        0
+        \\
+        \tau
+        \\
+        0
+        \\
+        1
+        \\
+        1
+        \\
+        0
+        \\
+        \tau^3
+    \end{bmatrix}
+    \end{array}
+\end{align}
+
+% Note that update distributions are 
+
+
+\vspace{-0.5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Initial condition}
+\vspace{-0.2cm}
+
+
+\autoref{fig: first visit cycle 4 state} depicts the steps $\update (q_\pol - \hat{q})$ for a point $\hat{q}$ on the boundary between policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$.
+% It satisfies $\hat{q}(s, \best{a}) = \hat{q}(s, \worst{a})$ for all states.
+% Each step is scaled up for clarity.
+% It shows that the flow of policy $\pol_1$ drives the solution to the region of policy $\pol_2$ by crossing 
+% We see that 
+If, for each state, $\hat{q}$ and $\tau$ satisfy
+\begin{align*}
+% \label{eq: cycle equation greedy fv}
+    \begin{cases}
+        &\tau^2 (1 - \hat{q}(s, \best{a})) + \tau (1+\tau - \hat{q}(s, \best{a})) 
+        + ( 1 + \tau + \tau^2 - \hat{q}(s, \best{a}) ) = 0 ,
+        \\
+        &( 1 + \tau + \tau^2 - \hat{q}(s, \worst{a}) ) + \tau^3( 0 - \hat{q}(s, \worst{a})) = 0 ,
+        \\
+        &\hat{q}(s, \worst{a}) = \hat{q}(s, \best{a}) .
+    \end{cases}
+\end{align*}
+then the four steps cancel out and $\hat{q}$ can be a suboptimal fixed point.
+% It should also be stable because, everything else unchanged,
+% any point 
+% if $\hat{q}$ moves up slightly, then
+% Note that if move slight away from $\hat{q}$, say increasing $(s, \best{a})$ then arrows bring back to 1.5
+% other directions as well
+% so fixed point is attractive
+The only solution with a positive transition probability $\tau$ is
+\begin{align}
+\label{eq: def 4s transition}
+    &\tau = (\sqrt{13}-1)/6 \approx 0.43 ,
+    \\
+\label{eq: def 4s fixed point}
+    &\hat{q}(s, \best{a}) = \hat{q}(s, \worst{a}) = 1.5 .
+\end{align}
+
+\input{figures/33/4s-cycle}
+
+% In other words, 
+% with a probability of terminating of $1-\tau$
+% the flows cancel each other out exactly at $q(s, \best{a}) = q(s, \worst{a}) = 1.5$.
+% explain the resulting cycle
+% for instance in state $s_1$, 
+% the update of $\pol_1$ changes from bad to good
+% the update of $\pol_2$ does not affect the greedy action
+% the update of $\pol_3$ changes towards bad, but not all the way to counter effect of state 2
+% the update of $\pol_4$ changes from good to bad
+
+% \autoref{fig: greedy bias first visit convex combi} presents a simulation for an initial condition close to the fixed point and a learning rate $\lrate_k = 1/(k+5)$.
+% It shows that if the initial condition is close enough to the fixed point, then the algorithm can remain stuck cycling between policies $\pol_1$ through $\pol_4$ as the solution spirals onto the boundary.
+
+% to get it to cycle forever
+% simulate until it breaks 
+% then differentiate point where it breaks wrt initial condition
+% adapt initial condition
+
+% \input{figures/33/4s-simulation}
+
+% This simulation is fragile, though, because it requires a switch in precisely two states at every step. Thus, few choices of initial condition and learning rates yield a solution that spirals onto the boundary, as above.
+% Instead, most solutions reach a point where they switch in only one state, break the cycle and enter the region of the optimal policy. The bias of the update distribution is then greedy or uniform in every state, which drives the solution away from the boundary towards $\qopt$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solutions spiral to a point on the boundary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Effect of $1/N(s,a)$ learning rate}
+
+% Let $N_k(s,a)$ denote the number of times MC-O-PI has updated the state-action pair $(s,a)$ during the first $k$ time steps.
+% So the learning rate associated with a state-action pair that is updated frequently decreases more quickly than the learning rate of a state-action pair that is not updated frequently.
+% as a result, $q_k$ is the exact
+
+
+% Recall that exact MC-O-PI defined in \eqref{eq: mcopi determ}
+% updates the estimate $q_k$ using exact action-value estimates and update distributions because noise caused by stochastic simulations and asynchronous updates is averaged out over many episodes.
+
+
+Note that for every point slightly above, left, below or right of $\hat{q}$, the sum of the steps $\update (q_\pol - \hat{q})$ obtained with policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$ points back towards $\hat{q}$.
+Therefore, solutions that start near $\hat{q}$ remain close to it if they only visit these four policies.
+
+Concretely, suppose we use learning rates $\lrate_k = 1/n_k$ and that at time step $k$ the estimate $q_k$ lies in the region of policies $\pol_1$, $\pol_2$, $\pol_3$ or $\pol_4$.
+Since $n_k$ denotes the number of times each state-action pair has been updated, it increases by $\update_k$ at each step in mean-field MC-O-PI.
+Therefore, if the solution in $q_k$ visits the other three policies in the next three steps we observe that, for every state,
+\begin{align}
+    \label{eq: interpolation s-best}
+    q_{k+4}(s, \best{a}) 
+    % &= \dfrac{n_k(s,\best{a})}{n_k(s,\best{a}) + 1 + \tau + \tau^2} q_k(s, \best{a})
+    % +
+    % \dfrac{1}{n_k(s,\best{a}) + 1 + \tau + \tau^2}(1+2\tau+3\tau^2)
+    % \\
+    % 
+    % &= \dfrac{n_k(s,\best{a})}{n_k(s,\best{a}) + 1 + \tau + \tau^2} q_k(s, \best{a})
+    % +
+    % \dfrac{1 + \tau + \tau^2}{n_k(s,\best{a}) + 1 + \tau + \tau^2} \hat{q}(s, \best{a})
+    % 
+    &= q_k(s, \best{a})
+    +
+    \dfrac{1 + \tau + \tau^2}{n_k(s,\best{a}) + 1 + \tau + \tau^2} ( \hat{q}(s, \best{a}) - q_k(s, \best{a}) ) ,
+    \\
+    \label{eq: interpolation s-worst}
+    q_{k+4}(s, \worst{a}) 
+    % &= \dfrac{n_k(s,\worst{a})}{n_k(s,\worst{a}) + 1 + \tau^3} q_k(s, \worst{a})
+    % +
+    % \dfrac{1}{n_k(s,\worst{a}) + 1 + \tau^3} (1+\tau+\tau^2)
+    % \\
+    % 
+    % &= \dfrac{n_k(s,\worst{a})}{n_k(s,\worst{a}) + 1 + \tau^3} q_k(s, \worst{a})
+    % +
+    % \dfrac{1+\tau^3}{n_k(s,\worst{a}) + 1 + \tau^3} \hat{q}(s, \worst{a})
+    % 
+    &= q_k(s, \worst{a})
+    +
+    \dfrac{1+\tau^3}{n_k(s,\worst{a}) + 1 + \tau^3} ( \hat{q}(s, \worst{a}) - q_k(s, \worst{a}) ) .
+\end{align}
+Cycling through policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$ thus moves $q_k$ closer to $\hat{q}$.
+% The interpolation parameters in equations \eqref{eq: interpolation s-best} and \eqref{eq: interpolation s-worst} vary along with $n_k$.
+% In the limit, the interpolation parameters in equations \eqref{eq: interpolation s-best} and \eqref{eq: interpolation s-worst} are equal because the second equality in system \eqref{eq: cycle equation greedy fv} indicates that
+If the solution keeps cycling between these policies, we observe that
+\begin{align*}
+    \lim_{k \to \infty} \dfrac{n_k(s, \best{a})}{n_k(s, \worst{a})}
+    =
+    \lim_{k' \to \infty}
+    \dfrac{n_0(s,\best{a}) + k' ( 1 + \tau + \tau^2 ) }{n_0(s,\worst{a}) + k'(1 + \tau^3) } 
+    = \dfrac{1 + \tau + \tau^2}{1 + \tau^3}
+    = 1.5 .
+\end{align*}
+Thus in the limit when $n_k(s,\best{a})$ approaches $1.5 \ n_k(s,\worst{a})$, we see that
+\begin{align*}
+    % \dfrac{n_k(s,\best{a})}{n_k(s,\best{a}) + 1 + \tau + \tau^2}
+    % &\approx \dfrac{1.5 \ n_k(s,\worst{a})}{1.5 \ n_k(s,\worst{a}) + 1 + \tau + \tau^2}
+    \dfrac{1 + \tau + \tau^2}{n_k(s,\best{a}) + 1 + \tau + \tau^2}
+    % &\approx \dfrac{1 + \tau + \tau^2}{1.5 \ n_k(s,\worst{a}) + 1 + \tau + \tau^2}
+    % \\
+    &= \dfrac{1.5(1 + \tau^3)}{1.5 \ n_k(s,\worst{a}) + 1.5(1 + \tau^3)}
+    \\
+    &= \dfrac{1 + \tau^3}{n_k(s,\worst{a}) + 1 + \tau^3} .
+\end{align*}
+As a result, the interpolation parameters in equations \eqref{eq: interpolation s-best} and \eqref{eq: interpolation s-worst} are equal in the limit.
+% the interpolation weights in equations \eqref{eq: interpolation s-best} and \eqref{eq: interpolation s-best} become equal,
+The point $q_{k+4}$ is then a linear interpolation between $q_k$ and $\hat{q}$.
+Since the latter lies on the boundary between $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$, the estimate $q_{k+4}$ lies in the same region as $q_{k}$.
+This analysis holds for all $k$. So the points $q_{k+1}$, $q_{k+2}$ and $q_{k+3}$ also scale linearly towards $\hat{q}$.
+Hence, the cycle repeats indefinitely, spiralling onto $\hat{q}$.
+% Altogether, if the initialisations of $q_0$ and $n_0$ ensure that the solution visits the four policies in the first four steps and $n_k(s,\best{a})$ quickly approaches $1.5 n_k(s,\worst{a})$ it follows that
+% \begin{align}
+%     \pol_{4k} = \pol_1 ,
+%     \qquad
+%     \pol_{4k+1} \pol_2 ,
+%     \qquad
+%     q_{4k+2} \in \graval(\pol_3) ,
+%     \qquad
+%     q_{4k+3} \in \graval(\pol_4) .
+% \end{align}
+
+% since update distribution is different in every region, the $1/n_k$ learning rate does not cancel out the bias in the update distributions and make it uniform
+
+
+\input{figures/33/4s-Nsa-lr}
+
+% simulation
+\autoref{fig: 4s first visit N(s,a)} presents a simulation with $n_0(s, \best{a}) = 1.5$ and $n_0(s, \worst{a}) = 1$ for all states.
+The left column shows the first thousand steps of the solution for every state.
+We see that it can spiral to $\hat{q}$ in various ways.
+% , but the corners of the spiral always approach $\hat{q}$.
+The right column visualises the contraction of the four points that make up the spiral by plotting the ratios
+\begin{align}
+\label{eq: ratios of corners of spiral}
+    f_{k'}(s) \coloneqq \bigg\{ \dfrac{q_{4k'+i}(s,\best{a}) - q_{4k'+i}(s,\worst{a})}{q_{i}(s,\best{a}) - q_{i}(s,\worst{a})} : 0 \leq i \leq 3 \bigg\}
+% \\
+    % \dfrac{q_{4k'}(s,\best{a}) - q_{4k'}(s,\worst{a})}{q_{0}(s,\best{a}) - q_{0}(s,\worst{a})} , \quad
+    % \dfrac{q_{4k'+1}(s,\best{a}) - q_{4k'+1}(s,\worst{a})}{q_{1}(s,\best{a}) - q_{1}(s,\worst{a})} ,
+    % \\
+    % \dfrac{q_{4k'+2}(s,\best{a}) - q_{4k'+2}(s,\worst{a})}{q_{2}(s,\best{a}) - q_{2}(s,\worst{a})}
+    % \quad \tand \quad
+    % \dfrac{q_{4k'+3}(s,\best{a}) - q_{4k'+3}(s,\worst{a})}{q_{3}(s,\best{a}) - q_{3}(s,\worst{a})} .
+\end{align}
+for every state and $k'$ ranging from 0 to 249.
+It shows that, after approximately ten cycles the corresponding corners of each spiral scale linearly towards $\hat{q}$, proportionally to $1/k'$.
+Furthermore, since all ratios are positive, the estimates $(q_{4k'+i})_{k'\geq 1}$ always lie in the same region as $q_i$.
+The figure confirms that $\hat{q}$ is a suboptimal fixed point attracting solutions that cycle indefinitely between the policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$.
+% The interpolation parameters in equations \eqref{eq: interpolation s-best} and \eqref{eq: interpolation s-worst} are proportional to $1/k$, which guarantees that the system converges to $\hat{q}$ if it cycles indefinitely between the four policies.
+
+
+% solutions do not get stuck because of $1/n_k$ learning rates, rather because the noiseless updates guarantee that never visit optimal policy
+
+
+% can work out similar updates for every state and starting from any region
+
+% the numerical on the right shows that after a transient behaviour, it enters the limit behaviour where each node of the spiral moves in straight line towards $1.5$, and consequently, we conclude that cycles forever.
+
+% condition for infinite loops
+
+% Need initial condition from each point in the loop
+% suppose start in $\region(\pol_1)$
+% then in state $s_1$
+% \begin{align*}
+%     q_{4k}(s_1, \best{a}) 
+%     &= \dfrac{n_0(s_1,\best{a}) q_0(s_1, \best{a}) + k(1+2\tau+3\tau^2)}{n_0(s_1,\best{a}) + k(1 + \tau + \tau^2)}
+%     \\
+%     q_{4k}(s_1, \worst{a}) 
+%     &= \dfrac{n_0(s_1,\worst{a}) q_0(s_1, \worst{a}) + k(1+\tau+\tau^2)}{n_0(s_1,\worst{a}) + k(1 + \tau^3)} 
+%     \\
+%     q_{4k+1}(s_1, \best{a}) 
+%     &= q_{4k}(s_1, \best{a})
+%     \\
+%     q_{4k+1}(s_1, \worst{a}) 
+%     &= \dfrac{n_0(s_1,\worst{a}) q_0(s, \worst{a}) + k(1+\tau+\tau^2)}{n_0(s,\worst{a}) + k(1 + \tau^3) + \tau^3}
+%     \\
+%     q_{4k+2}(s_1, \best{a}) 
+%     &= \dfrac{n_0(s_1,\best{a}) q_0(s_1, \best{a}) + k(1+2\tau+3\tau^2) + 1+\tau+\tau^2}{n_0(s_1,\best{a}) + k(1 + \tau + \tau^2) + 1}
+%     \\
+%     q_{4k+2}(s_1, \worst{a}) 
+%     &= \dfrac{n_0(s_1,\worst{a}) q_0(s, \worst{a}) + (k+1)(1+\tau+\tau^2)}{n_0(s,\worst{a}) + (k+1)(1 + \tau^3)}
+%     \\
+%     q_{4k+3}(s_1, \best{a}) 
+%     &= \dfrac{n_0(s_1,\best{a}) q_0(s_1, \best{a}) + k(1+2\tau+3\tau^2) + 1+2\tau+2\tau^2}{n_0(s_1,\best{a}) + k(1 + \tau + \tau^2) + 1+\tau}
+%     \\
+%     q_{4k+3}(s_1, \worst{a}) 
+%     &= q_{4k+2}(s_1, \worst{a})
+% \end{align*}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Fixed point remains with exploring starts}
+
+As in \autoref{sec: 3s es},
+if we initialise each episode using the sampling strategy on page \pageref{pg: sampling 4 state} with a probability of $1-1/(k+2)^2$ or uniformly with a probability of $1/(k+2)^2$, at least 50\% of solutions are unaffected by the exploring starts because MC-O-PI always follows the sampling strategy.
+As a result, certain solutions still spiral onto $\hat{q}$.
+
+
+% Suppose we modify the sampling strategy to satisfy exploring starts. 
+% Specifically, we initialise each episode using the sampling strategy described above
+% with a probability of $1-\epsilon$ or by uniformly sampling a state-action pair with a
+% probability of $\epsilon$.
+% Since exact MC-O-PI averages out any noise, we can make the update distribution under exploring starts arbitrarily close to the update distributions in \autoref{fig: first visit cycle 4 state} by taking a sufficiently small $\epsilon$. As a result, the suboptimal fixed point remains.
+
+% As a result, the suboptimal fixed point in $\hat{q}$ remains under exploring starts because we retain the same update distributions as in \eqref{eq: update distribution 4s cycle} by assigning an arbitrarily small sampling probability to unwanted state-action pairs.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{MC-O-PI converges under weaker conditions than exact MC-O-PI}
+\subsection{Fixed point disappears for MC-O-PI}
+\label{sec: counter 4s fv}
+
+Experiments show that MC-O-PI does not cycle indefinitely between suboptimal policies.
+Instead, the noise caused by stochastic policy evaluation introduces a non-zero probability of transitioning to $\best{\pol}$.
+Each time this happens, the first-visit update function guarantees greedy or unbiased updates in all states, driving solutions away from the boundary
+% deeper into region $\region(\best{\pol})$ 
+when $q_k$ is smaller than the stochastic estimation of $\qopt$.
+We know from \autoref{thm: bounded limit sets} that $q_k \leq \qopt$ for large $k$. At that point, solutions can thus only leave policy $\best{\pol}$ if an episode underestimates the action values $\qopt$ by terminating prematurely.
+Since this cannot happen consistently,
+% cannot be sustained or induced by adjusting the start distributions,
+solutions eventually transition to $\best{\pol}$, move away from the boundary and converge to $\qopt$.
+
+It is possible in theory to counter the effects of noise by adjusting the learning rate at each step depending on which state-action pairs are updated and whether action values are over- or underestimated, as in the counterexample of \citet{Bertsekas1996Neuro-DynamicProgramming} discussed in \autoref{sec: existing counter}.
+Extending this idea, if we allow different learning rates for each state-action pair, we can impose any bias in the effective learning rates $(\lrate_k \update_k)$, regardless of the update function.
+For example, we can force first-visit MC-O-PI to mimic initial-visit MC-O-PI on any MDP by setting a sufficiently small learning rate for all but the initial state-action pair.
+However, these strategies are infeasible in practice because the exact action values and update distributions are unknown. Nevertheless, this observation highlights the importance of using learning rates that are independent of the estimate $q_k$, which is inherently true in practical implementations.
+
+
+% This example shows that MC-O-PI converges under weaker conditions than exact MC-O-PI because noise enforces exploration, which breaks up ties between suboptimal policies.
+% Consequently, while the necessary and sufficient conditions for the convergence of exact MC-O-PI are sufficient for MC-O-PI (see \autoref{thm: if det converges then stoch converges}), they are not strictly necessary.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conclusion}
+
+This example indicates that the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} fails when noise is averaged out.
+% as solutions may never visit the optimal policy.
+Together with the conclusions of the previous counterexample, this suggests that if the conjecture holds, it is due to the combination of stochastic episode simulations and first-visit updates rather than either factor alone.
+The learning rate $1/n_k$ used by Sutton and Barto is also crucial
+because with general state-action-dependent learning rates the conjecture would not hold.
+% , either counterexample presented above would disprove the conjecture.
+
+
+Overall, we see that 
+stochastic episode simulations generate noise that enforces exploration,
+while first-visit updates generally introduce a greedy bias in the update distributions.
+Together, they seem to ensure solutions visit the optimal policy infinitely often without consistently leaving it.
+To explain this phenomenon, we first derive sufficient conditions for mean-field MC-O-PI to converge to the optimal policy and its action values when updates are biased towards greedy actions.
+We then argue that if MC-O-PI updates are sufficiently noisy, these conditions are satisfied infinitely often, making convergence to $\qopt$ inevitable when updates exhibit a greedy bias.
+% when updates are biased towards greedy actions.
+
+% In the next section, we prove the last part of this statement, namely that a greedy bias eventually drives solutions away from any boundary when visiting the optimal policy.
+
+
+% Together they contribute to satisfying the necessary and sufficient condition for the convergence of MC-O-PI, namely that solutions visit the optimal policy infinitely often without consistently leaving it.
+
+% Then, we argue that the inherent noise in MC-O-PI helps satisfy these conditions infinitely often, justifying its stronger convergence properties.
+
+
+
+% On the one hand, noise enforces exploration 
+% which prevents persistent cycles between suboptimal policies.
+% Noise enforces exploration which breaks up potential ties between suboptimal policies.
+% Since this policy is unknown in practice, noise guarantees that 
+
+% first-visit updates generally introduce a strong greedy bias that 
+% since that policy is not feedforward.
+% Since all solutions lie below $\qopt$ in the long term, we believe that a greedy bias in the effective learning rates eventually guides solutions away from any boundary, deeper into the optimal region.
+
+
+% When the update is noisy, the solution can leave the cycle. For instance, suppose we run MC-O-PI and that at time step $k$ policy $\pol_1$ is greedy with respect to $q_k$. In order to transition to policy $\pol_2$, the solution should cross the boundary in states $s_1$ and $s_2$ at the same time. However, since the transitions are stochastic, the episode initialised in $(s_4, \worst{a})$ could already terminate after taking action $\best{a}$ in state $s_3$. 
+% As a result, the algorithm would not change the estimate in states $s_1$ and $s_2$, 
+% but it would update action $\best{a}$ in state $s_3$ towards 1, 
+% and both actions $\best{a}$ and $\worst{a}$ in state $s_4$ towards $1+\tau$.
+% Several such episodes could occur consecutively, thereby forcing the solution to cross the boundary in state $s_3$ and leaving the regions of policies $\pol_1$, $\pol_2$, $\pol_3$ and $\pol_4$.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Theory}
+
+% \autoref{thm: get eps close to single best policy} shows that get eps close to single policy. combine that with the results from this section and shows that with the tiniest bit of noise you are guaranteed to enter that optimal region
+
+% \begin{lemma}
+%     For any initial conditions $q_0$, the limit-set $\Omega(q_0)$ is an epsilon away from a single policy that is at least as good as any other policy in the limit-set
+% \end{lemma}
+% \begin{proof}
+%     distance between $q_\kpo$ and $q_k$ becomes arbitrarily small
+    
+%     at every transition you are arbitrarily close to all policies around that boundary
+
+%     if system does not converge it must at some point transition from one policy to another where in some state the policy does not improve 
+
+%     either get pushed back immediately
+%     or stay within an epsilon of all the other actions in that state => at next transition you're close to loads of other policies
+
+%     when transistion in state where policy worsens, then stay there within an epsilon of previous action because
+%     either don't move = stay within an epsilon
+%     or move towards the boundary = get closer
+% \end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convergence with mean-field updates}
+
+% \textcolor{red}{no condition on $\update$, like resulting from simulation, just care about its shape (greedy or not)}
+
+Each step of mean-field MC-O-PI can be described by an update
+\begin{align}
+\label{eq: definition of q+ greedy section}
+    q_+ 
+    \in
+    \big\{ q + \lrate \update (\qpol - q)
+    :
+    \pol \in \grpol(q)
+    ,
+    \update = \update(\start, \pol, f)
+    \big\} .
+\end{align}
+% with learning rate $\lrate$, start distribution $\start$ and update function $f$.
+The earlier counterexamples demonstrate that mean-field MC-O-PI does not always converge to the optimal action values $\qopt$ when update distributions are biased towards the greedy action in each state.
+In that case, solutions must regularly transition from a policy $\pol \in \grpol(q)$ to a policy $\pol_+ \in \grpol(q_+)$ that is strictly worse in at least one state.
+When such a transition occurs, \autoref{thm: contra general pit} guarantees that there exists a state $s$ where $\pol(s) \neq \pol_+(s)$ and the following conditions hold:
+\begin{subequations}
+\label{eq: switch to worse}
+\begin{align}
+    % \begin{cases}
+        % &a_{\pol}(s, \pol_+) < 0
+        &q_{\pol}(s, \pol_+) < q_{\pol}(s, \pol)
+        \\
+        &v_{\pol_+}(s) < v_{\pol}(s)
+        \\
+        % &a_{\pol_+}(s, \pol) > 0
+        &q_{\pol_+}(s, \pol_+) < q_{\pol_+}(s, \pol)
+    % \end{cases}
+\end{align}
+\end{subequations}
+The next lemma describes how these conditions affect solutions before and after the transition when greedy actions are updated more often.
+Its contraposition then shows that solutions that visit the optimal policy eventually converge to $\qopt$.
+
+% \input{2-contributions/theorems/on-policy/approach-from-below}
+
+% \input{2-contributions/theorems/on-policy/approach-from-above}
+
+\input{theorems/33/jump-over-boundary-same-unbiased}
+
+\input{figures/33/lemma-bad-transition}
+
+
+\autoref{fig: effect of greedy bias} illustrates the results of \autoref{thm: cannot exit sliding mode if not all states are better}.
+Parts (1) and (2) show that if the update distribution under policy $\pol$ is biased towards the greedy action $\pol(s)$,
+the solution approaches $\qpol$ and $q_{\pol_+}$ in $s$ from above as $q$ and $q_+$ overestimate the action values of policies $\pol$ and $\pol_+$. Part (3) guarantees that the next update $\update_+(q_{\pol_+} - q_+)$ guides the solution back towards policy $\pol$ if the update distribution under $\pol_+$ is biased towards the new greedy action $\pol_+(s)$. Thus when the learning rate is small, a sliding mode emerges on that boundary.
+% describes how solutions transition to a policy that is worse in some state $s$ according to all value functions in \eqref{eq: switch to worse}.
+% We see that for every state $s$ where 
+% consecutive policies $\pol$ and $\pol_+$ satisfy the conditions in \eqref{eq: switch to worse},
+% the estimates $q$ and $q_+$ overestimate the value of both policies if the update distribution has a greedy bias in $s$.
+% Furthermore, the next update $\update_+(q_{\pol_+} - q_+)$ guides the solution back towards the boundary with the better policy.
+
+
+The mean-field streamlines in \autoref{fig: effect of greedy bias} also suggest that if a solution approaches $q_\pol$ from below in state $s$, it cannot transition to $\pol_+$ when $q_{\pol}(s, \pol_+) \leq q_{\pol}(s, \pol)$ and the update distribution is biased towards $\pol(s)$.
+Conversely, if the policy does change in $s$, we must have $q_{\pol}(s, \pol_+) > q_{\pol}(s, \pol)$. Thus, if $q$ approaches $q_\pol$ from below in all states, the \hyperref[thm: policy improvement theorem]{Policy Improvement Theorem} implies that the sequence of policies improves monotonically.
+% This observation explains why solutions move away from the boundary once they enter the optimal region in the examples of \autoref{sec: counter 3s fv} and \autoref{sec: counter 3s fv}.
+The following lemma formalises this insight.
+
+\input{theorems/33/policy-improves}
+
+% \vspace{-0.3cm}
+
+\autoref{thm: greedy bias mces policy improves} indicates that if condition \eqref{eq: condition approach below e mcopi proof} holds at every step, the sequence of policies improves monotonically and consequently mean-field MC-O-PI converges to $\qopt$.
+However, this condition is difficult to verify in practice
+as it requires approximating the action values of a policy, which involves simulating many episodes.
+Furthermore, it is usually not possible to anticipate the next policy $\pol_+$.
+To overcome these limitations, the following lemma provides an alternative, more practical condition that still guarantees convergence to the optimal solution when all update distributions have a greedy bias.
+
+% \vspace{-0.1cm}
+
+\input{theorems/33/convergence}
+
+Condition \eqref{eq: condition to start low enough} corresponds to the condition $q_0 \leq \B q_0$ that underpins many contraction-based arguments \citep{Bertsekas2018AbstractProgramming}.
+It is stronger than condition \eqref{eq: condition approach below e mcopi proof}, but cheaper to verify. Instead of averaging over complete episodes to approximate the value function, it only requires averaging over single-step simulations to estimate the immediate reward and next state. For MDPs with deterministic transitions, even a single simulation suffices.
+
+Additionally, this condition provides a procedure that ensures MC-O-PI converges when update distributions are biased towards the greedy actions: initialise the algorithm with an estimate that satisfies condition \eqref{eq: condition to start low enough}, then ignore and redo updates if they yield a new estimate that does not satisfy condition \eqref{eq: condition to start low enough}.
+This method guarantees that solutions move upwards and therefore
+% , as established by Tsitsiklis in the proof of \autoref{thm: tsitsiklis convergence proof}, 
+converge to $\qopt$.
+
+This complex procedure may not even be necessary.
+The next section argues that the inherent noise in MC-O-PI can guarantee that condition \eqref{eq: condition approach below e mcopi proof} is satisfied infinitely often
+and thereby naturally prevent solutions from converging to a suboptimal fixed point when update distributions are biased towards the greedy action in each state at every step.
+
+% Overall, if even this simpler condition is too expensive to verify, the results in this section highlight that it is best to initialise MC-O-PI and exact MC-O-PI with a low estimate $q_0$ when the update distributions have a greedy bias.
+
+% Interestingly, the condition is very similar to
+% suggest for future work apply second part of Tsitsiklis proof bc that's the part that relies on the fact that $q_k \leq \B q_k$ for all $k \geq K$
+
+% \input{theorems/33/away-from-boundary}
+
+% \input{2-contributions/theorems/on-policy/conjecture}
+
+\vspace{-0.3cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convergence with noisy updates}
+
+\vspace{-0.3cm}
+% \textcolor{red}{if it converges to a point, it converges to the the optimal solution}
+% if it starts cycling around, then there are many solutions to get out of it
+
+% know that
+% - around every boundary there exists a single best policy
+% - all solutions are bounded above by the optimal action values in the limit
+
+Suppose that certain solutions of MC-O-PI converge to a suboptimal fixed point on a boundary and that the noise from stochastic episode simulations ensures frequent visits to all policies sharing this boundary.
+As noted in \autoref{rmk: boundary and optimal policy}, at least one of these policies, say $\pol$, is the best in all states.
+Hence, for sufficiently large $k$ we have $q_k \leq q_\pol$.
+The setting of \autoref{thm: greedy bias mces policy improves} then holds infinitely often because solutions repeatedly visit policy $\pol$ and condition \eqref{eq: condition approach below e mcopi proof} holds for large $k$.
+As a result, if the update distributions obtained with policy $\pol$ have a greedy bias in all states and the learning rates do not cancel it out,
+% are the same for all state-action pairs,
+% is a constant in $\real_{>0}$, 
+solutions eventually leave the boundary because they cannot consistently transition to a worse policy.
+This conclusion contradicts our initial assumption, suggesting that MC-O-PI cannot converge to a suboptimal fixed point if update distributions have a greedy bias in all states and updates are sufficiently noisy.
+This leads us to the following conjecture:
+
+
+% noise = visit optimal policy infinitely often
+% greedy updates = when visit optimal policy move away from boundary
+
+% While stochasticity may delay this process, noise guarantees that it occurs infinitely often. Consequently, MC-O-PI eventually leaves the boundary, which contradicts our initial assumption.
+
+% This analysis suggests that noisy policy evaluation prevents MC-O-PI from converging to a boundary if the update distributions are biased towards the greedy actions at every step because 
+% it ensures that condition \eqref{eq: condition approach below e mcopi proof} is eventually satisfied for every initial condition.
+
+
+\begin{conjecture}
+\label{con: greedy conjecture}
+    When solutions of MC-O-PI converge to a fixed point, it is almost surely $\qopt$
+    % 
+    provided
+    the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}),
+    the effective learning rates $(\lrate_k \update_k)_{k \geq 0}$ are biased towards the actions of the corresponding policies $(\pol_k)_{k \geq 0}$ in all states (\autoref{asp: on-policy bias})
+    and
+    the noise distributions $(w(\start_k, \pol_k, f_k))_{k \geq 0}$ have zero bias and non-zero variance for all state-action pairs.
+    % rely on stochastic episode simulations,
+\end{conjecture}
+
+\vspace{-0.6cm}
+
+% We hypothesise that if solutions of MC-O-PI converge to a fixed point, it must be $\qopt$
+% % when applying first-visit updates 
+% % provided the start distributions $(\start_k)_{k \geq 0}$ satisfy exploring starts,
+% % the update distributions $(\update_k)_{k \geq 0}$ exhibit a greedy bias in each state at every step,
+% % for MDPs with stochastic transition
+% provided all updates rely on stochastic episode simulations,
+% the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robins-Monro conditions
+% and the latter are also biased towards the actions of the corresponding policies $(\pol_k)_{k \geq 0}$.
+% % The first condition guarantees that condition \eqref{eq: condition approach below e mcopi proof} is satisfied sufficiently often,
+% % The second ensures that the impact of noise 
+% % The third condition makes sure that when condition \eqref{eq: condition approach below e mcopi proof} is satisfied solutions cannot consistently leave the region of the optimal policy as happens in the counterexample in \autoref{sec: counter 3s es st}.
+
+
+
+The first two conditions of \autoref{con: greedy conjecture} imply that, with initial- or first-visit updates, the initial state of each episode can be sampled according to any distribution as long as the initial action in that state is the current greedy action at least as often as any other action.
+% This algorithm is implementable when each state has a limited number of actions.
+The third condition may be automatically satisfied for MDPs with stochastic state transitions but can be enforced by adding centred noise to the episode's returns, such as standard Gaussian noise.
+
+
+% For sufficiently large $k$, each visit also satisfies condition \eqref{eq: condition approach below e mcopi proof}.
+% \autoref{thm: greedy bias mces policy improves} shows that solutions are then expected to move deeper into the optimal region and converge to $\qopt$ given the effective learning rates exhibit a greedy bias.
+% Since noise cannot always prevent this, convergence to
+% $\qopt$ is inevitable.
+
+\vspace{-0.1cm}
+
+Experiments suggest that when noise has a non-zero variance for all state-action pairs, solutions visit the optimal policy infinitely often.
+Since noise cannot consistently prevent the consequences of \autoref{thm: greedy bias mces policy improves}, convergence to $\qopt$ is inevitable.
+In other words,
+% we argue this conjecture fulfils the necessary and sufficient conditions for MC-O-PI's convergence to $\qopt$, namely that 
+noise ensures solutions frequently visit the optimal policy, while the greedy bias prevents them from consistently leaving it.
+
+% It relies upon the unproven assumption that noise caused by stochastic episode simulations frequently pushes solutions into the region of all policies sharing a boundary.
+
+
+
+% This conjecture relies upon the unproven assumption that 
+% % that remain to be proven.
+% % namely that the limit set for every solution is a fixed point
+% % If the solution cycles indefinitely between suboptimal policies,
+% % the values of consecutive policies regularly decrease.
+% % Otherwise, the algorithm converges to $\qopt$, as shown in the proof of \autoref{thm: convergence uniform}.
+% % Each time this happens, the solution is directed back to the boundary right after the transition
+% % since the exploring starts assumption guarantees that the conditions of \autoref{thm: cannot exit sliding mode if not all states are better}(3) are satisfied in at least one state.
+% % In other words, since the solution cannot visit the optimal policy in the long term, it cannot move away from the boundary.
+% % Thus, by \autoref{thm: contra general pit},  
+% % Therefore, 
+% % since the update distributions $\update_k$ are biased towards the actions of the policies $\pol_k$ and non-zero for at least one action in every state.
+% % Thus, we believe that as the learning rate decreases, every cycle shrinks onto some boundary. 
+% % 
+% the noise caused by stochastic episode simulations frequently pushes solutions into the region of all policies that share a boundary.
+% % This happens, for instance, by over- or underestimating the action values 
+% % % when the MDP's transitions are stochastic,
+% % or by updating subsets of actions for each state.
+
+
+% noise
+% - sufficient exploring starts
+% - stochastic transitions
+
+
+% say that if noise push infinitely often to optimal region,
+% then satisfy condition of convergence for exact MC-O-PI infinitely often 
+% so expect convergence (noise cannot consistently work against you)
+% \autoref{thm: greedy bias mces policy improves} then implies that if the update distribution $\update_k$ is biased towards the actions of $\best{\pol}$, then exact MC-O-PI moves away from the boundary and converges to $\qopt$ because there exists no better policy than $\best{\pol}$.
+% The noise in the update inclusion of MC-O-PI can prevent this behaviour only a finite number of times. So, eventually, MC-O-PI would visit the optimal region and converge to $\qopt$.
+
+% 2 noise could push into optimal region
+% bc the noise on the policy evaluation can be in any direction a prior since could over- or underestimate the action-values for any state-action pair
+
+% if conjecture is true it is fv and noise
+% not bc fv has anything special, but bc it forces greedy enough visits (esp bc optimal policy loops)
+
+
+
+% First, the solution cannot visit the region of the optimal policy in the long term.
+% If it did, there would exist an infinite number of time steps $k$ where $\pol_k = \best{\pol}$ and for every state-action pair
+% \begin{align*}
+%     q_k(s,a) \leq \qopt(s, a) \leq \qopt(s, \best{\pol}) = q_{\pol_k}(s, \pol_k) ,
+% \end{align*}
+% since, by \autoref{thm: bounded solution}, the solution is bounded above by the optimal action-values $\qopt$ in the long term.
+% However, \autoref{thm: greedy bias mces policy improves} then implies that if the update distribution $\update_k$ is biased towards the actions of $\best{\pol}$, then exact MC-O-PI moves away from the boundary and converges to $\qopt$ because there exists no better policy than $\best{\pol}$.
+% The noise in the difference inclusion of MC-O-PI can prevent this behaviour only a finite number of times. So, eventually, MC-O-PI would visit the optimal region and converge to $\qopt$.
+
+% Further, as the solution cycles between suboptimal policies,
+% the value of consecutive policies regularly decreases. Otherwise, the algorithm would converge to $\qopt$, as explained in the proof of \autoref{thm: convergence uniform}.
+% Thus, \autoref{thm: contra general pit} indicates that the conditions of \autoref{thm: cannot exit sliding mode if not all states are better}(3) are regularly satisfied. 
+% Each time, the solution of exact MC-O-PI is pushed back to the boundary right after the transition, provided the update distribution $\update_k$ is always biased towards the actions of policy $\pol_k$.
+% Again, the noise in the difference inclusion of MC-O-PI cannot consistently prevent this behaviour. Therefore, we expect the cycle to shrink onto the boundary that all those policies share.
+% + distance between consecutive estimates becomes arbitrarily small => to move away from boundary really need to want it
+
+% as the learning rate decreases the cycle shrinks, limit set is eps close to optimal region
+% bc \autoref{thm: cannot exit sliding mode if not all states are better}(3) shows that if exploring starts, when jump to new region, solution is immediately pushed back to boundary, so cycle away from boundary is not sustainable
+% and every boundary contains a single best and a worst policy
+
+% 2 noise could push into optimal region
+% bc the noise on the policy evaluation can be in any direction a prior since could over- or underestimate the action-values for any state-action pair
+% % if exit sliding mode it must be in a better region than any other visited region during the sliding mode.
+
+% 4 when enter optimal region, approach from below so move away from boundary (either go to better region or converge to action values)
+% bc expected algorithm want to move away, updates could counter this and go back to worse policy, but this is not sustainable on the long term, so eventually enter and remain in optimal region
+% if non-zero probability of updating every state at every step, get pushed back directly to boundary into sliding mode that moves down
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{-0.4cm}
+\section{Conclusion}
+\vspace{-0.4cm}
+
+This chapter showed through two counterexamples that initial-visit MC-O-PI and first-visit mean-field MC-O-PI may converge to suboptimal solutions when greedy actions are updated more frequently in all states.
+These results suggest that if the conjecture of \citet[p. 99]{Sutton2018ReinforcementIntroduction} holds, it is due to the combination of stochastic episode simulations and first-visit updates rather than either factor alone.
+
+\vspace{-0.1cm}
+
+We further argued that MC-O-PI cannot converge to suboptimal solutions when updates have a greedy bias in all states and are sufficiently noisy.
+In practice, if stochastic state transitions do not automatically induce this noise,
+adding centred noise to each episode's returns suffices.
+
+% there may or may not be fixed point in the s-a space, but if they are they they are fragile anyway => add noise and movie away
+
+% convergence to the optimal solution is inevitable
+% as noise ensures solutions visit the optimal policy infinitely often,
+% while the greedy bias prevents them from consistently leaving it.
+
+
+% uses stochastic episode simulations and effective learning rates with a greedy bias in all states, 
+
+\clearpage

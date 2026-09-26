@@ -1,0 +1,58 @@
+# macOS metadata
+.DS_Store
+._*
+.AppleDouble/
+.LSOverride
+
+# Editor temporary files
+*~
+*.swp
+*.swo
+.~lock.*#
+
+# LaTeX intermediate files and logs
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.fls
+*.fdb_latexmk
+*.synctex
+*.synctex.gz
+*.synctex(busy)
+*.synctex.gz(busy)
+*.dvi
+*.xdv
+
+# Bibliography processing (keep .bib and .bbl for submission sources)
+*.blg
+*.bcf
+*.run.xml
+
+# Index, glossary, and nomenclature intermediates
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.glsdefs
+*.acn
+*.acr
+*.alg
+*.nlo
+*.nls
+
+# Dependency files and PostScript output from the thesis build
+/publications/thesis/**/*.d
+/publications/thesis/thesis.ps
+
+# Keep PDFs, EPS files, figure data, and LaTeX templates versionable.
+
+# Container compilation output
+/publications/neurips/build/
+/publications/jmlr/build/
+/publications/thesis/build/

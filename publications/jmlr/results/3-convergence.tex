@@ -1,0 +1,105 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Global convergence of MC-O-PI}
+
+Now that we have established that stochastic perturbations cannot consistently cancel the policy improvement of the mean-field, global convergence of MC-O-PI to $\qopt$ is immediate.
+
+\begin{proposition}
+\label{thm: convergence mcopi uniform}
+    Solutions of initial-visit MC-O-PI, as defined in \eqref{eq: mcopi sa},
+    converge almost surely to the optimal action values $\qopt$ under \autoref{asp: standing},
+    if
+    the learning rates satisfy the comparability assumption (\autoref{asp: additional conditions on learning rate})
+    % the update functions are initial-visit,
+    and the sampling distributions of initial state-action pairs are uniform over all actions in each state (\autoref{asp: unbiased over policies}).
+\end{proposition}
+
+\begin{proof}
+Let $(q_k, \pi_k)_{k \ge 0}$ be an MC-O-PI solution with transition times $(t_n)_{n \ge 0}$.
+By \autoref{thm: fixed prob that bad actions dont become greedy}, there exists an almost surely finite $K$ such that, with a fixed probability $p$,
+\begin{align}
+\label{eq: event no bad gaps become greedy}
+(s,\pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+\qquad
+\forall \, K \le t_n < \infty , \
+\forall \, t_n \le k \le t_{n+1} , \
+\forall \, s \in \mathcal S .
+\end{align}
+On this event, if $t_{n+1}<\infty$, then
+\begin{align}
+\label{eq: goal of proof stoch improvement proof}
+q_{\pi_{t_n}} ( s, \pi_{t_{n+1}}(s) )
+\ge
+q_{\pi_{t_n}} ( s,\pi_{t_n}(s) )
+\qquad \forall\, s \in \mathcal S ,
+\end{align}
+so $\pi_{t_{n+1}}$ improves upon $\pi_{t_n}$ by \autoref{thm: strict PIT}.
+If instead $t_{n+1}=\infty$, then $\pi_{t_n}=\pi_*$ by \autoref{thm: suboptimal blocks finite}.
+% and $q_k \to q_{\pi_*}$ by \cite[Proposition~4.1, Example~4.3]{Bertsekas1996Neuro-DynamicProgramming}.
+Hence, from any $t_n \ge K$, the policy either improves or is already optimal and remains so with probability at least $p$.
+
+Since a sequence of deterministic policies can improve at most $|\mathcal P|-1$ times before reaching optimality, 
+the probability of consecutive improvements until the policy becomes optimal and then remains so is at least $p^{|\mathcal P|}$.
+Equivalently, for every $n$ with $K\le t_n<\infty$,
+\begin{align}
+\label{eq:prob-lock-within-N-transitions}
+\mathbb P\!\left(
+t_{n+|\mathcal P|} < \infty
+\mid
+\mathcal F_{t_n}
+\right)
+\le 1 - p^{|\mathcal P|}.
+\end{align}
+
+Fix $n \in \mathbb Z_{\ge 0}$ such that $K\le t_n<\infty$. 
+Iterating \eqref{eq:prob-lock-within-N-transitions} over blocks of length $|\mathcal P|$ gives, 
+for every $i \ge 1$,
+\begin{align*}
+\mathbb P\big(
+t_{n+i|\mathcal P|} < \infty
+\mid
+\mathcal F_{t_n}
+\big)
+&=
+\mathbb E\!\left[
+\mathbf 1_{\{t_{n+(i-1)|\mathcal P|}<\infty\}}
+\,
+\mathbb P\big(
+t_{n+i |\mathcal P|} < \infty
+\mid
+\mathcal F_{t_{n+(i-1)|\mathcal P|}}
+\big)
+\ \middle| \
+\mathcal F_{t_{n}}
+\right]
+\\
+&\le
+(1-p^{|\mathcal P|})\,
+\mathbb P (
+t_{n+(i-1) |\mathcal P|} < \infty
+\mid
+\mathcal F_{t_{n}}
+)
+\\
+&\le
+\big(1-p^{|\mathcal P|}\big)^i .
+\end{align*}
+Since $p^{|\mathcal P|} > 0$, the right-hand side converges to zero as $i$ grows to infinity.
+Therefore,
+\[
+\mathbb{P}\!\left(
+\bigcap_{i=1}^\infty
+\big\{ t_{n+i|\mathcal P|}<\infty \big\}
+\;\middle|\;
+\mathcal F_{t_n}
+\right)
+=0.
+\]
+Thus, almost surely, there exists a finite $i_*$ such that $t_{n+i_*|\mathcal P|} = \infty$.
+As a result, there is a transition index $n_* < n + i_* |\mathcal P|$ such that $t_{n_*} < \infty$ and $t_{n_* +1} = \infty$.
+It follows that $\pi_{t_{n_*}} = \pi_*$ by \autoref{thm: suboptimal blocks finite} and $q_k \to q_{\pi_*}$ by Proposition~4.1 in \citep{Bertsekas1996Neuro-DynamicProgramming}.
+\end{proof}
+
+The key insight of this result is to analyse the sequence of greedy policies rather than the value estimates. This exposed a simple and practical condition for monotone policy improvement of the mean-field dynamics, making the proof a straightforward application of the Policy Improvement Theorem.
+The main technical work was to show that the stochastic perturbations cannot persistently obstruct this improvement. 
+This policy-level argument avoids some of the delicate value-based arguments required in earlier analyse, such as the extensions from $\gamma<1$ to $\gamma=1$.

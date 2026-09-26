@@ -1,0 +1,48 @@
+\begin{figure}[b!]
+    \centering
+
+    \begin{tikzpicture}[scale=0.8]
+
+        \begin{groupplot}[
+        group style={group size=2 by 1, horizontal sep=1.5cm}, % Two plots in a row
+        % height=6cm, % Consistent height
+        % width=6cm,  % Consistent width
+    ]
+    
+        \nextgroupplot[
+            xlabel={$q_k(s_1, \best{a})$},
+            ylabel={$q_k(s_1, \worst{a})$},
+            xmin=1.481, xmax=1.516,
+            ymin=1.475, ymax=1.51,
+            xtick={1.48, 1.49, 1.50, 1.51, 1.52},
+            ytick={1.47, 1.48, 1.49, 1.50, 1.51},
+            % title={Scatter Plot: Row 1 vs Row 2},
+            grid=none,
+            % xlabel style={at={(current axis.right of origin)}, anchor=north east},
+            % ylabel style={at={(current axis.above origin)}, anchor=north east},
+        ]
+        \addplot[color=CambridgeCoreBlue] table[x index=1, y index=2] {figures/33/4s_sim.txt};
+        \addplot[color=CambridgeCoreBlue, mark=*, mark size=2pt] coordinates {(1.489, 1.5)};
+        \node[above] at (axis cs:1.489, 1.5) {$q_0$};
+        \addplot[color=black, dotted, domain=1.48:1.51] {x};
+
+        \nextgroupplot[
+            xlabel={$k$},
+            xmode=log,
+            xmin=1, xmax=50,
+            ymin=1.475, ymax=1.51,
+            ytick={1.47, 1.48, 1.49, 1.50, 1.51},
+            grid=none,
+            legend pos=south east
+        ]
+        \addplot[color=CambridgeCoreGreen] table[x index=0, y index=1] {figures/33/4s_sim.txt};
+        \addlegendentry{$q_k(s_1, \best{a})$};
+        
+        \addplot[dashed, color=CambridgeCorePurple] table[x index=0, y index=2] {figures/33/4s_sim.txt};
+        \addlegendentry{$q_k(s_1, \worst{a})$};
+        % \end{axis}
+        \end{groupplot}
+    \end{tikzpicture}
+    \caption{Caption}
+    \label{fig: greedy bias first visit convex combi}
+\end{figure}

@@ -1,0 +1,1242 @@
+%!TEX root = ../thesis.tex
+%*******************************************************************************
+%****************************** Second Chapter *********************************
+%*******************************************************************************
+
+\chapter{Monte Carlo optimistic policy iteration}
+\label{ch: mcopi}
+
+\ifpdf
+    \graphicspath{{Chapter2/Figs/Raster/}{Chapter2/Figs/PDF/}{Chapter2/Figs/}}
+\else
+    \graphicspath{{Chapter2/Figs/Vector/}{Chapter2/Figs/}}
+\fi
+
+
+
+\vfill
+
+% Model-free reinforcement learning algorithms optimize policies by maximizing a value function through policy iteration, which alternates between policy evaluation and policy improvement.
+
+% \mytodo{rewrite, idea of first paragraph is abruptly cut}
+
+Policy iteration (PI) is a fundamental framework in reinforcement learning as it can find the optimal strategy for an MDP without knowing its transition or reward function.
+Instead, PI 
+learns the impact of each action on future rewards through trial and error,
+stores this information in a value function
+and later derives a policy with high expected returns from this value function.
+
+
+Monte Carlo optimistic policy iteration (MC-O-PI) is a PI-based algorithm that iteratively refines the policy $\pol$ and the estimate $q$ by alternating between \textit{Monte Carlo policy evaluation}, which simulates complete episodes of the MDP to update $q$ towards the action values of $\pol$, 
+and \textit{optimistic policy improvement}, which updates $\pol$ to obtain higher returns as anticipated by $q$.
+This process enables learning the optimal policy $\best{\pol}$ and its action values $\qopt$ in unknown environments.
+
+This chapter introduces the stochastic difference inclusion that underpins MC-O-PI, its key properties and existing convergence results.
+
+
+% without relying on the transition and reward functions of the underlying MDP. cannot directly solve the Bellman equation
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Stochastic difference inclusion}
+\label{sec: diff inclusion}
+
+We study the version of MC-O-PI where a policy improvement step follows each policy evaluation step.
+These alternating steps can be represented using a single stochastic difference inclusion.
+To build a clear foundation, we first discuss each step separately before combining them into a difference inclusion.
+
+
+% underpinning MC-O-PI integrates the policy evaluation and improvement steps into a single update inclusion.
+
+% Furthermore, we focus on the algorithm's asymptotic behaviour. Therefore, we assume that the target policy $\pol$
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Monte Carlo policy evaluation}
+
+A step of Monte Carlo (MC) policy evaluation updates an estimate $q$ for the action values of a given policy $\pol$ in three steps:
+\begin{enumerate}[label=\arabic*., font=\bfseries\sffamily]
+    \item \textbf{\sffamily Generate episode.}
+    Sample an initial state-action pair $(s_0, a_0)$, and simulate an episode following policy $\pol$:
+    \begin{align*}
+        (s_t, a_t, r_t)_{0 \leq t < T}
+    \end{align*}
+    where $a_t \sim \pol(\cdot \mid s_t)$, $r_{t} = r(s_t, a_t)$, and $s_{t+1} \sim \transit(\cdot \mid s_t, a_t)$.
+
+    \item \textbf{\sffamily Compute returns.}
+    For each pair $(s_t, a_t)$ in the episode, the observed return is related to the expected return $q_{\pi}(s_t,a_t)$ as
+    \begin{align*}
+        r_t + \discount r_{t+1} + \dots + \discount^{T-1-t} r_{T-1}
+        =
+        q_{\pi}(s_t,a_t) + v(s_t,a_t)
+    \end{align*}
+    for some stochastic perturbation $v(s_t, a_t)$.
+
+    \item \textbf{\sffamily Update estimate.}
+    Move $q$ towards the observed return using a stochastic approximation rule with learning rate $\alpha \in (0,1)$:
+    \begin{align*}
+        q_+(s_t, a_t) = q(s_t, a_t) + \lrate ( q_{\pi}(s_t,a_t) + v(s_t,a_t) - q(s_t, a_t) ) .
+    \end{align*}
+    
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Update functions}
+
+% The state-action pairs are thus updated asynchronously as not all pairs are updated after each episode.
+% Besides, some pairs might be updated more than once with different observed returns if they were visited several times during the episode.
+
+Not all state-action pairs are necessarily updated after the episode. There are three common methods to decide which pairs to modify: the \textit{initial}-, \textit{first}-, and \textit{every-visit} update functions.
+
+\begin{definition}[Initial-visit updates]
+\label{def: initial visit updates}
+The initial-visit method updates the estimate $q$ only in the first state-action pair of an episode.
+Thus given an episode $(s_t, a_t, r_t)_{0 \le t < T}$, this method only updates $q(s_0, a_0)$.
+    % Thus given an episode $(s_t, a_t, r_t)_{0 \leq t < T}$,
+    % this method only updates $q(s_0, a_0)$.
+\end{definition}
+\vspace{-0.3cm}
+
+\begin{definition}[First-visit updates]
+The first-visit method updates the estimate $q$ in each state-action pair of an episode, but only uses the observed return from the first visit to that pair.
+Thus given an episode $(s_t, a_t, r_t)_{0 \le t < T}$, this method only updates $q(s_t,a_t)$ if $(s_t,a_t) \notin \{(s_{t'},a_{t'}) : t' < t\}$.
+    % Thus given an episode $(s_t, a_t, r_t)_{0 \leq t < T}$,
+    % this method updates $q(s_t, a_t)$ using only the observed return from the first visit to that state-action pair.
+    % provided that pair does not appear in the sequence $(s_{t'}, a_{t'})_{t' < t}$.
+\end{definition}
+\vspace{-0.3cm}
+
+\begin{definition}[Every-visit updates]
+The every-visit method updates the estimate $q$ in each state-action pair of an episode using every observed return from that pair.
+Thus given an episode $(s_t, a_t, r_t)_{0 \le t < T}$, this method updates $q(s_t,a_t)$ each time $(s_t,a_t)$ was visited during the episode.
+    % Thus given an episode $(s_t, a_t, r_t)_{0 \leq t < T}$,
+    % this method updates $q(s_t, a_t)$ using every observed return from that state-action pair.
+    % this method updates $q(s_t, a_t)$, each time that pair is encountered.
+\end{definition}
+\vspace{-1.2\parskip}
+
+
+% In other words, given an episode $(s_t, a_t, r_t)_{0 \leq t < T}$, the update function determines in which state-action pairs the estimate $q$ is modified.
+% The initial-visit method updates only the first state-action pair $(s_0, a_0)$.
+% The first-visit method updates each state-action pair $(s_t, a_t)$ provided it has not appeared in the sequence $(s_{t'}, a_{t'})_{t' < t}$.
+% The every-visit method updates all state-action pairs each time they are encountered.
+We only consider initial- and first-visit updates
+because every-visit updates can produce biased estimates of the action values \cite[Theorem~7]{Singh1996ReinforcementTraces}.
+
+Under initial- and first-visit updates, each state-action pair of the estimate $q$ is updated at most once during a step of MC policy evaluation.
+The update is then equivalent to
+\begin{align}
+\label{eq: update q with chi}
+    q_+ 
+    =
+    q + \lrate u ( q_\pol + v - q )
+    % \begin{cases}
+    %     \ q(s,a) + \lrate (\Tilde{q}_\pol(s,a) - q(s,a)) &\text{if} \ u(s,a)=1
+    %     \\
+    %     \ q(s,a) &\text{if} \ u(s,a)=0
+    % \end{cases}
+\end{align}
+where $u$ is an indicator function satisfying $u(s,a)=1$ if $(s, a)$ is to be updated, and $0$ otherwise.
+This function depends on the initial state-action pair of the episode, the policy used for simulating it and the chosen update function.
+
+
+% The major difference between initial- and first-visit updates, is the probability that a state-action pair is updated.
+% For initial-visit MC-O-PI, a state-action pair can only be updated if the episode starts in that particular state-action pair.
+% For first-visit MC-O-PI on the other hand, a state-action pair can also be updated if the simulation passes through it later on. 
+% Therefore, for on-policy actions, we have that
+% \begin{align}
+%     \saprior(s, \pol(s)) = \update^{IV}(s, \pol(s)) \leq \update^{FV}(s, \pol(s)) ,
+%     % \leq \update^{EV}(s, \pol(s)) ,
+% \end{align}
+% whereas for off-policy actions $a \notin \pol(s)$ we have that
+% \begin{align}
+%     \saprior(s, a) = \update^{IV}(s, a) = \update^{FV}(s, a) .
+%     % = \update^{EV}(s, a).
+% \end{align}
+% Thus, depending on the update function, the update probabilities $\update$ might depend on the policy $\pol$.
+
+
+
+% \textcolor{red}{How implement synchronous updates for IV and FV with biased sampling of initial (s,a)? need batch of episodes?}
+
+% \textcolor{red}{instead of synchronous and asynchronous talk about MCES and expected MCES?}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Initial sampling distribution}
+
+To ensure that all state-action pairs are updated sufficiently often,
+we commonly impose \textit{exploring starts} on the sampling distribution of the initial state-action pair of each episode.
+
+\begin{definition}[Exploring starts]
+\label{def: exploring starts}
+    Every state-action pair has a non-zero probability of being selected as the start of an episode, meaning for every state $s \in \sset$ and action $a \in \aset(s)$, the distribution $\start$ of the initial state-action pair satisfies
+    \begin{align*}
+        \start(s,a) > 0.
+    \end{align*}
+\end{definition}
+\vspace{-0.4cm}
+
+We can effectively nullify this condition using quickly decaying sampling distributions.
+For example, let $k$ denote the episode number. If we set the starting probability in a specific state-action pair $(s,a)$ to $\sigma_k(s,a) = 1/(k+2)^2$, there is a $50\%$ chance that no episode ever begins there. Under initial-visit updates, that pair would thus never be updated. To prevent such issues, we introduce a stronger condition.
+
+\begin{definition}[Strict exploring starts]
+\label{def: strict exploring starts}
+    There exists a fixed $\sigma_{\min} \in \mathbb R_{> 0}$ such that
+    for every state $s \in \sset$ and action $a \in \aset(s)$, the distribution $\start$ of the initial state-action pair satisfies
+    \begin{align*}
+        \start(s,a) > \sigma_{\min}.
+    \end{align*}
+\end{definition}
+% \vspace{-1.8\parskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Update distribution}
+
+Given the sampling distribution $\sigma$ of the initial state-action pair, the policy $\pi$ used for simulating the episode and the chosen update function $f$,
+we can compute the probability of updating each state-action pair after the episode.
+We gather these probabilities in the update distribution $\mu : \sset \times \aset \to [0,1]$ defined as
+\[
+\mu := \mathbb E [ u \mid \sigma, \pi, f] .
+\]
+Using this distribution, we can combine the stochastic terms $u$ and $v$ in equation \eqref{eq: update q with chi} into a single term $w$ defined as
+\begin{align}
+\label{eq: definition combined noise}
+    w
+    \coloneqq 
+    u \, v + (u - \mu) ( q_{\pol} - q ) .
+\end{align}
+This term incorporates the perturbations caused by the episode simulation and the asynchronous updates of state-action pairs.
+It simplifies equation \eqref{eq: update q with chi} to
+\begin{align}
+\label{eq: mcopi not yet sri}
+    q_+
+    =
+    q + \lrate ( \update ( q_{\pol} - q ) + w ) .
+\end{align}
+
+\vspace{-0.4cm}
+
+\begin{remark}[Mean-field ODE]
+\label{rmk: approximate ODE}
+As we will show later, $w$ is a zero-mean stochastic perturbation.
+So MC policy evaluation is essentially a stochastic approximation of the differential equation
+\[
+\dot q = \update ( q_{\pol} - q ) .
+\]
+The update distribution $\mu$ 
+% resulting form the chosen sampling distribution and update function,
+is thus a crucial design parameter of the algorithm
+as it controls the behaviour of this underlying ODE.
+\end{remark}
+
+\vspace{-0.3cm}
+
+\begin{remark}[Exploration-exploitation trade-off]
+\label{rmk: exploration-exploitation tradeoff}
+The update distribution $\mu$ controls the exploration-exploitation trade-off
+as it determines how frequently each action is updated.
+Exploration favours actions whose current estimated value is most uncertain, for instance, by biasing $\mu$ towards actions that received few updates.
+Exploitation, on the other hand, prioritises updating actions with the highest estimated value. It thus biases $\mu$ towards actions that are currently greedy with respect to $q$.
+
+Common strategies implement different choices of $\mu$. 
+For instance, the epsilon-greedy approach starts with a uniform distribution that progressively concentrates on greedy actions as $\varepsilon$ decays.
+The UCB method 
+initially favours
+% assigns higher probabilities to 
+actions with fewer past updates and gradually shifts to greedy actions as uncertainty decreases.
+\end{remark}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Optimistic policy improvement}
+
+Given an estimate $q$ of the action values $q_\pol$, optimistic policy improvement chooses a new policy $\pol_+$ so that, for every state $s \in \sset$,
+\begin{align}
+\label{eq: optim policy improvement idea}
+    q(s, \pol_+) \geq q(s, \pol) .
+\end{align}
+The improvement is \textit{optimistic} because the policy is updated before $q$ has converged to $q_{\pol}$. Therefore, the \hyperref[thm: policy improvement theorem]{Policy Improvement Theorem} does not guarantee that $\pol_+$ is as good as $\pol$.
+
+There are several ways to compute a policy $\pol_+$ that satisfies condition \eqref{eq: optim policy improvement idea}.
+Yet, the GLIE conditions (\autoref{def: glie}) require that the policy $\pol$ is asymptotically greedy with respect to the estimate $q$, so that solutions stop moving once they reach the optimal policy $\best{\pol}$ and its action values $\qopt$.
+Since we study the asymptotic behaviour of MC-O-PI, we assume policies are greedy at every step.
+
+Concretely, we define the set-valued function $\grpol : \qset \rightrightarrows \polset$ that maps any action-value function $q$ to the set of deterministic policies that are greedy with respect to $q$:
+\begin{align}
+\label{eq: greedy pol}
+    \grpol(q) \coloneqq \big\{ \pol \in \polset : q(s, \pol) = \max_{a \in \aset(s)} q(s,a), \ \forall s \in \sset \big\} ,
+\end{align}
+and choose
+\begin{align}
+\label{eq: greedy policy update}
+    \pol_+ \in \grpol(q)
+\end{align}
+using random tie-breaking that is independent across states. Specifically, we assume that there exists a fixed $\beta>0$ such that, for every state $s \in \sset$ and every greedy action $a \in \arg\max_{\aset(s)} q_k(s,\cdot)$,
+\begin{equation}
+\label{eq:greedy-pol-tie-breaking}
+    \mathbb P(\pi_+(s) = a ) \ge \beta.
+\end{equation}
+This assumption is mainly technical as ties rarely occur in practice, except perhaps at initialization.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Difference inclusion combining evaluation and improvement steps}
+
+MC-O-PI thus learns the optimal policy of an MDP by tracking two variables: an estimate $q$ and a policy $\pol$. The algorithm alternates between 
+Monte Carlo policy evaluation that updates $q$ towards the action values of $\pol$ using equation \eqref{eq: mcopi not yet sri}, and optimistic policy improvement that updates $\pol$ to be greedy with respect to $q$ using equation \eqref{eq: greedy policy update}.
+We can combine both equations into the following difference inclusion.
+
+\begin{definition}[MC-O-PI difference inclusion]
+\label{def: mcopi}
+Given a sequence of learning rates $(\lrate_k)_{k \geq 0}$, a sequence of start distributions $(\start_k)_{k \geq 0}$ and a sequence of update functions $(f_k)_{k \geq 0}$,
+MC-O-PI is equivalent to the stochastic difference inclusion
+\begin{align}
+\nonumber
+    &q_{k+1}
+    \in
+    \Big\{ 
+    q_k + \lrate_k \bigl( \update_k ( q_{\pol_k} - q_k ) + w_k \bigr) 
+    :
+    \\
+\label{eq: complete difference inclusion}
+    &\hspace{1cm}
+    \pol_k \in \grpol(q_k),
+    \update_k = \update(\start_k, \pol_k, f_k),
+    w_k \sim w(\start_k, \pol_k, f_k)
+    \Big\}
+\end{align}
+where $\update_k$ is the update distribution obtained by sampling the initial state-action pair of the $k^\nth$ episode according to $\start_k$, simulating the episode with policy $\pol_k$ and deciding which state-action pairs to update using the update function $f_k$.
+The stochastic perturbation $w_k$ is a realisation under the same conditions.
+\end{definition}
+
+\vspace{-0.6cm}
+
+System \eqref{eq: complete difference inclusion} is a switched linear system whose active dynamics depend on which policy is greedy with respect to the current estimate $q_k$.
+Thus, the dynamics remain the same as long as the greedy policy does not change.
+We can delimit the subspaces of $\qset$ with constant dynamics using the set-valued function $\graval : \polset \rightrightarrows \qset$ defined as
+\begin{align}
+\label{eq: greedy action values}
+    \graval(\pol) \coloneqq \big\{ q \in \qset : q(s, \pol) = \max_{a \in \aset(s)} q(s,a), \ \forall s \in \sset \big\} .
+\end{align}
+This function is the inverse of $P$ defined in \eqref{eq: greedy pol}, as it maps any deterministic policy $\pol$ to the set of action-value functions for which $\pol$ is greedy.
+Since $\graval(\pol)$ forms a convex subset of $\qset$, we refer to $\graval(\pol)$ as the \textit{region} of policy $\pol$ in $\qset$.
+
+
+For instance, consider the MDP in \autoref{fig: description region smallest MDP} with $\sset = \{s\}$ and $\aset(s) = \{a,a'\}$.
+Any point $q \in \qset$ can be represented by a point in $\real^2$ with coordinates $( q(s,a), q(s,a') )$.
+As shown in \autoref{fig: show regions}, the line $q(s,a) = q(s,a')$ bisects $\qset$.
+The region $\graval(\pol)$ is the half-space where $q(s,a) \ge q(s,a')$, while $\graval(\pol')$ is the half-space where $q(s,a') \ge q(s,a)$.
+
+\label{page: description of switched system}
+
+Suppose the update distributions $(\mu_k)$ are uniform over all state-action pairs, and hence equivalent to a scalar in \eqref{eq: complete difference inclusion}.
+Following the ODE-interpretation in \autoref{rmk: approximate ODE},
+MC-O-PI solutions then approximate $\dot q = q_{\pi} - q$ over $\graval(\pi)$ and $\dot q = q_{\pi'} - q$ over $\graval(\pi')$, or in short
+\begin{align}
+\label{eq: switched ode for interpretation}
+\dot q \in \{ q_\pi - q : \pi \in \grpol(q) \}.
+% \begin{cases}
+%     &q_{\pi} - q \qquad q \in \graval(\pi)
+%     \\
+%     &q_{\pi'} - q \qquad q \in \graval(\pi')
+% \end{cases}
+\end{align}
+As the learning rate decreases, MC-O-PI follows the streamlines in \autoref{fig: explain regions with streamlines} more closely (arbitrary position of $q_\pi$ and $q_{\pi'}$).
+On the boundary, either systems are possible since the boundary belongs to both regions. However, the tie-breaking must satisfy \eqref{eq:greedy-pol-tie-breaking}.
+
+
+% Note that the function $\graval$ does not partition the space $\qset$ because regions of different policies can overlap.
+% For instance, if $q(s, \pol) = q(s, \pol') = \max_{a} q(s,a)$ for all states $s \in \sset$,
+% then $q$ lies on the boundary between the regions $\graval(\pol)$ and $\graval(\pol')$.
+
+
+\input{figures/algo/regions}
+
+\begin{remark}[Every boundary has a best and a worst policy]
+\label{rmk: boundary and optimal policy}
+
+    Consider an MDP with states $\sset$ and actions $\aset(s)$ for each $s \in \sset$. These sets define the function space $\qset \coloneqq \{ \sset \times \aset \to \real \}$.
+    
+    For every $q \in \qset$, we can construct a smaller MDP by removing in each state all actions from $\aset(s)$ that do not maximise $q(s,\cdot)$.
+    This way, all policies of the smaller MDP are greedy with respect to $q$,
+    and all these greedy policies are legal on the smaller MDP.
+    The set $\grpol(q)$ thus contains all deterministic policies of this smaller MDP.
+    
+    The smaller MDP still satisfies the Bellman optimality principle. Therefore, it also has at least one optimal and one worst policy.
+    As a result, for every $q \in \qset$ the set $\grpol(q)$ contains at least one policy that is better than or equal to all others, and another that is worse than or equal to all others.
+    In particular, when $q$ lies on the boundary between several regions $\region(\pol)$, $\region(\pol')$, etc., there exist at least one best and one worst policy among those sharing this boundary.
+\end{remark}
+
+
+% \begin{remark}
+% \label{rmk: only qopt is inside its own region}
+%     Since the Bellman operator has a unique fixed point, only the optimal action-values are inside their own region, namely
+%     \begin{align}
+%         q_\pol \in \region(\pol) \iff \B q_\pol = \B_\pol q_\pol = q_\pol = q_{\best{\pol}}.
+%     \end{align}
+%     \textcolor{red}{cannot use bellman operator yet}
+% \end{remark}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Stochastic perturbations form a martingale difference sequence}
+
+Recall from \eqref{eq: definition combined noise} that the perturbation in \eqref{eq: complete difference inclusion} is
+\[
+    w_k
+    \coloneqq 
+    u_k v_k + (u_k - \mu_k) ( q_{\pol_k} - q_k ) ,
+\]
+where $u_k$ indicates which state-action pairs are updated after the $k^\nth$ episode, $v_k$ is the error between the observed and the expected returns under policy $\pi_k$, and $\mu_k$ is the expected value of $u_k$ given the sampling distribution $\sigma_k$, the policy $\pi_k$ and the update function $f_k$.
+
+Under initial- or first-visit updates, episode returns are unbiased estimates of $q_{\pi_k}$ and have uniformly bounded variance \cite[Theorems~6~\&~8]{Singh1996ReinforcementTraces}.
+So there exists a constant $c_v \in [0,\infty)$ such that for every time $k \ge 0$, every state $s \in \mathcal S$ and every action $a \in \mathcal A(s)$,
+\begin{align}
+\label{eq: v_mds_first}
+% &\mathbb E[v_k(s,a) \mid \mathcal F_k, \pi_k, u_k(s,a)=1] = 0 ,
+&\mathbb E\!\left[v_k(s,a) \mid \mathcal F_k \right] = 0 ,
+\\
+\label{eq: v_mds_second}
+% &\mathbb E[v_k^2(s,a) \mid \mathcal F_k, \pi_k, u_k(s,a)=1] \le c_v .
+&\mathbb E\!\left[v_k^2(s,a) \mid \mathcal F_k \right] \le c_v ,
+\end{align}
+where $\mathcal F_k$ represents the available information after $q_k$ is computed,
+but before selecting the next greedy policy, sampling the initial state-action pair, and generating the episode.
+The sequence $(v_k)_{k \ge 0}$ is thus a square integrable martingale difference sequence adapted to the filtration $(\mathcal F_{k})_{k \ge 0}$.
+The stochastic perturbations $(w_k)_{k \ge 0}$ inherit this property.
+
+\begin{lemma}
+[Martingale difference perturbations]
+\label{thm: properties of noise}
+
+Under initial- or first-visit updates, 
+there exists a $c_w \in [0,\infty)$
+such that for every time $k \ge 0$, every state $s \in \sset$ and every action $a \in \aset(s)$,
+\vspace{-0.3cm}
+\begin{align}
+\label{eq: muw_mds}
+&\mathbb E [w_k(s,a) \mid \mathcal F_k ] = 0,
+\\
+\label{eq: muw_second_moment}
+&\mathbb E [w_k^2(s,a) \mid \mathcal F_k ] \le c_w(1+\|q_k\|^2) .
+\end{align}
+\end{lemma}
+\vspace{-0.9cm}
+\begin{proof}
+    Fix a time $k\ge 0$, a state $s \in \mathcal S$ and an action $a \in \mathcal A(s)$.
+    Let $\mathcal F_k'$ represent the available information right after selecting the policy but before sampling the initial state-action pair, so $\mathcal F_k \subseteq \mathcal F_k'$.
+    By definition,
+    \[
+    w_k(s,a) = u_k(s,a) v_k(s,a) + \big( u_k(s,a)-\mu_k(s,a) \big) \big( q_{\pi_k}(s,a) - q_k(s,a) \big).
+    \]
+    % \textcolor{red}{wrong, $u_k$ is fixed given $F'_k$ so no expectation left, likely need $F'_k$ just right after selecting the policy but before selecting initial state-action pair}
+    Since episode returns are unbiased under initial- or first-visit updates,
+    and $u_k(s,a) v_k(s,a) = 0$ on $\{u_k(s,a)=0\}$,
+    it follows that
+    \begin{align*}
+    &\mathbb E[ u_k(s,a) v_k(s,a) \mid \mathcal F_k']
+    \\
+    &\qquad=
+    \mathbb E \big[ 
+        \mathbf 1_{\{u_k(s,a)=1\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=1] 
+        % +
+        % \mathbf 1_{\{u_k(s,a)=0\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=o] 
+        \mid \mathcal F_k' \big]
+    = 0 .
+    \end{align*}
+    Also, $\mu_k(s,a) = \E[u_k(s,a) \mid \mathcal F_k']$ and,
+    given that $k$, $s$ and $a$ are fixed,
+    $\mu_k(s,a)$ and $(q_{\pi_k}(s,a)-q_k(s,a))$ are $\mathcal F_k'$-measurable. It follows that
+    \begin{align*}
+    &\mathbb E \!\left[
+    \big( u_k(s,a)-\mu_k(s,a) \big) \big( q_{\pi_k}(s,a)-q_k(s,a) \big)
+    \mid \mathcal F_k'
+    \right]
+    \\
+    &\qquad =
+    \big( \mathbb E [
+     u_k(s,a)
+    \mid \mathcal F_k'
+    ]
+    - \mu_k(s,a) 
+     \big) 
+    \big( q_{\pi_k}(s,a)-q_k(s,a) \big) 
+    =
+    0 .
+    \end{align*}
+    Thus $\mathbb E[w_k(s,a) \mid \mathcal F_k'] = 0$.
+    Applying the tower property then yields
+    \[
+    \mathbb E [ w_{k}(s,a) \mid \mathcal F_k ]
+    = \mathbb E \!\left[ \mathbb E [ w_{k}(s,a) \mid \mathcal F_k'] \mid \mathcal F_k \right]
+    = 0 ,
+    \]
+    which proves \eqref{eq: muw_mds}.
+    
+    Further, since $u_k^2(s,a) \le 1$ and $(u_k(s,a) - \mu_k(s,a))^2 \le 1$,
+    using $(x+y)^2 \le 2 x^2 + 2 y^2$ yields
+    \[
+    w_k^2(s,a) \le 2 v_k^2(s,a) + 2 (q_{\pi_k}(s,a)-q_k(s,a) )^2 .
+    \]
+    Similarly,
+    \[
+    ( q _{\pi_k}(s,a)-q_k(s,a) )^2
+    \le
+    2 q_{\pi_k}^2(s,a) + 2 q_k^2(s,a) .
+    \]
+    Since all action-values are bounded,
+    there exists a constant $c_\polset < \infty$ such that $\|q_\pi\|^2 \leq c_\polset$ for every policy $\pi \in \polset$. As a result,
+    \begin{align*}
+    \mathbb E [ w_{k}^2(s,a) \mid \mathcal F_k ]
+    &\le
+    2 c_v + 2 \, \mathbb E \!\left[ ( q_{\pi_k}(s,a)-q_k(s,a) )^2 \mid \mathcal F_k \right]
+    \\
+    &\le
+    2 c_v + 4 c_\polset + 4 \|q_k\|^2 .
+    \end{align*}
+    So \eqref{eq: muw_second_moment} holds for example with $c_w := \max \{ 2 c_v + 4 c_\polset, 4\}$.
+\end{proof}
+
+Since the perturbations $(w_k)_{k \ge 0}$ form a martingale difference sequence,
+% adapted to the filtration $(\mathcal F_{k})$,
+we can bound their cumulative impact on any solution of \eqref{eq: complete difference inclusion} using appropriate conditions on the learning rates.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Modified Robbins-Monro conditions for effective learning rates}
+\label{sec: modified robbins monro conditions}
+
+% \textcolor{red}{wlog assume everywhere in the thesis that learning rates are in $(0,1)$}
+
+Unless stated otherwise, we assume that $\lrate_k \in (0,1)$. In some examples, however, we use \textit{sample averaging} learning rates $\lrate_k(s,a) = 1/n_k(s,a)$, where $n_k(s, a)$ denotes the number of times the estimate $q$ has been updated in the state-action pair $(s, a)$ during the first $k$ time steps. 
+These learning rates are theoretically appealing because they ensure that $q_k(s,a)$ is the exact average of all returns observed up to step $k$.
+However, they are rarely used in practice due to their high memory requirements.
+Regardless, the learning rates of stochastic approximation algorithms such as \eqref{eq: complete difference inclusion} must typically satisfy the Robbins-Monro conditions \citep{Robbins1951AMethod}.
+These conditions ensure that the learning rates are large enough to avoid premature convergence due to Zeno-like behaviour,
+while gradually decreasing to zero so that the accumulated stochastic perturbations
+% satisfy $\lim_{K \to \infty} \sum_{k \ge K} \alpha_k w_k = 0$, and hence
+cannot prevent convergence.
+
+% \vspace{0.2cm}
+
+\input{theorems/11/robbins-monro}
+
+\vspace{-0.5cm}
+
+For MC-O-PI, however, the update distributions $(\update_k)$ modulate the learning rates $(\lrate_k)$, leading to different learning rates for different state-action pairs.
+Thus, Robbins-Monro-like conditions are necessary for the products $(\lrate_k \update_k)$ rather than the original learning rates alone.
+We refer to these products as \textit{effective learning rates}.
+
+To see why the Robbins-Monro conditions must be adjusted, fix a policy $\pi$ and consider the system
+\begin{align}
+\label{eq: single system}
+    q_{k+1}
+    &= q_k + \lrate_k \update_k (q_\pi - q_k) + \lrate_k w_k .
+\end{align}
+Unrolling over $n$ steps yields
+\begin{multline*}
+    q_{k+n}
+    = \left( \prod_{i=k}^{k+n-1} (\I -\lrate_i \update_i) \right) q_k 
+    + \left( \I - \prod_{i=k}^{k+n-1} (\I -\lrate_i \update_i) \right) q_\pi
+    \\
+    + \sum_{j=k}^{k+n-1} \prod_{i=j+1}^{k+n-1} (\I -\lrate_i \update_i) \lrate_j w_j .
+\end{multline*}
+For $q_{k+n}$ to converge to $q_\pi$ as $n$ grows to $\infty$, three conditions must be satisfied for every state $s \in \sset$ and action $a \in \aset(s)$.
+First,
+\begin{align}
+\label{eq: condition infinite visits}
+    \sum_{k=0}^{\infty} \update_k(s,a) = \infty ,
+    % \qquad \forall \, s \in \sset, \forall \, a \in \aset(s) .
+\end{align}
+so that the state-action pair is updated infinitely often.
+% Therefore, for every state-action pair $(s,a)$, the update distributions $(\update_k)$ must satisfy
+Second, 
+\begin{align}
+    \label{eq: condition infinite effective learning rate}
+    \sum_{k=0}^{\infty} \lrate_k \update_k(s,a) = \infty ,
+    % \qquad \forall \, s \in \sset, \forall \, a \in \aset(s) .
+\end{align}
+so that the product $\prod_{i=k}^{k+n-1} (1 - \lrate_i \update_i(s,a))$ decays to zero for increasing $n$.
+Finally,
+\begin{align}
+    \label{eq: summable learning rates outside def}
+    \sum_{k=0}^\infty \lrate_k^2 < \infty ,
+\end{align}
+to ensure the accumulated stochastic perturbations vanish.
+% Note that \eqref{eq: condition infinite visits} does not automatically imply \eqref{eq: condition infinite effective learning rate}.
+% For instance, under \eqref{eq: condition infinite visits} and the Robbins-Monro conditions on the learning rates $(\lrate_k)$, we could choose $\lrate_k = \update_k(s,a) = 1/k$. System \eqref{eq: single system} would then converge prematurely due to Zeno-like behaviour because the products $\prod_{i=k}^{k+n-1} (1-\lrate_i \update_i)$ would not decay to 0.
+% If we imposed $\sum_k \lrate_k^2 \update_k^2 < \infty$ instead, we could choose $\lrate_k = \update_k(s,a) = 1/\sqrt{k}$ for each state-action pair, still satisfy conditions \eqref{eq: condition infinite visits} and \eqref{eq: condition infinite effective learning rate}.
+%  However, the noise term in \eqref{eq: single system unrolled} would become
+% \begin{align}
+%     \sum_{j=k}^{k+n-1} \prod_{i=j+1}^{k+n-1} (1-\frac{1}{i}) \frac{1}{\sqrt{j}} \xi_j
+%     &= \sum_{j=k}^{k+n-1} \frac{j}{k+n+1} \frac{1}{\sqrt{j}} \xi_j
+%     \\
+%     &= \frac{1}{k+n+1} \sum_{j=k}^{k+n-1} \sqrt{j} \xi_j
+%     \\
+%     &\eqqcolon N_{k,n}
+% \end{align}
+% We see that
+% \begin{align}
+%     \E[N_{k,n}^2] = \E \Bigg[ \Big( \frac{1}{k+n+1} \sum_{j=k}^{k+n-1} \sqrt{j} \xi_j \Big)^2 \Bigg]
+% \end{align}
+% Since the cross terms vanish in expectation, 
+% and as a result, $q_k$ would not converge to $q_\pi$
+% 
+% since $\sum_k \lrate_k^2 = \infty$, the noise would not be almost surely bounded. In other words, the noise alone would be able to pull solution arbitrarily far from $q_\pi$ infinitely often, thereby preventing convergence.
+% 
+
+% Thus, the minimal requirements on the learning rates and the update distributions are
+% % for every state $s \in \sset$ and action $a \in \aset(s)$
+% \begin{align}
+%     \label{eq: xtn robbins-monro first}
+%     &\sum_{k =0}^\infty \lrate_k \update_k(s,a) = \infty 
+%     \qquad \forall \, s \in \sset, \forall \, a \in \aset(s) ,
+%     \\
+%     \label{eq: xtn robbins-monro second}
+%     &\sum_{k =0}^\infty \lrate_k^2 < \infty .
+% \end{align}
+
+Condition \eqref{eq: summable learning rates outside def} ensures that learning rates eventually remain smaller than 1. Since we study the asymptotic behaviour of \eqref{eq: complete difference inclusion},
+the assumption $\alpha_k \in (0,1)$ entails no loss of generality.
+So $\alpha_k \update_k(s,a) \le \update_k(s,a)$.
+% for every state-action pair, and .
+% and condition \eqref{eq: xtn robbins-monro second} implies that $\lrate_k \leq 1$ for sufficiently large $k$.
+As a result, condition \eqref{eq: condition infinite visits} is redundant because \eqref{eq: condition infinite effective learning rate} always implies \eqref{eq: condition infinite visits}.
+% \eqref{eq: xtn robbins-monro first} guarantees condition \eqref{eq: condition infinite visits}.
+% It also guarantees \eqref{eq: condition infinite visits} since
+% % , for all state-action pairs,
+% \begin{align}
+% \label{eq: rm implies infinite visits}
+%     \sum_{k \geq 0} \update_k (s,a) 
+%     \geq \sum_{k \geq 0} \lrate_k \update_k (s,a) 
+%     = \infty.
+% \end{align}
+The converse is not true.
+For instance, if $\lrate_k = \update_k(s,a) = 1/k$ for some state-action pair, the estimate $q_k(s,a)$ may converge prematurely because the product $\prod_{i=k}^{k+n-1} (1-\lrate_i \update_i(s,a))$ would not decay to 0,
+despite being updated infinitely often and satisfying condition \eqref{eq: robbins-monro first}.
+
+Overall, \eqref{eq: condition infinite effective learning rate} and \eqref{eq: summable learning rates outside def} are the minimal conditions on the learning rates and update distributions so that $q_{k+n}$ converges to $q_\pi$. We refer to these conditions as the \textit{modified Robbins-Monro conditions}.
+
+\input{theorems/11/effective-RM-conditions}
+
+\vspace{-0.5cm}
+
+% Further, condition \eqref{eq: xtn robbins-monro second}
+% guarantees that for all state-action pairs
+% \begin{align}
+% \label{eq: rm implies sqared eff lr is bounded}
+%     \sum_{k \geq 0} \lrate_k^2 \update_k^2 (s,a) 
+%     \leq \sum_{k \geq 0} \lrate_k^2 
+%     < \infty .
+% \end{align}
+
+The update distributions $(\update_k)$ may depend on the policies $(\pol_k)$ and thus be unknown before running MC-O-PI.
+Nevertheless, it is possible to select learning rates, start distributions and update functions so that the modified Robbins-Monro conditions hold.
+For initial-visit updates, it suffices to verify that the sequences $(\lrate_k)$ and $(\start_k)$ satisfy these conditions.
+If they do, the conditions remain valid under first-visit updates, regardless of the policies $(\pol_k)$.
+
+
+% \textcolor{red}{how to remove ES from these assumptions? how to choose for RM or modified RM?}
+
+% Altogether, throughout this document, we 
+
+% \begin{assumption}[Standing assumptions]
+% \label{asp: standing}
+% Throughout this paper, we assume:
+% \begin{enumerate}
+%     \item \textbf{\sffamily Modified Robbins-Monro learning rates.}
+%     % The learning rates $(\lrate_k)$ satisfy
+%     \begin{align}
+%         0 \le \alpha_k \mu_k(s,a) \le 1 ,
+%         \qquad
+%         \sum_{k =0}^\infty \alpha_k \mu_k(s,a) = \infty , 
+%         \qquad
+%         \sum_{k =0}^\infty \alpha_k^2 < \infty .
+%     \end{align}
+    
+%     \item \textbf{\sffamily Unbiased return estimates.} The update functions $(f_k)$ are initial- of first-visit updates.
+
+%     \item \textbf{\sffamily Contractive MDP.}
+%     % The Bellman operators $T_\pi$ and $T$ are monotonic and are $\gamma$-contractions in the $L_\infty$-norm.
+%     Either the discount factor satisfies $\gamma \in [0, 1)$ or each simulation of the MDP reaches a terminal state almost surely.
+% \end{enumerate}
+% \end{assumption}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Basic properties}
+\label{sec: mcopi behaviour}
+
+% \mytodo{be very clear about when need $(q_k)$ to be generated by MC-O-PI and when consider a random sequence $(q_k)$}
+
+Due to the stochastic episode simulations and asynchronous updates of state-action pairs, the difference inclusion \eqref{eq: complete difference inclusion} that underpins MC-O-PI generates two random sequences: $(q_k)$ and $(\pol_k)$.
+We characterise their convergence using the concept of \textit{convergence with probability one}.
+
+% see 
+% theorem 4.1.3 in https://doi.org/10.1007/978-3-030-40183-2
+% theorem in Tao's Random Matrix theory
+% Grimmett - Probability
+% Wikipedia
+% https://terrytao.wordpress.com/wp-content/uploads/2011/02/matrix-book.pdf
+
+\input{theorems/11/wpo}
+\vspace{-0.5cm}
+
+This notion of convergence, also called \textit{almost sure convergence}, means that while events where the sequence $(x_k)$ does not converge to $x$ or $\xset'$ may exist, they collectively have a probability of zero.
+This definition allows us to describe some key properties of the sequences $(q_k)$ and $(w_k)$ generated by MC-O-PI in the function space $\qset$ with metric $d(q, q') = \|q-q'\| = \max_{s,a} | q(s,a) - q'(s,a) |$.
+
+% These properties follow from the martingale characteristics of the noise derived in \autoref{thm: properties of noise}.
+% In this definition however $w_k$ is inversely proportional to $\update_k$. Thus if for some state-action pair $\update_k(s,a)$ is small, $w_k(s,a)$ may be large.
+% This effect is neutralised because $w_k$ is scaled by $\update_k$ at each step of the difference inclusion \eqref{eq: complete difference inclusion}.
+% Consequently, the quantities of interest are the bias and more importantly the variance of the product $\update_k w_k$ rather than $w_k$ alone.
+% The following lemma shows that the product $\update_k w_k$ has no bias and a bounded variance.
+
+By leveraging the properties of the stochastic perturbations (\autoref{thm: properties of noise}) and the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate})
+we can apply standard martingale and stochastic approximation arguments to establish fundamental properties of the difference inclusion \eqref{eq: complete difference inclusion} that underlies MC-O-PI.
+The resulting properties presented below rely extensively on theorems from Chapter 4 of \citep{Bertsekas1996Neuro-DynamicProgramming}.
+
+
+% \input{theorems/11/noise-properties}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Solutions are bounded}
+
+% \begin{lemma}
+% \label{thm: bounded mcopi solutions}
+% If the effective learning rates $(\lrate_k \update_k)$ satisfy the Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate})
+% and solutions of MC-O-PI only visit a subset of policies $\polset' \subseteq \polset$,
+% then solutions are almost surely bounded, meaning that
+% \begin{align}
+%     &\limsup_{k \to \infty} q_k(s,a) \leq \max_{\pol \in \polset'} q_{\pol}(s,a)
+%     \\
+%     &\liminf_{k \to \infty} q_k(s,a) \geq \min_{\pol \in \polset'} q_{\pol}(s,a)
+% \end{align}
+% \end{lemma}
+% \begin{proof}
+%     just take proof of other lemma
+% \end{proof}
+
+
+% Given that the difference inclusion \eqref{eq: complete difference inclusion} is essentially a stable linear system with a variable set point that is perturbed by noise, and that the eigenvalues of the system are real
+% The following lemma shows that solutions of MC-O-PI converge to $\qset_\infty$.
+
+\input{theorems/11/bounded-solution}
+
+\vspace{-0.4cm}
+
+\autoref{thm: bounded limit sets} implies that MC-O-PI solutions converge almost surely to the long-term region $\qset_\infty$ defined as
+\begin{align}
+\label{eq: long term region}
+    \qset_\infty \coloneqq \big\{ q \in \qset : q_{\worst{\pol}} \leq q \leq q_{\best{\pol}} \big\} ,
+\end{align}
+where $\worst{\pol}$ and $\best{\pol}$ are the worst and best policies of the MDP.
+% and the inequalities hold elementwise.
+Therefore, when studying the asymptotic behaviour of MC-O-PI, it is sufficient to consider solutions that start in the long-term region $\qset_\infty$.
+
+% \input{theorems/11/bounded-sol}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Effects of noise become arbitrarily small}
+
+Having established that solutions converge to $\qset_\infty$, we now show that the effects of the perturbations are asymptotically negligible, meaning they cannot prevent solutions from converging to a point in $\qset_\infty$.
+% This follows from the next lemma that proves that the perturbations $(\lrate_k \update_k w_k)$ converge to zero.
+
+\input{theorems/11/bounded-noise}
+
+% \autoref{thm: effects of noise decrease} demonstrates that the noise terms cannot counteract the decreasing learning rates and cause $(q_k)$ to be a random walk through $\qset$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Steps become arbitrarily small}
+
+Since solutions converge to the bounded region $\qset_\infty$ and the effects of noise become arbitrarily small, the updates of the differential inclusion \eqref{eq: complete difference inclusion} become arbitrarily small. In other words, the distance between consecutive elements of a solution $(q_k)$ tends to zero.
+
+\input{theorems/11/small-steps}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Suboptimal fixed points only appear on the boundary}
+
+% The Bellman optimality principle indicates that only the action values of the optimal policy $\best{\pol}$ lie in their own region $\region(\best{\pol})$.
+
+% As a result, \eqref{eq: complete difference inclusion}
+
+% MC-O-PI cannot converge to a suboptimal policy
+
+% \input{theorems/11/conv-to-subopt-fp}
+
+% \autoref{thm: fixed points are on the boundary} indicates that ...
+% So if can check that several policies are greedy on $q$, then might not have converged to optimal solution.
+% Conversely, if on the long term a single policy is greedy on $q$, then are guaranteed that have found optimal policy.
+% We will now present the additional conditions where previous research has shown that every solution of MC-O-PI converges to $q_{\best{\pol}}$ and $\best{\pol}$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convergence}
+\label{sec: existing convergence proofs}
+
+
+\autoref{thm: bounded limit sets}, \autoref{thm: effects of noise decrease} and \autoref{thm: steps become arbitrarily small} establish that when MC-O-PI satisfies the modified Robbins-Monro conditions, solutions remain bounded, perturbations cannot prevent convergence and updates become arbitrarily small.
+Despite these strong properties, \cite{Bertsekas1996Neuro-DynamicProgramming} have constructed a counterexample where MC-O-PI converges to a suboptimal fixed point when only the modified Robbins-Monro conditions hold.
+Thus additional statistical regularity is necessary to guarantee that MC-O-PI converges to $\qopt$.
+
+Prior work has addressed this issue by imposing conditions on either the parameters of MC-O-PI or on the structure of the MDP.
+\citet{Tsitsiklis2002OnIteration}, \citet{Chen2018OnProblem} and \citet{Liu2021OnStarts} demonstrate convergence to $\qopt$ when the update distributions are uniform over all state-action pairs,
+% \cite{Lubars2021OptimisticStructure} and
+while \citet{Wang2022OnLearning} establish convergence to $\qopt$ when the optimal policy of the MDP is feedforward.
+Overall, \citet[p. 99]{Sutton2018ReinforcementIntroduction} conjecture that under first-visit updates, sample averaging learning rates and exploring starts ``convergence to $\qopt$ seems inevitable''.
+The following section discusses these results in detail.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Counterexample with unconditional update distributions}
+\label{sec: existing counter}
+
+Example~5.12 in \citep{Bertsekas1996Neuro-DynamicProgramming} shows that under the modified Robbins-Monro conditions alone, solutions of the difference inclusion \eqref{eq: complete difference inclusion} can converge to a suboptimal fixed point on the boundary between the regions of several policies.
+
+\begin{remark}[All suboptimal fixed points lie on boundaries]
+    The sequence $(\pol_k)$ generated by MC-O-PI cannot converge to a suboptimal policy. If it did, the estimate $q_k$ would converge to the corresponding action values, which in turn would cause the policy to change. Therefore, any suboptimal fixed point that attracts the sequence $(q_k)$ must lie on the boundary between the regions of several policies so that the sequence $(\pol_k)$ can oscillate indefinitely.
+\end{remark}
+
+The counterexample presented below follows the strategy of Example~5.12 but differs in implementation.
+We track an action-value function $q_k$ to compute the greedy policy at each step in a model-free manner,
+whereas Bertsekas and Tsitsiklis track a state-value function $v_k$, which requires knowing the reward function $r$, the discount factor $\discount$ and the transition probabilities $\transit$ to compute the greedy policy.
+Regardless, the two examples are equivalent if we define
+\begin{align*}
+    q_k(s,a) = r(s,a) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s,a) v_k(s_+).
+\end{align*}
+This ensures that the greedy policies computed on $q_k$ and $v_k$ match.
+% A similar construction appears in Appendix~F of \citep{Wang2022OnLearning}.
+
+
+Concretely, consider the 
+% discounted, single-state, deterministic 
+MDP in \autoref{fig: experiment smallest MDP} with discount factor $\discount$. The state $s$ offers two actions: \textit{left} yields a reward of one and \textit{right} yields no reward. The best policy $\best{\pol}$ follows the \textit{left} action, denoted by $\best{a}$, while the worst policy $\worst{\pol}$ follows the \textit{right} action, denoted by $\worst{a}$. 
+% For clarity, we denote the best action by $\best{a}$ and the suboptimal action by $\worst{a}$.
+The action values of policies $\best{\pol}$ and $\worst{\pol}$ are:
+\begin{align*}
+    q_{\best{\pol}}(s, \best{a}) &= 1 + \discount + \discount^2 + \cdots = \dfrac{1}{1-\discount}
+    \\
+    q_{\best{\pol}}(s, \worst{a}) &= 0 + \discount + \discount^2 + \cdots = \dfrac{\discount}{1-\discount}
+    \\
+    q_{\worst{\pol}}(s, \best{a}) &= 1 + 0 + 0 + \cdots = 1
+    \\
+    q_{\worst{\pol}}(s, \worst{a}) &= 0 + 0 + 0 + \cdots = 0
+\end{align*}
+
+\input{figures/21/unconditional-bias-MDP}
+
+
+
+% As discussed in \autoref{sec: mcopi behaviour}, we assume that the effective learning rates satisfy \autoref{asp: stochastic conditions on effective learning rate}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Initial conditions}
+
+\autoref{fig: smallest counter initial condition} depicts the action values $\qopt$ and $q_{\worst{\pol}}$ within the space $\qset$. The dotted line separates the regions $\graval(\best{\pol})$ and $\graval(\worst{\pol})$.
+Thus points above the dotted line are attracted towards $q_{\worst{\pol}}$, while those below move towards $\qopt$.
+As shown in \autoref{thm: bounded limit sets}, it suffices to consider solutions starting in $\qset_\infty$ when studying the asymptotic behaviour of MC-O-PI.
+
+Since the MDP is deterministic, observed returns computed at the end of each episode match expected returns.
+Thus the estimate $q_k$ moves closer to $q_{\pol_k}$ at every step for at least one state-action pair without overshooting it.
+As a result, every solution that starts in an initial condition $q_0 \in \qset_\infty$ satisfying $q_0(s, \best{a}) \geq q_{\best{\pol}}(s, \worst{a})$, always remains in the region $\region({\best{\pol}})$ and converges to $\qopt$.
+Conversely, solutions that do not converge to $\qopt$ start in the region
+\begin{align}
+    \qset_0 \coloneqq \big\{ q \in \qset_\infty : q(s, \best{a}) < q_{\best{\pol}}(s, \worst{a}) \big\} .
+\end{align}
+As illustrated in \autoref{fig: smallest counter initial condition}, $\qset_0$
+% overlaps the regions $\region_{\best{\pol}}$ and $\region_{\worst{\pol}}$.
+is not empty provided
+\begin{align*}
+    q_{\worst{\pol}}(s, \best{a}) = 1 
+    < \dfrac{\discount}{1-\discount} = q_{\best{\pol}}(s, \worst{a}) ,
+\end{align*}
+which is satisfied as long as $\discount > 1/2$.
+
+\input{figures/21/unconditional-bias-loop}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Updating strategy}
+\label{sec: sampling strat of ex 512}
+
+
+Take any point $\hat{q} \in \qset_0$ on the boundary between the regions $\region({\best{\pol}})$ and $\region({\worst{\pol}})$.
+% \begin{align*}
+%     q_{\worst{\pol}}(s, \best{a}) < \hat{q}(s, \best{a}) = \hat{q}(s, \worst{a}) < q_{\best{\pol}}(s, \worst{a})
+% \end{align*}
+Further, let $\qset_1$, $\qset_2$, $\qset_3$ and $\qset_4$ denote the four regions that result from splitting $\qset_0$ along the boundary and vertically through $\hat{q}$.
+We then obtain the spiral behaviour depicted in \autoref{fig: smallest counter update}, by combining initial-visit updates with the following sampling strategy:
+\begin{enumerate}
+
+    \item \label{enum: existing update distrib}
+    When $q_\kpz \in \qset_1$, start each episode in $(s, \best{a})$.
+    The solution then moves horizontally towards $q_{\best{\pol}}$ until it enters $\qset_2$.
+    
+    \item 
+    When $q_\kpz \in \qset_2$, start each episode in $(s, \worst{a})$. 
+    The solution then moves vertically towards $q_{\best{\pol}}$ until it crosses the boundary between the regions $\region({\best{\pol}})$ and $\region({\worst{\pol}})$,
+    and enters $\qset_3$.
+
+    \item
+    When $q_\kpz \in \qset_3$, start each episode in $(s, \best{a})$. 
+    The solution then moves horizontally towards $q_{\worst{\pol}}$ until it enters $\qset_4$.
+
+    \item
+    When $q_\kpz \in \qset_4$, start each episode in $(s, \worst{a})$. 
+    The solution then moves vertically towards $q_{\worst{\pol}}$ until it crosses the boundary between the regions $\region({\worst{\pol}})$ and $\region({\best{\pol}})$,
+    and enters $\qset_1$.
+
+\end{enumerate}
+% definition of \updateste
+% Thus, at every step the update set $\updateset_k$ is defined over $\qset_0$ as 
+% \begin{align}
+%     \updateset_k(q) =
+%     \begin{cases}
+%         \ \update_k(s, \best{a})=1, \ \update_k(s, \worst{a})=0 &q \in \qset_1
+%         \\
+%         \ \update_k(s, \best{a})=0, \ \update_k(s, \worst{a})=1 &q \in \qset_2
+%         \\
+%         \ \update_k(s, \best{a})=1, \ \update_k(s, \worst{a})=0 &q \in \qset_3
+%         \\
+%         \ \update_k(s, \best{a})=0, \ \update_k(s, \worst{a})=1 &q \in \qset_4
+%     \end{cases}
+% \end{align}
+
+% bound stepsize
+As the sequence of learning rates decreases, the estimate $q_k$ converges to $\hat{q}$ while the policy $\pol_k$ oscillates indefinitely between $\best{\pol}$ and $\worst{\pol}$.
+The learning rates should be sufficiently small to ensure that solutions in $\qset_1$ do not overshoot $\qset_2$ and leave $\qset_0$. Thus when $q_\kpz \in \qset_1$ we require that
+\begin{align*}
+    q_\kpo(s, \best{a}) = q_k(s, \best{a}) + \lrate_k (q_{\best{\pol}}(s, \best{a}) - q_k(s, \best{a})) < q_{\best{\pol}}(s, \worst{a}) ,
+\end{align*}
+which is satisfied as long as
+\begin{align*}
+    \lrate_k
+    % < \dfrac{q_{\best{\pol}}(s, \worst{a}) - q_k(s, \best{a})}{q_{\best{\pol}}(s, \best{a}) - q_k(s, \best{a})}
+    < \dfrac{q_{\best{\pol}}(s, \worst{a}) - \hat{q}(s, \worst{a})}{q_{\best{\pol}}(s, \best{a}) - \hat{q}(s, \best{a})}
+\end{align*}
+for every $k \geq 0$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Discussion}
+
+
+This counterexample shows that under the modified Robbins-Monro conditions alone, MC-O-PI may converge to a suboptimal fixed point, even for an MDP with only two deterministic policies.
+
+This example is unrealistic for several reasons. First, it assumes we know $\qopt$ and use it to carefully select initial state-action pairs and learning rates that keep solutions in $\qset_0$.
+% In practice, $\qopt(s, \worst{a})$ is unknown, making it impossible to carefully select initial state-action pairs to prevent solutions from leaving $\qset_0$.
+If instead we sample initial state-action pairs from a distribution that satisfies exploring starts, there is a non-zero probability that solutions leave $\qset_0$. For instance, if $q_k \in \qset_2$, several updates of $q_k(s, \best{a})$ would drive solutions out of $\qset_0$.
+
+Furthermore, this example relies on exact policy evaluation to avoid overshooting $\qset_2$. However, in an MDP with stochastic transitions, any overestimation of $\qopt$ could push solutions out of $\qset_0$.
+
+Finally, this example applies initial-visit updates which are less data-efficient than first-visit updates; an important aspect in practical applications. 
+As soon as we implement first-visit updates, the spiral breaks because solutions in $\qset_2$ move along a straight line towards $\qopt$ and thus never leave $\region(\best{\pol})$.
+
+These observations raise the question: Does a counterexample exist where
+initial state-action pairs satisfy exploring starts, 
+episode simulations are stochastic 
+and the algorithm applies first-visit updates?
+Under these conditions, each update distribution $\update_k$ is independent of $q_k$'s position in $\qset$ but may depend on the currently greedy policy $\pol_k$.
+% as when using first-visit updates or an epsilon-greedy sampling strategy for initial state-action pairs.
+
+% allow update distribution to change when policy changes as this is often the case
+% - eg epsilon-greedy sampling
+% - first visit updates
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Example breaks down with stochastic transitions}
+
+% % stochastic transition can only come from episodic
+% The deterministic MDP described in \autoref{fig: experiment smallest counter} allows for exact policy evaluation. However, it requires infinitely long episodes, which is infeasible in practice.
+% To address this problem, let us terminate the episode after each action with probability $\delta$.
+% The action-values of policies $\best{\pol}$ and $\worst{\pol}$ then become:
+% \begin{align*}
+%     &q_{\best{\pol}}(s, \best{a}) = 1 + \discount(1-\delta) + \discount^2(1-\delta)^2 + \cdots = \dfrac{1}{1-\discount(1-\delta)}
+%     \\
+%     &q_{\best{\pol}}(s, \worst{a}) = 0 + \discount(1-\delta) + \discount^2(1-\delta)^2 + \cdots = \dfrac{\discount(1-\delta)}{1-\discount(1-\delta)}
+%     \\
+%     &q_{\worst{\pol}}(s, \best{a}) = 1 + 0 + 0 + \cdots = 1
+%     \\
+%     &q_{\worst{\pol}}(s, \worst{a}) = 0 + 0 + 0 + \cdots = 0
+% \end{align*}
+% and the region $\qset_0$ is not empty as long as $\discount(1-\delta) > 1/2$.
+
+
+% % stochastic transitions mean noisy policy evaluation
+% % The stochastic transitions introduce noise in the observed returns.
+% % to be noisy estimates of the action values.
+% The length of an episode is now $1/\delta$, on average.
+% However, due to the stochastic transitions, any episode can be much longer than expected, leading to an overestimation of the action values and a large update of $q_k$.
+% As a result, it becomes impossible to keep a solution of MC-O-PI inside $\qset_0$.
+% For instance, when $q_k \in \qset_1$ the solution overshoots $\qset_2$ and leaves $\qset_0$ if
+% \begin{align*}
+%     q_\kpo(s, \best{a})
+%     = q_k(s, \best{a}) + \lrate_k \big( q_{\best{\pol}}(s, \best{a}) - q_k(s,\best{a}) + w_k(s, \best{a}) \big) \geq q_{\best{\pol}}(s, \worst{a}) ,
+% \end{align*}
+% or, in other words, if
+% \begin{align*}
+%     w_k(s, \best{a})
+%     \geq
+%     \dfrac{1}{\lrate_k} \big( q_{\best{\pol}}(s, \worst{a}) - q_k(s,\best{a}) \big) - \big( q_{\best{\pol}}(s, \best{a}) - q_k(s,\best{a}) \big) .
+% \end{align*}
+% Thus even if the learning rate $\lrate_k$ is small and the solution is close to $\hat{q}$, the update could overshoot $\qset_2$, leave $\qset_0$ and converge to $\qopt$.
+% Although the factor $1/\lrate_k$ indicates that the probability of this happening decreases to zero as $k$ tends to infinity, given that the noise has a zero mean and a bounded variance.
+
+% computing the probability of this happening once
+% if is finite => prob of staying is non-zero
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \paragraph{Example breaks down with first-visit updates}
+
+% If we replace initial-visit updates with first-visit updates, then the update distribution $\update$ becomes uniform when the estimate $q_k$ lies in region $\qset_2$.
+% % or $\qset_3$.
+% As a result, from any point in $\qset_2$, the solution moves, on average, along a straight line towards $\qopt$. 
+% Since no straight line leads to region $\qset_3$, the spiral behaviour is not sustainable on the long term. Instead, all solutions converge to $\qopt$.
+
+% % Wang and Ross example is not applicable here bc they visit best region (we show that with greedy bias when enter best region leave the boundary)
+% % - need to repeatedly sample the off-policy action
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conjecture of Sutton and Barto}
+
+The previous example highlights that additional statistical
+regularity beyond the Robbins-Monro conditions is necessary to guarantee that solutions of MC-O-PI converge to $\qopt$.
+\citet[p. 99]{Sutton2018ReinforcementIntroduction}
+conjecture that first-visit updates, sample averaging learning rates and exploring starts
+suffice to ensure convergence.
+However, no proof or counterexample has settled this claim so far.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Convergence proof for uniform update distributions}
+
+\vspace{-0.1cm}
+
+Suppose all state-action pairs are updated equally frequently on average. The update distributions are then uniform over all state-action pairs.
+
+\vspace{-0.1cm}
+
+\input{theorems/11/asp-tsitsiklis}
+
+\vspace{-0.7cm}
+
+\cite{Tsitsiklis2002OnIteration} establishes that MC-O-PI converges to the optimal solution under this uniformity assumption if the discount factor $\discount<1$.
+
+% similar to the main site of the proof of modified policy iteration \cite{Puterman1978ModifiedProblems}
+
+\vspace{-0.1cm}
+
+\begin{theorem}
+\label{thm: tsitsiklis convergence proof}
+Solutions of MC-O-PI (\autoref{def: mcopi}) converge almost surely to $q_{\best{\pol}}$
+if the update distributions $(\update_k)_{k \geq 0}$ are uniform over all state-action pairs (\autoref{asp: unbiased tsitsiklis}),
+the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate})
+and the discount factor $\discount < 1$.
+\end{theorem}
+
+\vspace{-0.7cm}
+
+The proof of \autoref{thm: tsitsiklis convergence proof} relies on the following operators:
+
+\vspace{-0.1cm}
+
+\input{theorems/01/def-operators}
+
+When $\discount<1$, the Bellman operators are contracting and monotone \citep[Example 1.2.1]{Bertsekas2018AbstractProgramming}. These properties imply that the action values $q_\pol$ 
+% and $\qopt$ 
+are the unique solutions of the linear system
+\begin{align}
+\label{eq: linear system with operators}
+    q_\pol &= r + \discount \T_{\pol} q_\pol = \B_{\pol} q_\pol
+    % \\
+    % \qopt &= r + \discount \T \qopt = \B \qopt
+\end{align}
+and also that, for every $q \in \qset$, if $q \leq \B_{\pol} q$
+% or $q \leq \B q$, 
+it follows that
+\begin{align*}
+    q \leq \B_{\pol} q \leq \B_{\pol}^2 q \leq \dots \leq \lim_{n \to \infty} \B_{\pol}^n q = q_\pol .
+    % \\
+    % q \leq \B q \leq \B^2 q \leq \dots \leq \lim_{n \to \infty} \B^n q = \qopt .
+\end{align*}
+% \input{theorems/01/bellman-properties}
+% 
+% Under the conditions of \autoref{thm: tsitsiklis convergence proof}, solutions of \eqref{eq: complete difference inclusion} satisfy
+The key insight for proving \autoref{thm: tsitsiklis convergence proof} is that, with uniform update distributions over all state-action pairs, solutions of \eqref{eq: complete difference inclusion} satisfy
+\begin{align}
+\label{eq: tsitsiklis central result}
+    \limsup_{k \to \infty} q_k - \B q_k \leq \zerofun .
+\end{align}
+As a result, for sufficiently large $k$, we obtain 
+\begin{align*}
+    q_k \leq \B q_k = \B_{\pol_k} q_k \leq \B_{\pol_k}^2 q_k \leq \dots \leq q_{\pol_k} .
+\end{align*}
+Thus solutions converge because they eventually tend to increase monotonically and are bounded above.
+
+When $\discount = 1$, the Bellman operators may not be contracting, but \cite{Chen2018OnProblem} and \cite{Liu2021OnStarts} extend Tsitsiklis' framework under additional assumptions that ensure bounded optimal action values.
+% Since their arguments are not essential to our analysis, we do not further discuss their proofs.
+% 
+To emphasise the importance of the uniformity assumption in the proofs of Tsitsiklis, Chen and Liu, we derive expression \eqref{eq: tsitsiklis central result}, but refer to \citep[p.~63-66]{Tsitsiklis2002OnIteration} for the remaining technical details.
+% of \autoref{thm: tsitsiklis convergence proof}.
+
+% \input{theorems/11/tsit-c-value}
+% The second part of Tsitsiklis' proof contains the key insight.
+
+\input{theorems/11/tsit-c-limit}
+
+% We can now prove Tsitsiklis' main result.
+% \input{theorems/11/tsit-convergence}
+
+\vspace{-0.3cm}
+
+The proofs of \autoref{thm: c(q) goes to zero} and \autoref{thm: tsitsiklis convergence proof} rely on the operator $\T_{\pol_k}$ commuting with the effective learning rate $\lrate_k \update_k$ in \eqref{eq: tsitsiklis commutation}.
+This only holds when $\lrate_k \update_k$ is uniform over all state-action pairs.
+
+\begin{remark}[Only the effective learning rates in the limit matter]
+\label{rmk: eff lr in the limit}
+    Tsitsiklis notes that MC-O-PI's asymptotic behaviour depends on the asymptotic behaviour of the effective learning rates $(\lrate_k \update_k)$, not on either component alone.
+    For instance, if the update distributions are non-uniform but constant, say $\update_k = \update$ for all $k$, and the learning rates take the form $\lrate_k(s,a) = 1/n_k(s,a)$, where $n_k(s,a)$ denotes the number of updates of $(s,a)$ in the first $k$ steps,
+    then $\lrate_k \update_k$ converges to $1/k$ because $n_k(s,a)$ tends to $k \update(s,a)$ for each state-action pair. As a result, \autoref{thm: c(q) goes to zero} still applies.
+    % This highlights that MC-O-PI's asymptotic behaviour depends on the asymptotic behaviour of the effective learning rates $(\lrate_k \update_k)$, rather than either component individually.
+\end{remark}
+
+
+\begin{remark}[Lyapunov interpretation]
+Let $(q)_+ (s,a) = \max \{ 0, q(s,a) \}$ denote the componentwise ReLU operator,
+and consider the potential function that measures the one-sided Bellman residual
+\begin{align}
+    V(q) = \frac{1}{2} \|(q-\B q)_+\|_2^2 .
+\end{align}
+The optimal action-value function $\qopt$ is clearly an equilibrium of this potential.
+Using the linear system defined in \eqref{eq: linear system with operators}, we obtain the gradient
+\begin{align}
+    \nabla V (q) = (\I - \discount \T_\pi )^\top (q-\B q)_+
+\end{align}
+where $\pi$ is any deterministic policy that is greedy with respect to $q$.
+Computing the inner product with the mean-field update of MC-O-PI when updates are uniform over all state-action pairs yields
+\begin{align*}
+    \langle \nabla V(q) , q_\pi - q \rangle
+    &= \langle (\I - \discount \T_\pi )^\top (q-\B q)_+ , q_\pi - q \rangle
+    \\
+    &= \langle (\I - \discount \T_\pi )^\top (q-\B q)_+ , (\I - \discount \T_\pi )^{-1} (\B q - q) \rangle
+    \\
+    &= \langle (q-\B q)_+ , (\B q - q) \rangle
+    \\
+    &= - \|(q - \B q)_+\|_2^2
+    \\
+    &= - 2 V(q)
+\end{align*}
+As a result, when updates are uniform over all state-action pairs, the mean-field MC-O-PI update is a descent direction for the potential $V$.
+This geometric insight corresponds to the decrease in inequality \eqref{eq: q-Bq decreases} that is essential to Tsitsiklis' proof.
+
+Overall, this Lyapunov interpretation offers an alternative method to prove \autoref{thm: tsitsiklis convergence proof}, using Proposition~4.1 of \citep{Bertsekas1996Neuro-DynamicProgramming}.
+\end{remark}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Convergence proof for feedforward optimal policy}
+
+\citet{Wang2022OnLearning} show that MC-O-PI converges to the optimal solution if no state is visited twice when simulating an episode with policy $\best{\pol}$.
+
+% The optimal policy is then feedforward.
+
+\vspace{-0.2cm}
+
+\input{theorems/11/asp-opff}
+
+\vspace{-0.3cm}
+
+\begin{theorem}
+\label{thm: optimal feedforward}
+Solutions of MC-O-PI (\autoref{def: mcopi}) converge almost surely to $\qopt$
+if 
+the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate})
+and the optimal policy is feedforward (\autoref{asp: wang feedforward}).
+\end{theorem}
+
+\vspace{-0.5cm}
+
+The key insight for proving \autoref{thm: optimal feedforward} is that the feedforward structure of $\best{\pol}$ induces an order on the state space where each state-action pair $(s_t, \best{\pol})$ transitions only to states $s_{t'}$ with $t' > t$.
+As a result, if $\pol_k$ has converged to $\best{\pol}$ in all states $(s_{t'})_{t' > t}$, every episode that visits $(s_t, \best{\pol})$ yields an expected return of $\qopt(s_t, \best{\pol})$,
+and consequently $q_k(s_t, \best{\pol})$ converges to $\qopt(s_t, \best{\pol})$.
+Since $q_k(s_t, a)$ for suboptimal actions is bounded above by $\qopt(s_t, a) < \qopt(s_t, \best{\pol})$, $\pol_k$ is eventually greedy in $s_t$ as well.
+Thus, with a finite state space of size $T$, MC-O-PI converges to the optimal solution, starting in $s_T$, then in $s_{T-1}$, and so on.
+See \cite[Appendix~B]{Wang2022OnLearning} for the remaining technical details.
+
+% \input{theorems/11/wang-convergence}
+
+% The proof of \autoref{thm: optimal feedforward} hinges on 
+% % the fact that if the optimal policy is feedforward, there exists a state $s$ such that for all policies 
+% % \begin{align}
+% %     q_\pol(s,\best{\pol}) &= q_\best{\pol}(s,\best{\pol})
+% %     \\
+% %     q_\pol(s,\best{\pol}) &> q_\pol(s,a)
+% % \end{align}
+% the acyclic graph induced by the feedforward optimal policy.
+% However, this property is difficult to test in practice, especially if the MDP is unknown.
+
+% \begin{remark}
+%     can apply same argument on groups of states
+    
+%     suppose the optimal policy splits the MDP into 
+%     feedforward branches, i.e. set of states with zero revisit probability
+%     and looping branches set of states with non-zero revisit probability
+
+%     argument shows that if the end of a feedforward branch has converged, then the entire feedforward branch converges
+
+%     thus, the open problem is really about the convergence of MC-O-PI in the states where the optimal policy loops
+%     only need to study MDP where for each state there is a non-zero probability of looping back to it
+% \end{remark}
+
+\vspace{-0.2cm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+% The stochastic difference inclusion \eqref{eq: complete difference inclusion} underlying 
+MC-O-PI has favourable properties as solutions converge to a bounded set and perturbations caused by episode simulations and asynchronous updates cannot prevent convergence.
+However, its asymptotic behaviour remains complex. Under the modified Robbins-Monro conditions alone, solutions may converge to a suboptimal fixed point. With extra assumptions on the update distributions or on the optimal policy, they almost surely converge to $\qopt$.
+Building on these insights, this thesis develops more general convergence proofs and more realistic counterexamples.
+
+
+% need to find convergence or counterexamples when
+% - update distributions are not uniform over all state-action pairs
+% - optimal policy is not feedforward
+
+% explain exactly what we do
+% based on what has already been done
+
+
+\clearpage

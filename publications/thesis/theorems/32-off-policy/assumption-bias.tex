@@ -1,0 +1,11 @@
+\begin{definition}[Non-greedy bias]
+\label{asp: off-policy bias}
+For a deterministic policy $\pol \in \polset$,
+the update distribution $\update$
+exhibits a non-greedy bias in state $s$
+if there exists an action $a \in \aset(s)$ with $a \neq \pol(s)$ such that
+\begin{align*}
+    \update(s, a) > \update(s, \pol) .
+\end{align*}
+% MC-O-PI thus updates all non-greedy actions more frequently than the greedy action $\pol(s)$.
+\end{definition}

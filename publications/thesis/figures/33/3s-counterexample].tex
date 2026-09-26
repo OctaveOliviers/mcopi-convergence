@@ -1,0 +1,183 @@
+\begin{figure}[htbp]
+    \centering
+
+    \pgfmathsetmacro{\xmin}{0.9}
+    \pgfmathsetmacro{\xmax}{2.1}
+    \pgfmathsetmacro{\ymin}{0.9}
+    \pgfmathsetmacro{\ymax}{2.1}
+    \pgfmathsetmacro{\ticklen}{0.05}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+
+        \normalsize{State $s_1$}
+        \begin{tikzpicture}[scale=3]
+            % Draw the grid and axes
+            \draw[thin,->] (\xmin,\ymin) -- (\xmax,\ymin) node[right] {$\best{a}$};
+            \draw[thin,->] (\xmin,\ymin) -- (\xmin,\ymax) node[above] {$\worst{a}$};
+
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            % Draw the line y = x
+            \draw[dotted, black] (\xmin,\ymin) -- (\xmax,\ymax);
+
+            % Add the grid of small black dots
+            \foreach \x in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                \foreach \y in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                    \fill[black] (\x,\y) circle (0.1pt);
+                }
+            }
+
+            % Graph for variables 1 and 2
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\ymin, ymax=\ymax,
+                anchor = south west,
+                width=1.2cm, % Match the width of the main tikzpicture
+                height=1.2cm, % Match the height of the main tikzpicture
+                scale only axis,
+                xshift=0.9cm,
+                yshift=0.9cm
+            ]
+            % Final conditions (circles)
+            \addplot[mark=*, only marks, color=CambridgeCoreBlue, mark size=0.5] table[
+                x=x1_final, y=x2_final, col sep=comma] {figures/33/simulation_results.csv};
+
+            % Simulation results (plot as a line connecting the dots)
+            \addplot[color=CambridgeCoreOrange] table[
+                x index=0, y index=1, col sep=comma
+            ] {figures/33/simulation_single.csv};
+            \end{axis}
+
+            % Add the points with associated text
+            \filldraw (1,1) circle (0.5pt) node[left, xshift=3pt, yshift=7pt] {$q_{\pol_4}, q_{\pol_5}$};
+            \filldraw (2,2) circle (0.5pt) node[right] {$q_{\pol_3}$};
+            
+            % Add labels to the axes
+            \foreach \x in {1,2}
+                \draw (\x,\ymin+\ticklen) -- (\x,\ymin-\ticklen) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (\xmin+\ticklen,\y) -- (\xmin-\ticklen,\y) node[left, font=\small] {\y};
+
+        \end{tikzpicture}
+        % \caption{State $s_1$}
+    \end{subfigure}%
+
+    \vspace{0.6cm}
+    \vfill
+    
+    \begin{subfigure}[b]{0.3\textheight}
+        \centering
+        \normalsize{State $s_2$}
+        \begin{tikzpicture}[scale=3]
+            % Draw the grid and axes
+            \draw[thin,->] (\xmin,\ymin) -- (\xmax,\ymin) node[right] {$\best{a}$};
+            \draw[thin,->] (\xmin,\ymin) -- (\xmin,\ymax) node[above] {$\worst{a}$};
+
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            % Draw the line y = x
+            \draw[dotted, black] (\xmin,\ymin) -- (\xmax,\ymax);
+    
+            % Add the grid of small black dots
+            \foreach \x in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                \foreach \y in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                    \fill[black] (\x,\y) circle (0.1pt);
+                }
+            }
+
+            % % Graph for variables 1 and 2
+            % \begin{axis}[
+            %     hide axis,
+            %     xmin=\xmin, xmax=\xmax,
+            %     ymin=\ymin, ymax=\ymax,
+            %     anchor = south west,
+            %     width=1.2cm, % Match the width of the main tikzpicture
+            %     height=1.2cm, % Match the height of the main tikzpicture
+            %     scale only axis,
+            %     xshift=0.9cm,
+            %     yshift=0.9cm
+            % ]
+            % % Final conditions (circles)
+            % % \addplot[mark=*, only marks, color=CambridgeCoreBlue, mark size=0.5] table[
+            % %     x=x3_final, y=x4_final, col sep=comma] {figures/33/simulation_results.csv};
+
+            % % Simulation results (plot as a line connecting the dots)
+            % \addplot[color=CambridgeCoreOrange] table[
+            %     x index=0, y index=1, col sep=comma
+            % ] {figures/33/simulation_single.csv};
+            % \end{axis}
+
+            % Add the points with associated text
+            \filldraw (1,1) circle (0.5pt) node[left, xshift=3pt, yshift=7pt] {$q_{\pol_4}, q_{\pol_5}$};
+            \filldraw (2,2) circle (0.5pt) node[right] {$q_{\pol_3}$};
+            
+            % Add labels to the axes
+            \foreach \x in {1,2}
+                \draw (\x,\ymin+\ticklen) -- (\x,\ymin-\ticklen) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (\xmin+\ticklen,\y) -- (\xmin-\ticklen,\y) node[left, font=\small] {\y};
+
+        \end{tikzpicture}
+        % \caption{State $s_2$}
+    \end{subfigure}%
+
+    \vspace{0.6cm}
+    \vfill
+    
+    \begin{subfigure}[b]{0.3\textheight}
+        \centering
+        \normalsize{State $s_3$}
+        \begin{tikzpicture}[scale=3]
+            % Draw the grid and axes
+            \draw[thin,->] (\xmin,\ymin) -- (\xmax,\ymin) node[right] {$\best{a}$};
+            \draw[thin,->] (\xmin,\ymin) -- (\xmin,\ymax) node[above] {$\worst{a}$};
+
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            % Draw the line y = x
+            \draw[dotted, black] (\xmin,\ymin) -- (\xmax,\ymax);
+            
+            % Add the grid of small black dots
+            \foreach \x in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                \foreach \y in {1.1, 1.3, 1.5, 1.7, 1.9} {
+                    \fill[black] (\x,\y) circle (0.1pt);
+                }
+            }
+
+            % % Graph for variables 1 and 2
+            % \begin{axis}[
+            %     hide axis,
+            %     xmin=\xmin, xmax=\xmax,
+            %     ymin=\ymin, ymax=\ymax,
+            %     anchor = south west,
+            %     width=1.2cm, % Match the width of the main tikzpicture
+            %     height=1.2cm, % Match the height of the main tikzpicture
+            %     scale only axis,
+            %     xshift=0.9cm,
+            %     yshift=0.9cm
+            % ]
+            % % Final conditions (circles)
+            % % \addplot[mark=*, only marks, color=CambridgeCoreBlue, mark size=0.5] table[
+            % %     x=x5_final, y=x6_final, col sep=comma] {figures/33/simulation_results.csv};
+
+            % % Simulation results (plot as a line connecting the dots)
+            % \addplot[color=CambridgeCoreOrange] table[
+            %     x index=4, y index=5, col sep=comma
+            % ] {figures/33/simulation_single.csv};
+            % \end{axis}
+
+            % Add the points with associated text
+            \filldraw (1,1) circle (0.5pt) node[left, xshift=3pt, yshift=7pt] {$q_{\pol_4}, q_{\pol_5}$};
+            \filldraw (2,2) circle (0.5pt) node[right] {$q_{\pol_3}$};
+            
+            % Add labels to the axes
+            \foreach \x in {1,2}
+                \draw (\x,\ymin+\ticklen) -- (\x,\ymin-\ticklen) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (\xmin+\ticklen,\y) -- (\xmin-\ticklen,\y) node[left, font=\small] {\y};
+
+        \end{tikzpicture}
+        % \caption{State $s_3$}
+    \end{subfigure}  
+    \caption{start and end of simulation}
+    \label{fig: simulation loop greedy bias}
+\end{figure}

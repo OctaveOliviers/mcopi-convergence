@@ -1,0 +1,243 @@
+\begin{figure}[p!]
+    \centering
+
+    % \hrule
+    % \vspace{0.5cm}
+
+    \pgfmathsetmacro{\qbb}{1.8}
+    \pgfmathsetmacro{\qbw}{1.4}
+    \pgfmathsetmacro{\qwb}{0.6}
+    \pgfmathsetmacro{\qww}{0.2}
+    \pgfmathsetmacro{\rbo}{(\qbb*\qbw + \qbb*\qwb - 2*\qbb*\qww - 2*\qbw*\qwb + \qbw*\qww + \qwb*\qww - 2*((\qbb - \qbw)*(\qbb - \qwb)*(\qbw - \qww)*(\qwb - \qww))^(1/2))/(\qbb^2 - 2*\qbb*\qww + \qww^2)}
+    \pgfmathsetmacro{\rbt}{(\qbb*\qbw + \qbb*\qwb - 2*\qbb*\qww - 2*\qbw*\qwb + \qbw*\qww + \qwb*\qww + 2*((\qbb - \qbw)*(\qbb - \qwb)*(\qbw - \qww)*(\qwb - \qww))^(1/2))/(\qbb^2 - 2*\qbb*\qww + \qww^2)}
+    
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\rho}{\rbo/5}
+        \pgfmathsetmacro{\del}{(\qbw+\qwb-\rho*(\qbb+\qww))^2-4*(1-\rho)*(\qbw*\qwb-\rho*\qbb*\qww)}
+        \pgfmathsetmacro{\xo}{(\qbw+\qwb-\rho*(\qbb+\qww)-(\del)^(1/2))/(2*(1-\rho))}
+        \pgfmathsetmacro{\xt}{(\qbw+\qwb-\rho*(\qbb+\qww)+(\del)^(1/2))/(2*(1-\rho))}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.75:1.9,
+                % samples=50
+            ]
+                \addplot[CambridgeCoreBlue, domain=0.55:2, samples=50] {
+                ( \rho*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                /
+                ( \rho*(\qbb-x)/(\qwb-x) - 1 )
+                };
+            \end{axis}
+
+            \draw[->] (0,0) -- (2,0) node[below, font=\small] {$q(s,\best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[above, font=\small] {$q(s,\worst{\pol})$};
+            \draw[->] (0,0) -- (2,2) node[above right, font=\small] {$x$};
+            
+            % Add the points with associated text
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xo,\xo) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {$x_1$};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xt,\xt) circle (1pt) node[above, text=CambridgeCoreBlue, font=\small] {$x_2$};
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below, text=black, font=\small] {$q_{\best{\pol}}$};
+            \node at (1/2,3/2) [below right, text=CambridgeCoreBlue, font=\footnotesize] {$L$};
+
+        \end{tikzpicture}
+        \caption{$\varrho < \varrho_1 < \varrho_2$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+            \pgfmathsetmacro{\rho}{\rbo/2+\rbt/2}
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.75:1.9,
+                % samples=50
+            ]
+                % \addplot[mygrey, domain=0.5:2, samples=50] {
+                % ( \rbo*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                % /
+                % ( \rbo*(\qbb-x)/(\qwb-x) - 1 )
+                % };
+
+                \addplot[CambridgeCoreBlue, domain=0.4:2, samples=50] {
+                ( \rho*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                /
+                ( \rho*(\qbb-x)/(\qwb-x) - 1 )
+                };
+
+                % \addplot[mygrey, domain=0:2, samples=50] {
+                % ( \rbt*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                % /
+                % ( \rbt*(\qbb-x)/(\qwb-x) - 1 )
+                % };
+        
+            \end{axis}
+            
+            \draw[->] (0,0) -- (2,0) node[below, font=\small] {$q(s,\best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[above, font=\small] {$q(s,\worst{\pol})$};
+            \draw[->] (0,0) -- (2,2) node[above right, font=\small] {$x$};
+            
+            % Add the points with associated text
+            % \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xo,\xo) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {$x_1$};
+            % \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xt,\xt) circle (1pt) node[above, text=CambridgeCoreBlue, font=\small] {$x_2$};
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below right, text=black, font=\small] {$q_{\best{\pol}}$};
+            \node at (3/2,1/2) [above left, text=CambridgeCoreBlue, font=\footnotesize] {$L$};
+
+        \end{tikzpicture}
+        \caption{$\varrho_1 < \varrho < \varrho_2$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+            \pgfmathsetmacro{\rho}{10*\rbt}
+            \pgfmathsetmacro{\del}{(\qbw+\qwb-\rho*(\qbb+\qww))^2-4*(1-\rho)*(\qbw*\qwb-\rho*\qbb*\qww)}
+            \pgfmathsetmacro{\xo}{(\qbw+\qwb-\rho*(\qbb+\qww)-(\del)^(1/2))/(2*(1-\rho))}
+            \pgfmathsetmacro{\xt}{(\qbw+\qwb-\rho*(\qbb+\qww)+(\del)^(1/2))/(2*(1-\rho))}
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.75:1.9,
+                % samples=50
+            ]
+                % \addplot[mygrey, domain=0.5:2, samples=50] {
+                % ( \rbo*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                % /
+                % ( \rbo*(\qbb-x)/(\qwb-x) - 1 )
+                % };
+                
+                % \addplot[mygrey, domain=0:2, samples=50] {
+                % ( \rbt*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                % /
+                % ( \rbt*(\qbb-x)/(\qwb-x) - 1 )
+                % };
+
+                \addplot[CambridgeCoreBlue, domain=0:1.85, samples=50] {
+                ( \rho*(\qbb-x)/(\qwb-x) * \qww - \qbw ) 
+                /
+                ( \rho*(\qbb-x)/(\qwb-x) - 1 )
+                };
+
+            \end{axis}
+
+            \draw[->] (0,0) -- (2,0) node[below, font=\small] {$q(s,\best{\pol})$};
+            \draw[->] (0,0) -- (0,2) node[above, font=\small] {$q(s,\worst{\pol})$};
+            \draw[->] (0,0) -- (2,2) node[above right, font=\small] {$x$};
+            
+            % Add the points with associated text
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xo,\xo) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {$x_1$};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\xt,\xt) circle (1pt) node[above, text=CambridgeCoreBlue, font=\small] {$x_2$};
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[above, text=black, font=\small] {$q_{\worst{\pol}}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[right, text=black, font=\small] {$q_{\best{\pol}}$};
+            \node at (3/2,1/2) [above left, text=CambridgeCoreBlue, font=\footnotesize] {$L$};
+
+        \end{tikzpicture}
+        \caption{$\varrho_1 < \varrho_2 < \varrho$}
+    \end{subfigure}%
+    % \begin{subfigure}[b]{0.33\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1.5]
+
+    %         % Draw the grid and axes
+    %         \draw[->] (0,0) -- (2,0) node[right, font=\small] {$\varrho$};
+    %         \draw[->] (0,0) -- (0,2) node[above, font=\small] {$x$};
+            
+    %         \begin{axis}[
+    %             hide axis,
+    %             xmin=0, xmax=1.5,
+    %             ymin=0, ymax=2,
+    %             % domain=0.7:1.9, % adjust the domain as necessary
+    %             width=2cm, % adjust width to match your canvas size
+    %             height=2cm, % adjust height to match your canvas size
+    %             at={(0,0)},
+    %             scale only axis,
+    %             clip=true,
+    %             anchor=south west, % Anchor alignment to match the tikz picture
+    %         ]
+    %             \addplot[black, domain=0:\rbo, samples=25] {
+    %             (\qbw+\qwb-x*(\qbb+\qww) - ((\qbw+\qwb - x*(\qbb+\qww))^2
+    %             -4*(1-x)*(\qbw*\qwb - x*\qbb*\qww))^(1/2)) / (2*(1-x))
+    %             };
+
+    %             \addplot[black, domain=\rbt:2, samples=25] {
+    %             (\qbw+\qwb-x*(\qbb+\qww) - ((\qbw+\qwb - x*(\qbb+\qww))^2
+    %             -4*(1-x)*(\qbw*\qwb - x*\qbb*\qww))^(1/2)) / (2*(1-x))
+    %             };
+
+    %             \addplot[black, domain=0:\rbo, samples=25] {
+    %             (\qbw+\qwb-x*(\qbb+\qww) + ((\qbw+\qwb - x*(\qbb+\qww))^2
+    %             -4*(1-x)*(\qbw*\qwb - x*\qbb*\qww))^(1/2)) / (2*(1-x))
+    %             };
+
+    %             \addplot[black, domain=\rbt:2, samples=25] {
+    %             (\qbw+\qwb-x*(\qbb+\qww) + ((\qbw+\qwb - x*(\qbb+\qww))^2
+    %             -4*(1-x)*(\qbw*\qwb - x*\qbb*\qww))^(1/2)) / (2*(1-x))
+    %             };
+    %         \end{axis}
+
+    %         % \draw (0.1,0) -- (-0.1,0) node[left, font=\small] {0} ;
+    %         \draw (2*\rbo/3,0.1) -- (2*\rbo/3, -0.1) node[below, font=\small] {$\varrho_1$} ;
+    %         \draw (2*\rbo/3+2*\rbt/3,-0.1) -- (2*\rbo/3+2*\rbt/3, 0.1) node[above, font=\small] {$\varrho_2$} ;
+    %         \draw (1+2*\rbt/3,0.1) -- (1+2*\rbt/3, -0.1) node[below, font=\small] {$\varrho_3$} ;
+
+    %         \draw (0.1,\qbb) -- (-0.1,\qbb) node[left, font=\small] {$q_{\best{\pol}}(s, \best{\pol})$} ;
+    %         \draw (0.1,\qbw) -- (-0.1,\qbw) node[left, font=\small] {$q_{\best{\pol}}(s, \worst{\pol})$} ;
+    %         \draw (0.1,\qwb) -- (-0.1,\qwb) node[left, font=\small] {$q_{\worst{\pol}}(s, \best{\pol})$} ;
+    %         \draw (0.1,\qww) -- (-0.1,\qww) node[left, font=\small] {$q_{\worst{\pol}}(s, \worst{\pol})$} ;
+
+    %         \filldraw[fill=black, draw=black] (4*\rbo/3,0) circle (1pt);
+            
+    %         \filldraw[fill=black, draw=black] (4*\rbt/3,0) circle (1pt);
+
+    %     \end{tikzpicture}
+    %     % \caption{$\Delta(\varrho) < 0$}
+    % \end{subfigure}%
+    
+    \vspace{0.4cm}
+    
+    \caption{The value of $\varrho$ defined in \eqref{eq: definition parameters of bifurcation} relative to $\varrho_1$ and $\varrho_2$ defined in \eqref{eq: threshold for position} and \eqref{eq: threshold for position 2} determines the intersections of the set $L$ with the boundary.
+    % 
+    {\sffamily \textbf{(a)}} When $\varrho<\varrho_1$, the non-greedy bias in $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ is large. The set $L$ then intersects the boundary twice. In both cases, the MC-O-PI steps act along the same line and in opposite directions. The points $x_1$ and $x_2$ are thus fixed points.
+    % 
+    {\sffamily \textbf{(b)}} When $\varrho_1 < \varrho < \varrho_2$, the set $L$ does not intersect the boundary. So there are no suboptimal fixed points.
+    % 
+    {\sffamily \textbf{(c)}} When $\varrho > \varrho_2$, the non-greedy bias in $\update_{\best{\pol}}$ and $\update_{\worst{\pol}}$ is not large enough. The set $L$ still intersects the boundary twice, but the MC-O-PI steps proceed in the same direction. So $x_1$ and $x_2$ are not fixed points.}
+
+    \label{fig: explain bifurcation}
+
+\end{figure}

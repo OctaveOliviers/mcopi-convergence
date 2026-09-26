@@ -1,0 +1,161 @@
+\begin{lemma}
+\label{thm: general PIT}
+    For all policies $\pol$ and $\pol'$,
+    % policy $\pol$ is as good as or better than policy $\pol'$,
+    we have $\pol \succeq \pol'$
+    if for every state $s \in \sset$ where $\pol(s) \neq \pol'(s)$ 
+    at least one of the following conditions hold:
+    \vspace{-0.3cm}
+    \begin{subequations}
+        \begin{align}
+            &v_{\pol}(s) \geq v_{\pol'}(s)
+            \\
+            &q_{\pol}(s, \pol) \geq q_{\pol}(s, \pol')
+            \\
+            &q_{\pol'}(s, \pol) \geq q_{\pol'}(s, \pol')
+        \end{align}
+    \end{subequations}
+    % , it holds that
+    % \begin{align}
+    %     \label{eq: general PIT value}
+    %     &v_{\pol}(s) \geq v_{\pol'}(s) ,
+    %     \\
+    %     \label{eq: general PIT advantage pol}
+    %     &\text{or } a_{\pol}(s, \pol'(s)) \leq 0 ,
+    %     \\
+    %     \label{eq: general PIT advantage pol'}
+    %     &\text{or } a_{\pol'}(s, \pol(s)) \geq 0 ,
+    % \end{align}
+    % \begin{enumerate}
+    %     \item $v_{\pol}(s) \geq v_{\pol'}(s)$
+
+    %     \item $q_{\pol}(s, \pol) \geq q_{\pol}(s, \pol')$
+
+    %     \item $q_{\pol'}(s, \pol) \geq q_{\pol'}(s, \pol')$
+    % \end{enumerate}
+    % \begin{align}
+    %     \label{eq: condition for general PIT v}
+    %     &v_{\pol}(s) \geq v_{\pol'}(s)
+    %     \\
+    %     \label{eq: condition for general PIT qpol}
+    %     % &a_{\pol}(s, \pol'(s)) \leq 0
+    %     &q_{\pol}(s, \pol') \leq q_{\pol}(s, \pol)
+    %     \\
+    %     % &a_{\pol'}(s, \pol(s)) \geq 0
+    %     \label{eq: condition for general PIT qpol'}
+    %     &q_{\pol'}(s, \pol) \geq q_{\pol'}(s, \pol')
+    % \end{align}
+    % meaning that for all state $s \in \sset$ and actions $a \in \aset(s)$
+    % \begin{align}
+    % \label{eq: result of general PIT}
+    %     v_{\pol}(s) \geq v_{\pol'}(s) .
+    %     q_{\pol}(s,a) \geq q_{\pol'}(s,a)
+    % \end{align}
+    % Moreover, if an inequality in \eqref{eq: condition for general PIT} is strict,
+    % then inequality \eqref{eq: result of general PIT} is strict for the corresponding state.
+\end{lemma}
+\vspace{-0.7cm}
+
+\begin{proof}
+% Combining the definitions of the state-value functions
+% % Recall the definitions of the state-value functions for every state $s$:
+% \begin{align*}
+%     % v_{\pol}(s) - v_{\pol'}(s) 
+%     % = r(s, \pol) + \discount \sum_{s_+ \in \sset} \transit (s_+ \mid s, \pol) v_{\pol}(s_+) \\
+%     % - r(s, \pol') - \discount \sum_{s_+ \in \sset} \transit (s_+ \mid s, \pol') v_{\pol'}(s_+)
+%     v_{\pol}(s) 
+%     &= q_{\pol}(s, \pol)
+%     = r(s, \pol) + \discount \sum_{s_+ \in \sset} \transit (s_+ \mid s, \pol) v_{\pol}(s_+) 
+%     \\
+%     v_{\pol'}(s) 
+%     &= q_{\pol'}(s, \pol')
+%     = r(s, \pol') + \discount \sum_{s_+ \in \sset} \transit (s_+ \mid s, \pol') v_{\pol'}(s_+) 
+% \end{align*}
+For every policy $\pol$, the advantage function $a_\pol : \sset \times \aset \to \real$ is defined in every state-action pair as
+% as well as the definitions of the advantage functions:
+\begin{align*}
+    a_{\pol}(s,a) \coloneqq q_{\pol}(s,a) - q_{\pol}(s,\pol) .
+    % % v_{\pol}(s) &= r(s, \pol) + \discount \sum_{s' \in \sset} \transit (s' \mid s, \pol) v_{\pol}(s')
+    % % \\
+    % % v_{\pol'}(s) &= r(s, \pol') + \discount \sum_{s' \in \sset} \transit (s' \mid s, \pol') v_{\pol'}(s')
+    % % \\
+    % % q_{\pol}(s, \pol') &= r(s, \pol') + \discount \sum_{s' \in \sset} \transit (s' \mid s, \pol') v_{\pol}(s')
+    % % \\
+    % % q_{\pol'}(s, \pol) &= r(s, \pol) + \discount \sum_{s' \in \sset} \transit (s' \mid s, \pol) v_{\pol'}(s')
+    % % \\
+    % a_{\pol}(s, \pol') 
+    % &= q_{\pol}(s, \pol') - q_{\pol}(s, \pol)
+    % % \\
+    % % &= r(s, \pol') - r(s, \pol) + \discount \sum_{s_+ \in \sset} ( \transit (s_+ \mid s, \pol') - \transit (s_+ \mid s, \pol) ) v_{\pol}(s_+) 
+    % \\
+    % a_{\pol'}(s, \pol) 
+    % &= q_{\pol'}(s, \pol) - q_{\pol'}(s, \pol')
+    % % \\
+    % % &= r(s, \pol) - r(s, \pol') + \discount \sum_{s_+ \in \sset} ( \transit (s_+ \mid s, \pol) - \transit (s_+ \mid s, \pol') ) v_{\pol'}(s_+) 
+\end{align*}
+As a result, for all policies $\pol$ and $\pol'$, and every state $s$ it follows that
+% As a result, for every state $s \in \sset$ we observe that
+% \begin{align*}
+% % \label{eq: v diff as discounted sum pol}
+%     v_{\pol}(s) - v_{\pol'}(s) 
+%     &= a_{\pol'}(s, \pol) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol) (v_{\pol}(s_+) - v_{\pol'}(s_+))
+%     \\
+% % \label{eq: v diff as discounted sum pol'}
+%     &= - a_{\pol}(s, \pol') + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol') (v_{\pol}(s_+) - v_{\pol'}(s_+)) 
+% \end{align*}
+\begin{align*}
+% \label{eq: v diff as discounted sum pol}
+    v_{\pol}(s) - v_{\pol'}(s) 
+    &= q_{\pol}(s, \pol) - q_{\pol'}(s, \pol') + q_{\pol}(s, \pol') - q_{\pol}(s, \pol')
+    \\
+    &= -a_{\pol}(s, \pol') + q_{\pol}(s, \pol') - q_{\pol'}(s, \pol')
+    \\
+    &= -a_{\pol}(s, \pol') + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol') (v_{\pol}(s_+) - v_{\pol'}(s_+)) ,
+\end{align*}
+and similarly
+\begin{align*}
+% \label{eq: v diff as discounted sum pol}
+    v_{\pol}(s) - v_{\pol'}(s) 
+    &= q_{\pol}(s, \pol) - q_{\pol'}(s, \pol') + q_{\pol'}(s, \pol) - q_{\pol'}(s, \pol)
+    \\
+    &= a_{\pol'}(s, \pol) + q_{\pol}(s, \pol) - q_{\pol'}(s, \pol)
+    \\
+    &= a_{\pol'}(s, \pol) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol) (v_{\pol}(s_+) - v_{\pol'}(s_+)) .
+\end{align*}
+These recursive equations indicate that the difference in state values equals a 
+% (possibly infinite)
+discounted sum of advantage values.
+The sum only contains advantage values in states where $\pol$ and $\pol'$ differ as the advantage is zero otherwise.
+Moreover, we can use either recursion at every step when expanding the sum.
+Hence, 
+% the conditions of \autoref{thm: general PIT}
+% inequalities \eqref{eq: condition for general PIT v}, \eqref{eq: condition for general PIT qpol} and \eqref{eq: condition for general PIT qpol'} 
+if for all states where $\pol$ and $\pol'$ differ,
+either $v_{\pol}(s) \geq v_{\pol'}(s)$, $q_{\pol}(s, \pol) \geq q_{\pol}(s, \pol')$ or $q_{\pol'}(s, \pol) \geq q_{\pol'}(s, \pol')$,
+then $\pol \succeq \pol'$ because $v_{\pol} - v_{\pol'}$ equals a discounted sum of non-negative terms.
+% for every state $s$, and consequently, $v_{\pol}(s) \geq v_{\pol'}(s)$.
+% Inequalities \eqref{eq: general PIT advantage pol} and \eqref{eq: general PIT advantage pol'} guarantee that each term in the sum is non-negative,
+% while inequality \eqref{eq: general PIT value} implies that we can prune the sum and retain a non-negative term.
+% Consequently, the discounted sum is non-negative for every state, and policy $\pol$ is at least as good as policy $\pol'$.
+% 
+% 
+% Besides, 
+% if for some state $s'$ an inequality in \eqref{eq: condition for general PIT} is strict, then for that state the sum is strictly positive, and consequently, $v_{\pol}(s') > v_{\pol'}(s')$.
+\end{proof}
+
+% Condition \eqref{eq: condition for general PIT} is equivalent to saying that there exists a policy $\Tilde{\pol}$
+% $\Tilde{\pol}(s) = \pol(s)$ or $\Tilde{\pol}(s) = \pol'(s)$. 
+% such that for all states 
+% \begin{align*}
+%     a_{\pol}(s, \Tilde{\pol}) \geq 0
+%     \ \tand \
+%     a_{\pol'}(s, \Tilde{\pol}) \leq 0 .
+% \end{align*}
+% the Policy Improvement Theorem indicates that 
+% \begin{align*}
+%     v_{\pol} &\leq v_{\Tilde{\pol}}
+%     \\
+%     v_{\pol'} &\geq v_{\Tilde{\pol}}
+% \end{align*}
+% and, consequently, $v_{\pol} \leq v_{\pol'}$.
+% Now, suppose that in every state, $\Tilde{\pol}(s) = \pol(s)$ or $\Tilde{\pol}(s) = \pol'(s)$. 

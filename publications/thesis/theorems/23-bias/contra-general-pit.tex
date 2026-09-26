@@ -1,0 +1,50 @@
+\begin{corollary}
+\label{thm: contra general pit}
+    For all policies $\pol$ and $\pol'$,
+    if there exists a state $s$ where $v_{\pol}(s) > v_{\pol'}(s)$,
+    % \begin{align}
+    %     v_{\pol}(s) < v_{\pol'}(s) ,
+    % \end{align}
+    then there exists a state $s'$ where $\pol(s') \neq \pol'(s')$ 
+    and the following conditions hold:
+    \vspace{-0.3cm}
+    \begin{subequations}
+    \label{eq: contra pit}
+        \begin{align}
+            \label{eq: contra pit sval}
+            &v_{\pol}(s') > v_{\pol'}(s')
+            \\
+            \label{eq: contra pit aval pi}
+            &q_{\pol}(s', \pol) > q_{\pol}(s', \pol')
+            \\
+            \label{eq: contra pit aval pi'}
+            &q_{\pol'}(s', \pol) > q_{\pol'}(s', \pol')
+        \end{align}
+    \end{subequations}
+    % \begin{align}
+    % % \label{eq: three conditions when switch and change}
+    %     \label{eq: extension v condition}
+    %         &v_{\pol}(s') < v_{\pol'}(s')
+    %         \\
+    %         % &a_{\pol}(s', \pol'(s')) > 0
+    %     \label{eq: extension qpol condition}
+    %         &q_{\pol}(s', \pol) < q_{\pol}(s', \pol')
+    %         \\
+    %     \label{eq: extension qpol' condition}
+    %         &q_{\pol'}(s', \pol) < q_{\pol'}(s', \pol')
+    % \end{align}
+\end{corollary}
+% \begin{proof}
+%     Contrapositive of \autoref{thm: general PIT}.
+% \end{proof}
+
+% proof from performance difference lemma?
+
+% right hand side is scaled convex combination of advantages
+% where the weights is largest for own state ($d_{\pol''}(s_+ \mid s)$ is largest in $s_+ = s$)
+
+% if in some state the right-hand side is negative, then at least one term in the left hand side must be negative
+
+% contra of general PIT says that there exists at least one state where advantage have opposite directions
+
+% show that in that state also have the corresponding condition on state values

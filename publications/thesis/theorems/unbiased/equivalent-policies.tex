@@ -1,0 +1,68 @@
+\begin{lemma}
+\label{thm: all qpol in Pinf are equivalent}
+Under \autoref{asp: unbiased over policies},
+\begin{align}
+    \forall \ q_0 \in \qset, 
+    \exists \ \pol \in \polset, 
+    \exists \ K>0, 
+    \forall \ k > K \ : \ 
+    q_{\pol_\kpz} = q_\pol
+\end{align}
+
+% all the policies in $\polset_\infty(q)$ are equivalent, namely
+% \begin{align}
+%     \forall \ \pol, \pol' \in \polset_\infty (q) 
+%     \ : \
+%     q_\pol = q_{\pol'} .
+% \end{align}
+\end{lemma}
+\begin{proof}
+% \mytodo{remove \autoref{thm: expected policy improvement}, just have infinite number of inequalities \eqref{eq: inequality of expected policy improvement}. Then also don't need stochastic policy improvement theorem}
+
+System \eqref{eq: update unbiased over policies} computes a moving average of the action-values of the policies that it encounters.
+Thus if it encounters a policy $\pol$ a finite number of times, the weight associated with $q_\pol$ monotonically decreases to zero after the last encounter of $\pol$. % call it transient policy?
+In other words, the long-term behaviour of system \eqref{eq: update unbiased over policies} only depends on the policies that it encounters infinitely often.
+
+Accordingly, choose $K>0$ such that any policy $\pol_\kpz$ for $k>K$ is visited infinitely often.
+Since the set of policies is finite, $K$ is finite as well.
+% our convergence analysis only needs to consider the finite set of policies that system \eqref{eq: update unbiased over policies} encounters an infinite number of times. Given an initial condition $q_0$, we will call that set $\polset_\infty (q_0) \subseteq \polset$.
+Then, take any two policies $\pol_k, \pol_{k'}$ with $k, k' > K$.
+Since system \eqref{eq: update unbiased over policies} visits each of them an infinite number of times, 
+whenever it visits policy $\pol_k$, it is bound to visit policy $\pol_{k'}$ sometime afterwards, and vice versa.
+\autoref{thm: expected policy improvement} thus yields an infinite number of inequalities of the form
+\begin{align*}
+% \label{eq: improvement of LT policies}
+    &q_{\pol_{k'}} 
+    \ = \ q_{\pol_{k+N}} 
+    \ \geq \ q_{\pol_{k+N-1}} + d_{k+N-1}
+    \ \geq \ \dots 
+    \ \geq \ q_{\pol_\kpz} + \sum_{n=0}^{N-1} d_\kpn 
+    % \ = \ q_{\pol_\kpz} + \sum_{n=0}^{N-1} d_\kpn ,
+    % q_{\pol'} 
+    % \ \geq \
+    % q_{\pol} + \sum_{n=0}^{N-1} d_\kpn .
+    \\
+    &q_{\pol_k}
+    \ = \ q_{\pol_{k'+N'}}
+    \ \geq \ q_{\pol_{k'+N'-1}} + d_{k'+N'-1}
+    \ \geq \ \dots 
+    \ \geq \ q_{\pol_{k'}} + \sum_{n=0}^{N'-1} d_{k'+n}
+    % \ = \ q_{\pol'} + \sum_{n=0}^{N'-1} d_{k'+n} .
+\end{align*}
+% Since system \eqref{eq: update unbiased over policies} encounters policies $\pol$ and $\pol'$ an infinite number of times, there are an infinite number of inequalities like \eqref{eq: improvement of LT policies}, each with independent random variables $d$.
+By averaging over these inequalities, the law of large numbers indicates that
+\begin{align*}
+    &q_{\pol_{k'}} 
+    \ \geq \ q_{\pol_k} + \lim_{M \to \infty} \dfrac{1}{M} \sum_{m=1}^{M} \sum_{n=0}^{N_m-1} d_{k_m + n}
+    \ = \ q_{\pol_k} + \E \bigg[ \sum_{n=0}^{N-1} d_\kpn \bigg]
+    % \ = \ q_\pol + \sum_i \E \big[ d_i \big]
+    \ = \ q_{\pol_k} ,
+    \\
+    &q_{\pol_k} 
+    \ \geq \ q_{\pol_{k'}} + \lim_{M' \to \infty} \dfrac{1}{M'} \sum_{m=1}^{M'} \sum_{n=0}^{N'_m-1} d_{k'_m + n}
+    \ = \ q_{\pol_{k'}} + \E \bigg[ \sum_{n=0}^{N'-1} d_{k'+n} \bigg]
+    \ = \ q_{\pol_{k'}} .
+\end{align*}
+Consequently, policies that are visited infinitely often are equivalent.
+% , i.e. $q_{\pol_k} = q_{\pol_{k'}}$.
+\end{proof}

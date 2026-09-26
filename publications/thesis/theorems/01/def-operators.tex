@@ -1,0 +1,15 @@
+\begin{definition}[Bellman operators]
+\label{def: bellman operators}
+The transition operators $\T_\pol, \T : \qset \to \qset$ are defined as
+\begin{align*}
+    (\T_{\pol} q)(s,a) &\coloneqq \sum_{s_+ \in \sset} \transit(s_+ \mid s,a) q(s_+,\pol) ,
+    \\
+    (\T q)(s,a) &\coloneqq \sum_{s_+ \in \sset} \transit(s_+ \mid s,a) \max_{a_+ \in \aset(s_+)} q(s_+, a_+) .
+\end{align*}
+The Bellman operators $\B_\pol, \B : \qset \to \qset$ are defined as
+\begin{align*}
+    (\B_\pol q) (s,a) &\coloneqq \reward(s,a) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s,a) q(s_+, \pol) ,
+    \\
+    (\B q)(s,a) &\coloneqq \reward(s,a) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s,a) \max_{a_+ \in \aset(s_+)} q(s_+,a_+) .
+\end{align*}
+\end{definition}

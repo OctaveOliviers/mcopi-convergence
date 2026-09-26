@@ -1,0 +1,247 @@
+\begin{figure}[hp!]
+    \centering
+    
+    \pgfmathsetmacro{\shei}{0.9*1.73}
+    \pgfmathsetmacro{\swid}{0.9*2}
+    
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8] node[pos=0.5, above] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8] node[pos=0.5, above] {0} (s2)
+                (s3) edge[bend right=20] node[pos=0.7, xshift=3, below] {1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8] node[pos=0.5, below] {0} (s3)
+                (s1) edge[bend right=20] node[pos=0.3, xshift=-3, below] {1} (s3);
+        \end{tikzpicture}
+        \caption{MDP}
+        \label{fig: off-policy MDP}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s2)
+                (s3) edge[bend right=20] node[pos=0.7, xshift=3, below] {1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {0} (s3)
+                (s1) edge[bend right=20] node[pos=0.3, xshift=-3, below] {1} (s3);
+        \end{tikzpicture}
+        \caption{Policy $\best{\pol}$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8] node[pos=0.5, above] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8] node[pos=0.5, above] {0} (s2)
+                (s3) edge[bend right=20, draw=mylightgrey] node[pos=0.7, xshift=3, below, text=mylightgrey] {1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8] node[pos=0.5, below] {0} (s3)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.3, xshift=-3, below, text=mylightgrey] {1} (s3);
+        \end{tikzpicture}
+        \caption{Policy $\worst{\pol}$}
+    \end{subfigure}
+   
+    \vfill
+    \vspace{1cm}
+
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8] node[pos=0.5, above] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s2)
+                (s3) edge[bend right=20] node[pos=0.7, xshift=3, below] {1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {0} (s3)
+                (s1) edge[bend right=20] node[pos=0.3, xshift=-3, below] {1} (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_1$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8] node[pos=0.5, above] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s2)
+                (s3) edge[bend right=20] node[pos=0.7, xshift=3, below] { 1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8] node[pos=0.5, below] {0} (s3)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.3, xshift=-3, below, text=mylightgrey] {1 } (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_2$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s2)
+                (s3) edge[bend right=20] node[pos=0.7, xshift=3, below] { 1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8] node[pos=0.5, below] {0} (s3)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.3, xshift=-3, below, text=mylightgrey] {1 } (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_3$}
+    \end{subfigure}
+   
+    \vfill
+    \vspace{1cm}
+
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8] node[pos=0.5, above] {0} (s2)
+                (s3) edge[bend right=20, draw=mylightgrey] node[pos=0.7, xshift=3, below, text=mylightgrey] { 1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8] node[pos=0.5, below] {0} (s3)
+                (s1) edge[bend right=20, draw=mylightgrey] node[pos=0.3, xshift=-3, below, text=mylightgrey] {1 } (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_4$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {0} (s1)
+                (s2) edge[bend right=20] node[pos=0.5, above] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8] node[pos=0.5, above] {0} (s2)
+                (s3) edge[bend right=20, draw=mylightgrey] node[pos=0.7, xshift=3, below, text=mylightgrey] { 1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {0} (s3)
+                (s1) edge[bend right=20] node[pos=0.3, xshift=-3, below] {1 } (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_5$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1, auto, node distance=2cm, 
+            every edge/.style={draw, <-, font=\small},
+            state/.style={circle, fill=mylightgrey, draw=black, text=black}
+        ]
+            % Nodes
+            \node[state] (s1) at (0,\shei) {$s_1$};
+            \node[state] (s2) at (\swid,\shei) {$s_2$};
+            \node[state] (s3) at (\swid/2,0) {$s_3$};
+            % Edges
+            \path[->]
+                (s1) edge[out=130, in=170, loop, looseness=8] node[pos=0.5, above] {0} (s1)
+                (s2) edge[bend right=20, draw=mylightgrey] node[pos=0.5, above, text=mylightgrey] {1} (s1)
+
+                (s2) edge[out=10, in=50, loop, looseness=8] node[pos=0.5, above] {0} (s2)
+                (s3) edge[bend right=20, draw=mylightgrey] node[pos=0.7, xshift=3, below, text=mylightgrey] { 1} (s2)
+                
+                (s3) edge[out=250, in=290, loop, looseness=8, draw=mylightgrey] node[pos=0.5, below, text=mylightgrey] {0} (s3)
+                (s1) edge[bend right=20] node[pos=0.3, xshift=-3, below] {1 } (s3);
+        \end{tikzpicture}
+        \caption{Policy $\pol_6$}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+
+    \caption{On this MDP, solutions of initial-visit MC-O-PI starting in $\qset_0$ defined in \eqref{eq: initial cond for 3 state counter} 
+    % remain trapped cycling between policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$
+    % converge to a suboptimal fixed point 
+    cycle indefinitely between suboptimal policies
+    when using the updating strategy described on page \pageref{pg: sampling strat 3 states}.}
+    \label{fig: experiment on-policy bias MDP}
+\end{figure}

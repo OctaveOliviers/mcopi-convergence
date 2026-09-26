@@ -1,0 +1,49 @@
+\begin{proposition}
+\label{thm: convergence uniform}
+    Solutions of MC-O-PI, as defined in \eqref{eq: complete difference inclusion}, converge to $q_{\best{\pol}}$ with probability one
+    if the update distributions $(\update_k)_{k \geq 0}$ are uniform over all actions in each state (\autoref{asp: unbiased over policies})
+    and the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}).
+\end{proposition}
+% 
+\begin{proof}
+By \autoref{asp: standing}, $\sum_{k=0}^{\infty} \alpha_k^2 < \infty$ implies that $\lim_{k \to \infty} \alpha_k = 0$. Therefore, there exists an index $K$ such that $\alpha_k \in (0, 1]$ for all $k \ge K$.
+
+For all $k \ge K$, \autoref{thm: improving policies} guarantees that the sequence of action values $(q_{\pi_k})$ is componentwise non-decreasing, given the uniform and strictly positive update distributions.
+Since each $q_{\pi_k}$ belongs to the finite set $\{q_\pi : \pi \in \polset\}$, this sequence must stabilize. Thus, there exists a time step $K' \ge K$ and a policy $\pi$ such that $q_{\pi_k} = q_\pi$ for all $k \ge K'$.
+
+
+As a result, for $k \ge K'$ the solution follows the linear system
+\[
+q_{k+1} = q_k + \alpha_k \mu(\sigma_k, \pi_k, f_k)( q_\pi - q_k)
+\]
+The Robbins-Monro and exploring starts conditions in \autoref{asp: standing} guarantee that the sequence $(q_k)$ converges to $q_\pi$.
+
+Since $\lim_{k \to \infty} q_k = q_\pi$, \autoref{thm: asymptotic set of policies} establishes that there exists a time step $K'' \ge K'$ such that $\grpol(q_k) \subseteq \grpol(q_\pi)$ for all $k \ge K''$.
+By definition, the active policy $\pi_k$ always satisfies $\pi_k \in \grpol(q_k)$. 
+Therefore, for all $k \ge K''$
+\[
+\pi_k \in \grpol(q_\pi)
+\]
+Since $q_\pi = q_{\pi_k}$ for all $k \ge K'$, substituting this into the relation above yields $\pi_k \in \grpol(q_{\pi_k})$.
+This confirms that for all $k \ge K''$, the policy $\pi_k$ is greedy with respect to its own action values, and hence satisfies the Bellman optimality equation $q_{\pi_k} = T_{\pi_k} q_{\pi_k} = T q_{\pi_k}$.
+Consequently, $\pi_k$ is an optimal policy and the sequence $(q_k)$ converges to $q_\pi = \qopt$.
+\end{proof}
+% \begin{proof}
+% Consecutive elements in every solution of exact MC-O-PI satisfy equation \eqref{eq: definition of q+ uniform section}
+% and by assumption the update distributions $(\update_k)$ are uniform over all actions in each state.
+% \autoref{thm: unbiased mces policy improves} thus guarantees that the value of consecutive policies is non-decreasing. Since this value is also upper bounded by $\qopt$, it converges.
+% As a result, for every solution of exact MC-O-PI
+% % regardless of the learning rates, start distributions and update functions,
+% there exists a time step $K$ and a policy $\pol \in \polset$ such that, for all $k \geq K$, $q_k \in \graval(\pol)$ and the solution follows the system:
+% \begin{align}
+% \label{eq: equivalent system on the long term}
+%     q_\kpo
+%     = 
+%     q_k + \lrate_k \update(\start_k, \pol, f_k) ( q_\pol - q_k ) . 
+% \end{align}
+% The modified Robbins-Monro conditions on $(\lrate_k)$ and $(\update_k)$ guarantee this system converges to $q_\pol$, which implies that $\qpol \in \graval(\pol)$.
+% % As explained in \autoref{rmk: only qopt is inside its own region},
+% Every policy that satisfies $\qpol \in \graval(\pol)$, satisfies the Bellman optimality equation.
+% Thus $\pol = \best{\pol}$ and $\qopt$ is globally asymptotically stable for exact MC-O-PI, regardless of the first learning rate $\lrate_0$, start distribution $\start_0$ and update function $f_0$.
+% Therefore, by \autoref{thm: if det converges then stoch converges}, solutions of MC-O-PI converge to $\qopt$ with probability one.
+% \end{proof}

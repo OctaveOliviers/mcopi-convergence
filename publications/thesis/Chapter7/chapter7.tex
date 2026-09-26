@@ -1,0 +1,366 @@
+\chapter{Conclusion}
+\label{ch: conclusion}
+
+
+% Feedback from Silver => probably best for other paper
+% discussion that connects the algorithms to real world impact
+
+% - some additional axes of reinforcement learning, such as on-policy/off-policy, model-free/model-based, value-based/actor-critic/policy-based -
+% would any of the insights in this thesis generalize along any of these axes?
+
+
+% new methodology
+This thesis examined the asymptotic behaviour of MC-O-PI.
+Instead of analysing noisy updates directly, we studied the mean-field dynamics that emerge when averaging out the stochastic perturbations caused by
+% from asynchronous updates of state-action pairs and 
+episode simulations and asynchronous updates.
+
+
+% enabling the use of techniques beyond traditional stochastic approximation theorems.
+% of \citep[Chapter 4]{Bertsekas1996Neuro-DynamicProgramming}.
+% This approach greatly simplifies analysis,
+% => extend all existing convergence proofs of Monte Carlo optimistic PI
+This approach revealed key properties of MC-O-PI,
+% by removing the obfuscating effects of noise, leading to a clearer understanding of the algorithm, 
+which helped us build new counterexamples
+% => argue existing conjecture sutton and barto
+showing that any perturbation to the algorithm of \citet[p. 99]{Sutton2018ReinforcementIntroduction} invalidates the conjecture. Thus if the conjecture holds, it is due to the combination of stochastic simulations and first-visit updates rather than either factor alone.
+Additionally, by extending all existing convergence proofs,
+% while providing more intuitive explanations, 
+this method enabled us to establish practical implementation guidelines that prevent MC-O-PI from converging to suboptimal fixed points.
+% conditions to guarantee optimal convergence.
+
+
+% GLIE selects initial state-action with epsilon greedy
+% - IV no counterexample so far
+% - FV no counterexample so far
+
+% intro to next sec
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newpage
+\section{Guidelines when using MC-O-PI}
+
+% This thesis did not establish necessary and sufficient conditions for the global convergence of MC-O-PI but it provided practical implementation guidelines to prevent solutions from converging to suboptimal fixed points.
+
+% MC-O-PI's asymptotic behaviour is determined by the update distributions $(\update_k)_{k \geq 0}$, which depend on the start distributions $(\start_k)_{k \geq 0}$ and the update functions $(f_k)_{k \geq 0}$. 
+% Choosing these carefully is crucial to avoid convergence to suboptimal solutions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Use greedy or uniform updates in each state}
+
+
+% Since the optimal policy is unknown,
+% When the update distributions have a non-greedy bias in one or more states, MC-O-PI can converge to suboptimal fixed points even on small MDPs. 
+% The core issue is that a non-greedy bias consistently drives some solutions out of the optimal region and thereby prevents them from converging to the optimal action values.
+% Since the optimal policy is unknown, it is safest to never bias an update distribution towards a non-greedy action.
+
+
+When update distributions are non-uniform,
+MC-O-PI can remain trapped in suboptimal fixed points even at the boundary of the optimal region.
+These fixed points are robustly stable if updates are biased toward non-greedy actions, but fragile and easier to escape when updates favour greedy actions.
+On the contrary, when updates are uniform across all actions in each state, solutions converge to the optimum by visiting a sequence of essentially monotonically improving policies.
+
+
+The greedy action of each state should thus be updated at least as frequently as any other action in that state.
+% , solutions normally converge to the optimal policy and action values.
+If a solution appears to be stuck in a suboptimal fixed point because the estimate $q_k$ assigns the same value to several actions of the same state, adding centred noise to each episode's returns ensures the solution eventually leaves that fixed point and transitions to better policies.
+
+
+In practice, with initial- or first-visit updates, the initial state of each episode can be sampled according to any distribution as long as the initial action in that state is the current greedy action at least as often as any other action.
+This approach is more practical and data-efficient than previous guidelines as it removes the need for uniform sampling over the entire state-action space and allows first-visit updates instead of initial-visit ones.
+Additionally, the flexibility in choosing initial states allows prioritising different states at different times,
+or even sourcing them from an external black-box process.
+
+
+% Alternatively, it is possible to cancel out non-uniform updates provided the sampling distribution of each actio
+
+
+The safest strategy for balancing exploration and exploitation
+is to start with uniform updates rather than prioritising non-greedy actions. As the algorithm progresses, updates can gradually favour greedy actions. Still, it is important to monitor the estimates to ensure the algorithm does not get stuck even if any suboptimal fixed points would be fragile.
+
+
+Finally, using sample averaging learning rates $1/n_k$ is appealing as it guarantees that estimates are exact averages of the episode returns observed so far.
+However, on top of the additional memory requirements, 
+these learning rates can hinder convergence by introducing a bias in the effective learning rates that is difficult to predict.
+% (\autoref{sec: counter 3s es st}).
+
+% Additionally, initializing MC-O-PI at a low value relative to the MDP's action values
+% (e.g., zero if all rewards are positive) helps avoid slow convergence caused by sliding modes.
+
+
+% These conclusions also apply to derivatives of MC-O-PI.
+% For instance, Monte Carlo Tree Search uses game simulations from a current positions in order to plan the best next move.
+% The returns of each simulation are used to update
+% The policy used for simulation is not deterministic as it
+% balances exploration and exploitation typically using some form of Upper Confidence Bound strategy,
+
+% Still this essentially alternates between 
+
+% satisfy GLIE conditions
+
+% is essentially a 
+
+
+% if tree search is sufficiently deep, the observed returns are unbiased estimates of the true etimates of earch branch.
+% use strategy that progressively shifts from exploration to exploitation.
+% if use IV (update root) try to choose uniform updates in the original rool, this guarantees convergence to optimum.
+% or FV then suggest adding noise if solutions seems stuck
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Use uniform update distributions over all actions in each state}
+
+% The safest approach is to ensure updates are uniform over all actions in each state.
+% If these conditions hold in the limit, MC-O-PI converges to the optimal policy and action values of any MDP with probability one.
+% When using initial-visit updates, one can thus choose the initial state of each episode according to any distribution as long as the initial action in that state is chosen uniformly.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Use update distributions with a greedy bias with noise}
+
+% When update distributions have a greedy bias in all states and episode simulations are stochastic, MC-O-PI likely converges to the optimal solution.
+% This setup allows first-visit updates, which make efficient use of simulation data, as long as, for each state, the start distributions are uniform or biased towards the greedy action.
+% Additionally, initializing MC-O-PI at a low value relative to the MDP's action values
+% (e.g., zero if all rewards are positive) helps avoid slow convergence caused by sliding modes.
+
+
+% To prevent solutions from entering sliding modes that slow down convergence, we showed that it is beneficial to initialise the MC-O-PI that is low 
+% For instance, initialising it in zero if rewards are always positive.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Avoid non-greedy updates}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Do not average out noise with non-uniform update distributions}
+
+
+% It is thus important to not average out noise because it enforces exploration which breaks up ties between suboptimal policies.
+% While averaging out noise is safe when updates are uniform because the policies then improve monotonically, it can generate cycles between suboptimal policies if updates are non-uniform, regardless of whether they exhibit a greedy bias or not.
+
+
+% check out AI control
+% How do we avoid harms from future AI systems that are deployed autonomously and are potentially more capable than humans? Most efforts so far have focused on alignment: getting the AI to want what we want. In this presentation, we focus on an orthogonal approach: developing protocols to deploy AIs safely even if they are misaligned. This approach is called AI control.
+% The two main ingredients in AI control are
+
+% Control protocols – AI deployment protocols designed to be robust to models acting against us (e.g. monitoring the AI’s outputs with a less capable AI system)
+
+% In our presentation we will 1) present a paper [1] on using AI control in a setting where a smart but misaligned LLM sometimes tries to insert backdoors into code, and 2) discuss the broader control agenda and the associated challenges.
+% [1] Greenblatt, R., Shlegeris, B., Sachan, K., & Roger, F. (2023). AI Control: Improving safety despite intentional subversion.
+
+\vspace{-0.2cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Future work}
+\vspace{-0.2cm}
+
+% Our work provides a deeper understanding of MC-O-PI’s convergence properties, but several questions remain. 
+Future research could refine the conditions for global convergence on the underlying MDP or the update distributions.
+It could also extend our methodology to policy iteration algorithms with multi-step TD evaluation, function approximation, or both.
+This could accelerate learning and provide performance guarantees for modern artificial intelligence systems.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Find necessary and sufficient conditions on the MDP}
+\vspace{-0.2cm}
+
+
+% what we already have
+\autoref{thm: lemma for no long term region} provides sufficient conditions on the MDP that ensure MC-O-PI converges to the optimal solution for all update distributions.
+Experiments with strong non-greedy biases suggest these conditions may also be necessary.
+Future research could confirm this claim or refine these conditions
+% to obtain a set that is both necessary and sufficient.
+% how to extend it
+% in several ways.
+by developing a method to construct counterexamples for MDPs that violate \autoref{thm: lemma for no long term region},
+or extending the upper bound on the discount factor in Theorem 2 of \cite{Harutyunyan2016QCorrections}.
+% and study the impact of switching every-visit to first-visit updates.
+
+% Once necessary and sufficient conditions on MDPs are identified, it would be crucial to translate them into verifiable conditions for the reward and transition functions of MDPs.
+
+
+% why its useful
+% Identifying necessary and sufficient conditions on the MDP that ensure MC-O-PI converges to the optimal solution for all update distributions would improve our understanding of MC-O-PI’s behaviour and guide real-world implementations.
+% While verifying such conditions in a model-free setting can be challenging, practical decision problems often exhibit partial structure
+% % % are rarely complete black boxes.
+% % % Even with partial knowledge of the problem’s structure, we can often 
+% allowing us to infer certain properties, such as feedforward optimal policies in some hierarchical tasks.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Find necessary and sufficient conditions on the update distributions}
+\vspace{-0.2cm}
+
+% what we already have
+As discussed in \autoref{sec: relaxing conditions}, 
+some conditions of \autoref{thm: convergence mcopi uniform} are artefacts of the proof rather than necessary conditions for the underlying policy improvement process.
+Therefore, we expect that they can be relaxed in order to further expand the convergence guarantees when update distributions are uniform.
+
+\vspace{-0.1cm}
+
+More broadly, \autoref{ch: greedy bias} suggests that when update distributions have a greedy or uniform bias in all states and updates are sufficiently noisy, MC-O-PI converges to the optimum.
+% solution for every MDP. 
+Conversely, \autoref{ch: non-greedy bias} showed that it is easy to build an MDP where MC-O-PI converges to a suboptimal fixed point even with non-greedy updates in just one state.
+Greedy or uniform update distributions and noisy episode simulations 
+% are strong candidates for 
+might thus be necessary and sufficient 
+% conditions on the MC-O-PI parameters that
+to ensure convergence to the optimal policy and its action values.
+% for all MDPs.
+% how to extend it
+Confirming or refining this claim would lead to new questions, such as whether first-visit updates always ensure sufficient greedy bias,
+or whether adding noise to MC-O-PI is necessary when learning in deterministic MDPs.
+% or which implementations achieve the fastest convergence.
+Answering these questions would settle the conjecture of \citet[p. 99]{Sutton2018ReinforcementIntroduction}.
+
+
+% why its useful
+% The ultimate goal is to identify necessary and sufficient conditions on the update distributions that guarantee MC-O-PI converges to the optimal policy and action values for all MDPs. 
+% This would allow anyone to confidently choose start distributions and update functions that ensure MC-O-PI eventually finds the optimal solution to their problem.
+
+% % how to extend it
+% To establish these conditions, future research cannot rely on exact MC-O-PI as the counterexamples in \autoref{ch: greedy bias} showed that MC-O-PI converges under weaker conditions than exact MC-O-PI.
+% % while \autoref{thm: if det converges then stoch converges} established that the convergence of exact MC-O-PI is sufficient to guarantee the convergence of MC-O-PI, the counterexample in \autoref{ch: greedy bias} demonstrated that it is not necessary.
+% Instead, it would need to determine the minimal amount of noise required so that solutions visit all policies that share a boundary and thereby also the optimal policy.
+%  % how to get sufficient noise?
+%  %    - add white noise on every policy evaluation?
+%  %    - randomise learning rate
+% Additionally, it would have to quantify the amount of bias required so that solutions cannot consistently leave the optimal region.
+% % how much greedy bias is necessary since some examples with a non-greedy bias still converge to the optimal solution. D
+
+
+% These results would lead to new questions, such as whether first-visit updates always ensure sufficiently greedy update distributions,
+% whether adding noise to MC-O-PI is necessary when learning on deterministic MDPs,
+% % - what if there is no noise => deterministic MDP w looping optimal policy, no hope for convergence when MDP has deterministic transitions (exact policy evaluation and update distribution)? although if get stuck introduce random jump => guarantee to be pushed to $\pol_\opt$ at some point and then leave that point on the boundary
+% or which implementations achieve the fastest convergence.
+% % such as whether IV MC-O-PI with uniform updates converges faster than FV MC-O-PI with uniform updates because the former generates a sequence of policies that 
+% % - when its faster to use uniform bias w initial visits => policy improves monotonically but less data efficient, or uniform bias w first visits => possible sliding modes but ore data efficient
+% Answering these questions would settle the conjecture of \citet[p. 99]{Sutton2018ReinforcementIntroduction}
+% and prove the convergence of GLIE MC control discussed in \citep[Lecture~5]{Silver2015LecturesLearning}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Apply mean-field analysis to multi-step TD-O-PI}
+\vspace{-0.2cm}
+
+
+\autoref{ch: exact mcopi} showed that the asymptotic behaviour of MC-O-PI is strongly coupled to its mean-field dynamics.
+Given that this conclusion only relied on the martingale difference property of the stochastic perturbations, it likely extends to policy iteration algorithms with multi-step TD evaluation.
+Moreover, the growth and lock-in events introduced in \autoref{ch: unbiased} also only required unbiased noise with eventually bounded variance, and the seed event is a simple finite-horizon process to guarantee that solutions can overcome the decreasing margin.
+These events should therefore also allow us to derive global convergence of TD-O-PI algorithms from their mean-field dynamics.
+The additional difficulty would be to understand how
+the position of the estimate $q$ and the depth $n$ of the episode simulations affect the multi-step target $\B_{\pi}^n q$.
+
+
+
+% With MC estimates thet
+% on the other hand, $n$ is fixed, and $q_\pi$ is fixed for all $q$
+
+\vspace{-0.1cm}
+
+
+Future research could apply this approach 
+% to algorithms with multi-step TD evaluations in order
+to generalise the results of \citet{Tsitsiklis2002OnIteration}, \citet{Harutyunyan2016QCorrections}
+and \citet{Munos2016SafeLearning} to
+% on- and off-policy settings with 
+non-uniform sampling of initial state-action pairs.
+These findings would raise important questions about optimising implementations of TD-O-PI,
+such as determining the optimal level of bootstrapping,
+or improving efficiency by performing both policy evaluation and improvement online compared to evaluation alone.
+
+
+% \textcolor{red}{extra}
+% Finally, we note that Tsitsiklis extended his proof to optimistic policy iteration with temporal difference returns, i.e. where the target $q_\pi$ is replaced by a geometrically weighted sum of multi-step returns (TD($\lambda$)).
+% This introduces an additional error term in the descent inequality \eqref{eq: q-Bq decreases}. Given the structural similarities, we conjecture that the framework of \autoref{sec: results} can be similarly extended. Future work could apply our method to TD-O-PI, where an analogous summable error term would likely appear in the critical inequality \eqref{eq: V goes to infinity}, potentially establishing convergence for TD control under our broader class of update distributions.
+
+
+% % why its useful
+% Learning from complete episode simulations can be restrictive or slow.
+% % For instance, this approach does not work for tasks with no clear terminal state 
+% % or
+% Therefore, it would be useful to generalise our techniques and results to optimistic policy iteration algorithms with multi-step TD policy evaluation.
+
+
+% % what we already have
+% We have shown that averaging out the noise can simplify simulations and analysis.
+% This made it easier to find counterexamples and build insights for convergence proofs.
+% This technique could be generalised to multi-step TD algorithms to extend existing results.
+% The additional difficulty would be to account for the non-zero bias in the approximations computed with a multi-step TD.
+
+
+% % how to extend it
+% To address this difficulty, we suggest looking at the proofs of Proposition 3 in \citep{Tsitsiklis2002OnIteration} and Theorem 4 in \citep{Munos2016SafeLearning} that identify contractive operators despite biased estimates and then rely on standard results described in Chapter 4 of \citep{Bertsekas1996Neuro-DynamicProgramming}.
+% The optimistic algorithm with TD estimates could be the limit case of such an off-policy operator.
+
+% - in \citep{Munos2016SafeLearning} every-visit yields greedy-enough updates as in retrace($\lambda$)
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Generalise to function approximation}
+\label{sec: discussion function approximation}
+\vspace{-0.2cm}
+
+Our analysis applies specifically to \textit{tabular} MC-O-PI, where the estimate $q_k$ can be stored exactly.
+In practical applications, however, the estimate is approximated, for instance using a neural network.
+In this setting, the error between the observed return and the current estimate is then used to update the parameters of the approximation.
+% for instance using gradient descent.
+
+\vspace{-0.1cm}
+
+
+With a sufficiently rich approximation method,
+% If the approximation method is rich enough, 
+the approximation error should only contribute a finite perturbation to the MC-O-PI difference inclusion.
+This suggests that \autoref{thm: convergence mcopi uniform}
+can be generalised with function approximation using the results in \citep[Section~4.3.3]{Bertsekas1996Neuro-DynamicProgramming} or \citep[Section~5.2]{Kushner2003StochasticApplications}.
+Furthermore, integrating a normalisation trick as in \autoref{sec: normalisation trick} into Monte Carlo Tree Search might accelerate AlphaZero's or MuZero's learning process by mitigating slow sliding modes.
+% and that the counterexamples in \autoref{ch: greedy bias} remain valid.
+% even though the additional approximation noise further helps to escape suboptimal fixed points.
+
+% link to improve models like AlphaZero or MuZero by weighting the size of updates to make uniform and avoid sliding modes, guarantee monotonically improving polciies
+% as in \autoref{}
+
+% tricks of \autoref{} are still valid, just scale the learning rate of the gradient update
+
+\vspace{-0.1cm}
+
+
+Finally, \citet{Wagner2013OptimisticResult} shows that policy gradient methods, which underlie recent breakthroughs in natural language processing and robotics \citep{Schulman2017ProximalAlgorithms}, can be interpreted as optimistic policy iteration algorithms with function approximation. Extending our results to this setting might thus improve the efficiency and performance of these essential methods.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{impact of continuous learning}
+
+% online update q and pi
+
+% useful
+% - non-episodic MDPs
+% - goal changes over time
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Performance guarantees useful when use approximation}
+
+% how fast learn?
+% lower or upper performance guarantees
+% convergence rate
+
+% opens questions
+% - what is impact of using off-policy evaluation
+% - how fast learn when approximate estimate => can extrapolate knowledge from some states to other states
+
+% when a single state is updated, the change generalizes from that state to affect the values of many other states = generalisation (learning is more powerful, but more difficult to manage and understand)
+
+% but if approximation function is flexible enough, should not be a problem, just introduces more noise in the learning process
+
+% approximation makes things worse (cite literature that shows that TD(0) does not always converge with function approximation)
+
+% If the learning error has zero bias and bounded variance, all the theory from above still applies and the model can learn the optimal policy perfectly.

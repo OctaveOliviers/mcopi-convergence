@@ -1,0 +1,30 @@
+\begin{definition}[Value functions]
+The state-value function $v_\pol : \sset \to \real$ measures the expected return
+when starting in state $s$ and following policy $\pol$:
+\begin{align*} 
+% \label{eq: definition state-value function}
+    v_\pol(s) 
+    \coloneqq 
+    \E_{\transit} \big[ r(s_0, \pol) + \discount r(s_1, \pol) + \discount^2 r(s_2, \pol) + \dots \mid s_0 = s \big] .
+    % \\
+    % &= r(s, \pol(s)) + \discount \sum_{s' \in \sset} \transit(s' \mid s, \pol(s)) \big[ r(s', \pol(s')) + \discount \sum_{s'' \in \sset} \transit(s'' \mid s', \pol(s')) [\dots] \big].
+    % \Big( r(s_\tpo, \pol(s_\tpn)) + \discount \sum_{s_\tpt} \transit(s_\tpt \mid s_\tpo, \pol(s_\tpo)) \Big( \dots \Big)\Big) .
+    % \nonumber \\
+    % 
+    % &= \Expect_\pol \Big[R_\tpn + \discount R_\tpo + \dots \mid S_\tpn = s_\tpn \Big] .
+\end{align*}
+The action-value function $q_\pol : \sset \times \aset \to \real$ measures the expected return when taking action $a$ in state $s$ and then following policy $\pol$:
+\begin{align*} 
+% \label{eq: definition action-value function}
+    &q_\pol(s,a)
+    \coloneqq
+    \E_{\transit} \big[ r(s_0, a_0) + \discount r(s_1, \pol)
+    \\
+    &\hspace{4.5cm} + \discount^2 r(s_2, \pol) + \dots \mid s_0 = s, a_0 = a \big] .
+    % \\
+    % &= r(\satpn) + \discount \sum_{s_\tpo \in \sset} \transit(s_\tpo \mid \satpn) v_\pol(s_\tpo) .
+    % \nonumber \\
+    % 
+    % &= \Expect_\pol\Big[R_\tpn + \discount R_\tpo + \dots \mid S_\tpn = s, A_t = a \Big] .
+\end{align*}
+\end{definition}

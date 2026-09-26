@@ -1,0 +1,1088 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2026
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage[preprint]{neurips_2026}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{amsmath}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+
+
+\input{z-maths}
+\input{z-packages}
+\newcommand{\mcopi}{MCES}
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+%\title{First Visit Monte-Carlo Control may not converge to optimality but Initial Visit can be fixed}
+
+% \title{Exploring Starts Are Not Enough: \\ Counterexamples for First and Initial Visit Monte-Carlo Control and a fix for Initial Visit}
+
+\title{Exploring Starts Are Not Enough: \\ Counterexamples and a Fix for \\ Monte Carlo Exploring Starts}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  Octave Oliviers \\
+  Department of Engineering\\
+  University of Cambridge\\
+  Cambridge, UK \\
+  \texttt{ofao2@cam.ac.uk} \\
+  % examples of more authors
+   \And
+  Glenn Vinnicombe \\
+    Department of Engineering\\
+  University of Cambridge\\
+  Cambridge, UK \\
+  \texttt{gv103@cam.ac.uk}
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \AND
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+The asymptotic behaviour of Monte Carlo Exploring Starts (MCES) is a long-standing open question in reinforcement learning, even in the tabular setting.
+We investigated the convergence properties of tabular MCES by constructing examples in which the algorithm converges to suboptimal solutions.
+This paper presents new counterexamples for both initial-visit and first-visit MCES and gives a convergence-restoring modification for the initial-visit case.
+We show that stable suboptimal solutions may exist for initial-visit MCES with sample-average updates even when greedy actions are updated more often than non-greedy actions on average.
+However, by scaling learning rates inversely to update frequencies on a state-by-state basis, convergence to optimality is guaranteed.
+Unlike previous uniformisation methods, this modification is applicable to large-scale problems that require approximating the estimated value function.
+We then extend the example to show that sample-average first-visit MCES may also converge to suboptimal solutions.
+This largely settles a fundamental open problem and shows that exploring starts alone do not guarantee convergence to optimality.
+More broadly, these results highlight that convergence depends critically on the relative size and frequency of updates applied to different actions,
+making the choice of learning rates and the balance between exploration and exploitation central to the analysis of MCES and the implementation of scalable Monte Carlo control methods.
+\end{abstract}
+
+
+% formatting instructions at
+% https://www.overleaf.com/latex/templates/formatting-instructions-for-neurips-2026/bjdwqfdkyftc.pdf
+
+\section{Introduction}
+
+Reinforcement learning aims to train an agent to behave optimally in a certain environment.
+In this paper, we model this interaction as a finite Markov decision process (MDP) evolving over discrete steps.
+At time \(t\), the agent observes a state \(s_t \in \mathcal S\) and selects an action \(a_t \in \mathcal A(s_t)\) according to a policy \(\pi(a_t | s_t)\).
+The environment then produces a reward \(r_t\) and transitions to a new state \(s_{t+1}\) according to its dynamics $p(s_{t+1}, r_t | s_t, a_t)$.
+
+
+For a policy \(\pi\), the action-value function $q_\pi$ assigns to each pair $(s,a)$ the expected discounted return obtained by taking action \(a\) in state \(s\), and then following policy \(\pi\):
+\[
+q_\pi(s,a)
+=
+\mathbb E_{\pi} \left[
+\sum_{t=0}^{\infty} \gamma^t r_t
+\;\middle|\;
+s_0 = s,\
+a_0 = a
+% a_t \sim \pi(\cdot \mid s_t),\
+% (s_{t+1},r_t) \sim p(\cdot,\cdot|s_t,a_t), \
+% \forall\, t\ge 1
+\right].
+\]
+Under standard finite-MDP assumptions,
+there exists an optimal policy $\pi_*$ that satisfies $q_{\pi_*}(s,a) = \max_\pi q_\pi(s,a)$ for all $(s,a)$.
+Moreover, $\pi_*$ may be chosen to be deterministic and greedy with respect to $q_{\pi_*}$, meaning
+$\pi_*(s) \in \arg\max_{a \in \mathcal A(s)} q_{\pi_*}(s,a)$ for all $s$.
+
+% Reinforcement Learning is an interaction between a policy $\pi: \mathcal{S} \rightarrow \mathcal{A}$, mapping states to actions according to $a_t \sim \pi(s_t)$, and an environment $p(s',r|s,a)$ specifying the distribution of the next state and a reward conditional on the current state and chosen action  
+% $( s_{t+1},r_t)\sim p(s',r|s=s_t,a=a_t)$. 
+% The value of a policy $\pi$ in any state-action pair $(s,a)$ is the expected total discounted rewards when first taking action $a$ in state $s$ and then following policy $\pi$ thereafter:
+% \[
+% q_\pi(s,a) = {\mathbb E}_{p}\left[\sum_{t=0}^\infty \gamma^t r_t \ |\  s_0=s,a_0=a,(s_{t+1},r_t)\sim p(s',r|s_t,\pi(s_t))\right].
+% \]
+% The optimal policy is one for which $\pi_* = \arg\max_\pi q_\pi(s,a)$ and it is a standard result that such a policy exists and is maximising at all $(s,a)$.
+%Finally, the optimal value function  satisfies the Bellman equation: 
+%$q_{\pi_*}(s,a)=\mathbb E_p\left[r+\gamma\max_{a'} q_{\pi_*}(s',a')\right]$.
+
+
+Monte Carlo Exploring Starts (MCES) maintains an action-value estimate $q_k$
+and a policy $\pi_k$ greedy with respect to $q_k$.
+At iteration $k$, the algorithm samples an initial state-action pair according to a distribution $\sigma_k$
+and simulates an episode starting from that pair:
+\[
+\mathcal E_k
+:=
+\bigg\{
+s_0,a_0,r_0,s_1,a_1,r_1,\ldots : 
+(s_0,a_0) \sim \sigma_k, \
+(s_{t+1},r_t) \sim p(\cdot, \cdot| s_t, a_t), \
+a_t = \pi_k(s_t), \
+\forall \, t \ge 1
+\bigg\} .
+\]
+It then updates the estimate $q_k$ at pairs $(s,a)$ appearing in $\mathcal E_k$ as
+\begin{align}
+\label{eq: mcopi def}
+q_{k+1}(s,a) = q_k(s,a) + \eta_k(s,a) \big( \tilde q_k(s,a) - q_k(s,a) \big) ,
+\end{align}
+while \(q_{k+1}(s,a) = q_k(s,a)\) for non-updated pairs.
+Here,
+$\eta_k(s,a)$ is a learning rate satisfying the Robbins--Monro conditions $\sum_{k} \eta_k(s,a) = \infty$ and $\sum_{k} \eta_k^2(s,a) < \infty$ for each $(s,a)$,
+and
+$\tilde q_k(s,a)$ is the observed return from that pair onwards:
+\begin{align}
+\label{eq: episode return}
+\tilde q_k(s_t,a_t) = \sum_{i \geq 0} \gamma^{i} r_{t+i} 
+\qquad
+\forall \, t \ge 0 .
+\end{align}
+% 
+% Monte Carlo Exploring Starts (MCES) maintains an estimate of the value function $q_k(s,a)$ and
+% estimates the value of the current greedy policy, i.e. one satisfying $\pi_k(s) = \arg\max_a q_k(s,a)$,
+% by performing rollouts
+% \[
+% \mathcal E_k
+% =
+% \{s_0,a_0,r_0,s_1,a_1,r_1,\ldots : (s_0,a_0) \sim \sigma_k(s,a), (s_{t+1},r_t)\sim p(s',r|s_t,a_t), a_t \sim \pi_k(s_t)\}
+% \]
+% starting from a state-action pair sampled from the exploring starts distribution $\sigma_k(s,a)$, which is assumed to satisfy $\sigma_k(s,a)>\sigma_{\min}$ for all $ s,a\in\mathcal S \times \mathcal A,k$ (this is the exploring starts condition).
+% 
+% The current estimate is then updated according to 
+% \begin{align}
+% \label{eq: mcopi def}
+% q_{k+1}(s,a)=q_k(s,a)+\alpha_k (s,a)\Bigl( g(s,a)-q_k(s,a)\Bigr)
+% \end{align}
+% where, for $(s_t,a_t)\in\mathcal E_k$, $g_k(s_t,a_t)$ is an estimate of the discounted cumulative reward from that point onwards 
+% \begin{align}
+% \label{eq: episode return}
+% g_k(s_t,a_t)=\sum_{l\geq 0} \gamma^{l}r_{t+l}
+% \end{align}
+% 
+% There are two common update variants:
+% \begin{itemize}
+%     \item \textbf{Initial Visit (IV)}: only update $q_k$ at the initial pair $(s_0,a_0)$.
+%     \item \textbf{First Visit (FV)}: 
+%     update each state-action pair that appears in the episode, using the return from its first occurrence in that episode.
+%     % update $q_k(s,a)$ once for every $(s_t,a_t)$ that is encountered in the rollout using the discounted cumulative reward from the first time it is visited onwards. 
+% \end{itemize}
+% 
+% There are two common update variants.
+% 
+We consider two update rules.
+The \emph{initial-visit} (IV) method only updates $q_k$ at the initial pair $(s_0,a_0)$.
+The \emph{first-visit} (FV) method updates each state-action pair in the episode, using the return from its first occurrence in the episode.
+% In both cases, $q_{k+1}(s,a)$ is set to $q_k(s,a)$ for non-updated pairs.
+We also consider different choices of learning rates.
+The \emph{sample-average} (SA) rule sets $\eta_k(s,a) = 1/n_k(s,a)$, where $n_k(s,a)$ is the number of times $(s,a)$ has been updated up to and including time $k$. Under this rule, $q_{k}(s,a)$ is the sample average of the observed returns for $(s,a)$ up to time $k$.
+Alternatively, the learning rates $\{\eta_k\}_{k \ge 0}$ can be independent of $(s,a)$ and just form a scalar sequence.
+%\emph{Global stepsizes} uses a scalar sequence $\{\eta_k\}_{k \ge 0}$ satisfying the Robbins--Monro conditions $\sum {\eta_k}=\infty$, $\sum {\eta_k^2}<\infty$.
+
+To ensure sufficient exploration,
+the \emph{exploring starts} 
+% on the sampling distribution of the initial state-action pair of each episode.
+condition requires that $\sigma_k(s,a) > 0$ for all $k$ and all $(s,a)$.
+% {\color{red} I was suggesting we delete this, for teh reasons I gave: However, we can nullify this condition using quickly decaying sampling distributions. For example, with $\sigma_k(s,a) = 1/(k + 2)^2$, there is a 50\% chance that no episode ever starts in $(s,a)$.
+% IV MCES would thus never update that pair and solutions would not converge to $q_{\pi_*}$.}
+% To prevent such issues, we introduce a stricter condition:
+In order to ensure all state-action pairs are visited infinitely often, we introduce a stricter condition:
+there exists a constant $\sigma_{\min}>0$ such that $\sigma_k(s,a) \ge \sigma_{\min}$ for all $k$ and all $(s,a)$.
+
+
+For both IV and FV, the observed return $\tilde q_k$ is an unbiased estimate of $q_{\pi_k}$~\cite{Singh1996ReinforcementTraces}.
+So, defining the zero-mean perturbation $v_k(s,a) := \tilde q_k(s,a) - q_{\pi_k}(s,a)$,
+equation \eqref{eq: mcopi def} can be written as
+\begin{align}
+\label{eq: mcopi def noisy}
+q_{k+1}(s,a) = q_k(s,a) + \eta_k(s,a) \big( q_{\pi_k}(s,a) - q_k(s,a) + v_k(s,a) \big) .
+\end{align}
+MCES is thus a stochastic approximation to the policy evaluation map associated with the current greedy policy.
+% We see that MCES is essentially a switched linear system whose active dynamics depend on which policy is greedy with respect to the current estimate $q_k$.
+The dynamics are fixed as long as $q_k$ remains in a region where the same policy is greedy. For a policy $\pi$, define this region by
+\begin{align}
+\label{eq: greedy action values}
+    Q(\pi) \coloneqq \big\{ q  : q(s, \pi(s)) = \max_{a \in \mathcal A(s)} q(s,a), \ \forall \, s \in \mathcal S \big\} .
+\end{align}
+% 
+% 
+%This algorithm lies at one extreme of a continuum of algorithms with varying reliance on bootstraping. At the other extreme 
+%is Q learning: given $(s,a,s',r)$ update value estimate as 
+%$$q_{k+1}(s,a)=q_k(s,a)+\eta_k \Bigl(\overbrace{r+\gamma\max_{a'} q_k(s',a')}^{\displaystyle g(s,a)}-q_k(s,a)\Bigr)$$
+%\hspace*{\fill}(and put $q_{k+1}=q_k$ for all other pairs)  
+%\begin{itemize}\item
+% known to converge to $q_{\pi_*}$ (Watkins \& Dayan 1992) when 
+%$\sum {\eta_k}=\infty$,\  $\sum {\eta_k^2}<\infty$,\   $(s,a)\sim \sigma_k(s,a)$ with $\sigma_k(s,a)>\sigma_{\min}$ for all $ %s,a\in\mathcal{A}(s),k$
+%\item
+%Can be very sensitive to inaccuracies in $q$
+%\end{itemize}
+% 
+Discussing the FV/SA variant of MCES,
+% Sutton(1999) 
+Sutton
+writes:
+``It is hard to imagine any RL method simpler or
+more likely to converge than this $\ldots$
+While this simplest case remains open we
+are unlikely to make progress on any control method for $\lambda > 0$.''~\cite[p.~13]{Sutton1999OpenLearning}
+% {\color{red} (Here, $\lambda$ refers to the parameter in Q($\lambda$), TD($\lambda$) etc. ~\cite{Sutton1988LearningDifferences}.)}
+(Here, $\lambda$ refers to the parameter in Q($\lambda$), TD($\lambda$) etc.~\cite{Sutton1988LearningDifferences}.)
+Sutton and Barto later reinforce the importance of this problem by labelling it as ``one of the most fundamental open theoretical questions in reinforcement learning.''~\cite[p.~99]{Sutton2018ReinforcementIntroduction}
+
+%\hspace*{\fill}(so $q_{k+1}=\dfrac{1}{n_k} q_k + \dfrac{n_k-1}{n_k} q_{\pi_k}+\text{noise}$)
+%\bigskip
+
+%$$g(s,a)=\sum_{t=0}^\infty \gamma^t r_t =q_{\pi_k}(s,a)+w_k $$ 
+
+%So, for the sampled $(s,a)\sim \sigma_k(s,a)$, 
+%$$q_{k+1}(s,a)=q_k(s,a)+\eta_k \bigl(q_{\pi_k}(s,a)+w_k-q_k(s,a)\bigr)$$
+%where $\pi_k(s)=\arg\max_a q_k(s,a)$ is the current {\bf greedy} policy and $w_k$ is a Martingale Difference Sequence with bounded conditional variance.    
+%\medskip
+
+
+\subsection{Previous work}
+
+The Robbins--Monro conditions alone do not prevent IV MCES from converging to suboptimal solutions~\cite{Bertsekas1996Neuro-DynamicProgramming, Wang2022OnLearning}.
+In these counterexamples, the sampling distribution is strongly biased towards non-greedy actions (i.e. $\sigma_k(s,a_1)>\sigma_k(s,a_1)$ when $q_k(s,a_1)<q_k(s,a_2)$), as described in \autoref{app: non greedy}.
+% In \autoref{app: non greedy} we give the simplest possible such example.
+In contrast, with uniform sampling distributions over all state-action pairs and scalar learning rates, IV MCES converges almost surely to optimality~\cite{Tsitsiklis2002OnIteration, Chen2018OnProblem, Liu2021OnStarts}.
+For large problems, however, sampling uniformly over the state space is not feasible.
+
+
+For completeness, we note that MCES also converges to optimality when the MDP exhibits a feedforward structure \citep{Wang2022OnLearning, Lubars2021OptimisticStructure}, and that 
+%or when the weighting factor $\lambda$ is sufficiently small compared to the discount factor $\discount$ \citep{Harutyunyan2016QCorrections}.
+more complex multi-step algorithms manage to recover contraction arguments 
+by combining several multi-step approximations~\citep{Munos2016SafeLearning},
+or using a look-ahead mechanism~\citep{Winnicki2023OnEvaluation}.
+We focus, however, on the behaviour of tabular MCES for general MDPs as even this simple case remains an open question.
+
+
+
+% It is known that if the sampling distribution $\sigma_k(s,a)$ is uniform over all states and actions then IV MCES with a step size independent of $(s,a)$ is guaranteed to converge to optimality almost surely \cite{Tsitsiklis2002OnIteration,Chen2018OnProblem,Liu2021OnStarts} under mild conditions.
+% For large problems, though, it is impractical to sample uniformly over the state-space. It is also known\cite{Bertsekas1996Neuro-DynamicProgramming} that if the sampling distribution is allowed to be biased towards non-greedy actions (i.e. $\sigma_k(s,a_1)>\sigma_k(s,a_1)$ when $q_k(s,a_1)<q_k(s,a_2)$) then IV MCES may not converge.
+% In Appendix~\ref{app: non greedy} we give the simplest possible such example.
+% It might be conjectured that IV MCES behaves better when the updates are biased towards greedy actions, and that FV MCES inherits such behaviour due to its tendency to favour greedy updates (all subsequent updates after the first are purely greedy). 
+
+\subsection{Contributions}
+
+
+We make three contributions.
+First, we construct an MDP in which IV/SA MCES does not converge to $q_{\pi_*}$ even when sampling distributions are biased towards greedy actions.
+% 
+Second, we prove that IV MCES converges to $q_{\pi_*}$ when scaling learning rates inversely to update frequencies on a state-by-state basis.
+This modification works in large-scale environments as it does not require uniform sampling over the state space.
+Unlike earlier work, the proof derives convergence by analysing the evolution of the policy $\pi_k$ instead of the estimate $q_k$.
+% 
+Third, we show that FV/SA MCES can converge to suboptimal solutions when noise is averaged out.
+% Thus \emph{if} FV/SA MCES is guaranteed to converge to optimality, it can only be because the stochastic sampled paths always escape the mean-field attractors.
+Thus any convergence proof for FV/SA MCES would need to show that the stochastic sampled paths always escape the mean-field attractors.
+Our simulations suggest that this does not happen.
+For all simulation horizons we could test, we observed fully sampled runs getting trapped in the same suboptimal basin.
+These results provide strong evidence against the global convergence of
+FV/SA MCES in general MDPs.
+% , largely settling the open problem highlighted by Sutton and Barto.
+
+
+% {\color{red} However, our simulations show that the fully sampled process can also converge to these suboptimal fixed points for the length of times we are able to simulate, so we believe it is highly unlikely that this is the case. 
+% largely settles the open problem highlighted by Sutton and Barto.
+% }
+
+
+% In this paper we demonstrate that IV/SA MCES may not converge to $q_*$,  even with a bias towards selecting greedy actions. However, if we write $\sigma_k(s,a)=f_k(s)g_k(a|s)$ then IV MCES with step sizes, for example,  $\eta_k=\frac{1}{k}\frac{1}{g_k(a|s)|\mathcal A(s)|}$ converges to $q_{\pi_*}$ almost surely.
+% This can  be understood as a local version of SA  step sizes. At any state s, using $\frac{1}{n_k(s,a)}$ gives a greater weight to actions which have not been sampled often in the past,  whereas the factor $\frac{1}{g_k(a|s)}$ gives a greater weight to actions which are less likely to be sampled at the current step. This variant scales effectively to large problems, first a state $s$ is chosen according to some unknown distribution $f_k(s)$ and then an action is chosen according to some distribution $g_k(a|s)$ over which we have complete control, $\epsilon$-greedy for example. Consider chess, with $|\mathcal{S}| \approx O\left(10^{45}\right)$ and $|\mathcal{A}| =O(10)$ for each state, controlling for the process of sampling over the states is not feasible, but controlling for the process of sampling over the actions is. Our proof uses very different methods than much previous work in this area; instead of looking directly at the convergence of the value function estimate we instead concentrate on the convergence of the policy as it traverses the tree of all policies, which form a partially ordered set. 
+
+% It might be conjectured that IV MCES behaves better when the updates are biased towards greedy actions, and that FV MCES inherits such behaviour due to its tendency to favour greedy updates (all subsequent updates after the first are purely greedy). 
+
+% % \textcolor{red}{say that any suboptimal fp lies on a "boundary" so the policy can oscillate indefinitely, so we introduce the term "boundary" somewhere}
+
+%  Finally we consider FV/SA MCES, the subject of Sutton's originally stated  open problem. The FV scheme might be preferred over IV because it is more efficient in it's use of samples, however the extra samples used will have been obtained from purely greedy action sampling, which might have negative consequences for convergence. FV is much more difficult to deal with technically, but we do show that if all noise is removed from the updates then the process can converge to a suboptimal fixed point. It can be concluded that \emph{if} FV/SA MCES is guaranteed to converge to optimality then it can only be because the deterministic mean-field behaviour is overcome by the stochastic sample-path dynamics. 
+%  {\color{red} However, our simulations show that the fully sampled process can also converge to these suboptimal fixed points for the length of times we are able to simulate, so we believe it is highly unlikely that this is the case. }
+ 
+
+\section{Counterexample for initial-visit MCES with sample average updates}
+\label{sec: counterexample iv mces}
+
+
+%\subsection{Updating strategy}
+\label{sec: 3 state sampling strat}
+Consider the MDP in \autoref{fig: explain loop on-policy bias MDP} with $\gamma = 0.9$.
+Each state has two actions: "move" yields a reward of one while "stay" yields no reward. The policy $\pi_*$ chooses "move" everywhere, denoted by $a_*$, while $\bar \pi$ chooses "stay", denoted by $\bar a$.
+
+% \input{figures/exp-on-policy-MDP}
+\input{figures/explain-loop}
+
+
+% \includepdf[pages=-]{figures/big-picture.pdf}
+
+
+% describe bias / loop
+The following sampling strategy forces IV MCES to cycle indefinitely between the suboptimal policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$ for every initial condition in the region $\qset_0$, which 
+is the intersection between the regions of these six policies and the shaded region in \autoref{fig: explain loop on-policy bias MDP}:
+% consists of points which are in both the shaded region in \autoref{fig: explain loop on-policy bias MDP} and the greedy region of one of these policies:
+\begin{enumerate}
+    \item  \label{pg: sampling strat 3 states}
+    When $q_k \in \region(\pol_1)$, start each episode in $(s_2, \best{a})$ or $(s_3, \best{a})$ with a probability of 0.4, or in $(s_2, \worst{a})$ with a probability of 0.2.
+    % Given the initial-visit updates, this yields a greedy bias in states $s_2$ and $s_3$, and no updates in $s_1$.
+    \mcopi{} is then expected to cross the boundary in state $s_3$ and transition to policy $\pol_2$.
+
+    \item
+    When $q_k \in \region(\pol_2)$, start each episode in $(s_1, \worst{a})$. 
+    % The bias is greedy in $s_1$. There are no updates in $s_2$ and $s_3$.
+    MCES will cross the boundary in $s_1$ and transition to $\pol_3$.
+
+    \item
+    When $q_k \in \region(\pol_3)$, start each episode in $(s_1, \best{a})$ or $(s_2, \best{a})$ with a probability of 0.4, or in $(s_1, \worst{a})$ with a probability of 0.2.
+    % The bias is greedy in $s_1$ and $s_2$. There are no updates in $s_3$.
+    \mcopi{} is then expected to cross the boundary in $s_2$ and transition to $\pol_4$.
+
+    \item
+    When $q_\kpz \in \region(\pol_4)$, start each episode in $(s_3, \worst{a})$. 
+    % The bias is greedy in $s_3$. There are no updates in $s_1$ and $s_2$.
+    MCES will cross the boundary in $s_3$ and transition to $\pol_5$.
+
+    \item
+    When $q_\kpz \in \region(\pol_5)$, start each episode in $(s_1, \best{a})$ or $(s_3, \best{a})$ with a probability of 0.4, or in $(s_3, \worst{a})$ with a probability of 0.2.
+    % The bias is greedy in $s_1$ and $s_3$. There are no updates in $s_2$.
+    \mcopi{} is then expected to cross the boundary in $s_1$ and transition to $\pol_6$.
+
+    \item
+    When $q_\kpz \in \region(\pol_6)$, start each episode in $(s_2, \worst{a})$. 
+    % The bias is greedy in $s_2$. There are no updates in $s_1$ and $s_3$.
+    \mcopi{} will cross the boundary in $s_2$ and transition to $\pol_1$.
+\end{enumerate}
+\label{enum: sampling greedy initial visit}
+
+The cycle is robust to noise caused by sampling the initial state-action pairs in steps 1, 3 and 5.
+For example, if $(s_2, \worst{a})$ is updated several times in a row during step 1, the solution might switch to policy $\pol_6$ instead of $\pol_2$.
+Nevertheless, the update distribution under $\pol_6$ directly corrects this by updating $(s_2, \worst{a})$ and driving the solution back to $\pol_1$.
+Thus, the sampling strategy guarantees that, for every initial condition in $\mathcal Q_0$, the greedy policy $\pi_k$ contains at least one suboptimal action but never all three.
+As a result, 
+solutions cycle indefinitely with potential pairwise repeats between $\pi_1$ and $\pi_6$, $\pi_3$ and $\pi_2$, or $\pi_4$ and $\pi_5$ but without ever visiting the policies $\best{\pol}$ or $\worst{\pol}$.
+This behaviour does not rely on the exact probabilities above.
+It persists when increasing the sampling bias towards greedy actions,
+% $\best{a}$ during the diagonal movement upwards, 
+for instance when replacing the 2-to-1 sampling ratio of $(s_2, \best{a})$ to $(s_2, \worst{a})$ during step 1 with an epsilon-greedy strategy for small epsilon.
+
+We incorporate exploring starts 
+% so that the algorithm samples the wrong state-action pair at the wrong time infinitely often.
+% Specifically, we
+by initialising each episode using the sampling strategy above with a probability of 0.9 
+or by uniformly sampling a state-action pair with a probability of 0.1.
+Since the wrong state-action pairs are now sampled at the wrong time infinitely often,
+solutions can visit the policies $\best{\pol}$ or $\worst{\pol}$.
+When they do, we sample the initial state-action pair uniformly.
+Additionally, we introduce stochastic transitions by terminating each episode with a probability of 0.1 after each action.
+% Policy evaluation is then stochastic.
+The value $q_{\pol_k}(s,a)$ is then always over- or underestimated, which yields steps that potentially drive solutions out of $\qset_0$.
+
+
+\input{figures/fig_es3}
+
+
+Despite the variability of initial state-action pairs and the noisy action-value estimates, IV MCES still converges to a suboptimal solution when using SA learning rates.
+% $\eta_k(s,a) = 1/n_k(s,a)$.
+For instance,
+$99.6\%$ of solutions converge to a point where $q(s, a_*) = q(s, \bar a) \approx 1.615$ for all states
+when starting in
+$q_0(s_1,a_*) = q_0(s_2,a_*) = q_0(s_3,\bar a) = 2$
+and
+$q_0(s_1,\bar a) = q_0(s_2, \bar a) = q_0(s_3,a_*) = 1$
+with $n_1(s,a)=1$ for all state-action pairs (\autoref{fig: 3s IV ES ST}).
+The remaining $0.4\%$ escape to $q_{\pi_*}$.
+
+
+% \autoref{fig: 3s IV ES ST} presents ten solutions,
+% % of initial-visit \mcopi{} on the MDP with stochastic transitions and $\discount = 0.9$.
+% all starting in
+% $q_0(s_1,a_*) = q_0(s_1,a_*) = q_0(s_1,\bar a) = 2$
+% and
+% $q_0(s_1,\bar a) = q_0(s_1, \bar a) = q_0(s_1,a_*) = 1$.
+% All ten solutions converge to a point where $q(s, a_*) = q(s, \bar a) \approx 1.615$ for each states. 
+% {\color{red} please add following!}
+% From an initial count of $n_1(s,a)=1$ for all state/action pairs approximately $99.6\%$ of solutions converge to the boundary near this point, with the remaining $0.4\%$ escaping to $q_{\pi_*}$.
+
+% The graph on the right shows 
+
+    % &q_0(s_1, \best{a}) = 2
+    % \\
+    % &q_0(s_1, \worst{a}) = 1 
+    % \\
+    % &q_0(s_2, \best{a}) = 2
+    % \\
+    % &q_0(s_2, \worst{a}) = 1 
+    % \\
+    % &q_0(s_3, \best{a}) = 1
+    % \\
+    % &q_0(s_3, \worst{a}) = 2
+% We see that solutions regularly leave the region $\qset_0$ but still converge to the boundary around 1.61.
+% We conclude that the conjecture of \citet[p.~99]{Sutton2018ReinforcementIntroduction} does not hold when replacing first-visit updates with initial-visit updates.
+
+
+The reason solutions converge to the boundary despite frequently visiting the optimal policy $\pi_*$ is as follows.
+Consider a solution in the region $Q(\pi_*)$ near the boundary point $1.615$.
+So $q_k(s, a_*) > q_k(s, \bar a)$ 
+% and $q_{\pi_*}(s, a_*) > q_{\pi_*}(s, \bar a)$ 
+for every state,
+and $q_k(s,a) < \qopt(s,a)$ for every state-action pair.
+There are two possible updates.
+Updating $(s, a_*)$ moves $q_k$ deeper into $Q(\pi_*)$ on average as $q_k(s, a_*)$ increases compared to $q_k(s, \bar a)$.
+In contrast, updating $(s, \bar a)$ guides the solution towards the boundary of $Q(\pi_*)$ as $q_k(s, \bar a)$ catches up to $q_k(s, a_*)$. If the learning rate is large enough, 
+$\bar a$ may even become greedy in $s$.
+% the greedy action in $s$ may even change.
+Thus, solutions consistently leave the optimal region only if 
+updates to $(s, \bar a)$ receive larger learning rates or are more frequent on average than updates to $(s, a_*)$.
+% vertical steps upwards are larger or more frequent on average than horizontal steps to the right.
+% despite the uniform sampling strategy under policy $\best{\pol}$.
+% {\color{red} Prefer something like: Precisely this behaviour is induced by ... - without the paragraph break, as it's continuing the argument is it not}
+Precisely this behaviour is induced by the sampling strategy, the initial-visit updates and the sample-average learning rates.
+Specifically, the sampling strategy 
+% described 
+% on page \pageref{pg: sampling strat 3 states}
+% in \autoref{sec: 3 state sampling strat} 
+combined with initial-visit updates implies that, for every state, $a_*$ is updated more frequently than $\bar a$ when solutions cycle between the policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$.
+Therefore, $1/n_k(s, \best{a})$ decreases faster than $1/n_k(s, \worst{a})$ for each state.
+As a result, when noise pushes solutions into the optimal region $Q(\pi_*)$, all actions are updated equally frequently but updates to $(s, \worst{a})$ are larger than updates to $(s, \best{a})$,
+% due to the difference in learning rates, 
+which drives solutions out of $Q(\pi_*)$.
+In other words, the sampling strategy, the initial-visit updates and the learning rates effectively bias updates towards suboptimal actions when $\pol_k = \best{\pol}$ even though greedy actions are updated more frequently. 
+As discussed above, this 
+% {\color{red} effective (at least add this, but I'd remove the phrase entirely, ie "this allows ...") } non-greedy bias 
+allows solutions to consistently jump in and out of the optimal region, creating a stable suboptimal boundary region when the learning rates decrease.
+% 
+% {\color{red} delete this, it confuses the argument: Experiments show that this suboptimal asymptotic behaviour disappears when using scalar learning rates.
+% Such learning rates assign the same step size to all state-action pairs. Thus they cannot introduce a non-greedy bias when sampling distributions favour greedy actions.}
+% As a result, during some visit to $Q(\pi_*)$, solutions remain
+
+Overall,
+this example shows that IV/SA MCES may converge to suboptimal solutions even when, in each state, the greedy action is updated at least as frequently as any other action.
+The asymptotic behaviour is determined by the interplay
+between learning rates and within-state update frequencies, rather than either factor alone.
+This suggests a remedy: scale learning rates to offset non-uniform update
+frequencies in each state and recover convergence to optimality.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Fix for initial-visit MCES}
+
+Starting from an initial $q_0$,
+IV MCES repeats the following steps for $k=0,1,\ldots,\infty$:
+\begin{enumerate}
+    \item Select a deterministic policy $\pi_k(s) \in \arg\max_a q_k(s,a)$ for all $s$.
+
+    \item Sample an initial state-action pair $(s_k, a_k) \sim \sigma_k$.
+
+    \item Update the estimate $q_k$ as
+    \begin{align}
+    \label{eq: update iv mcopi}
+    q_{k+1}(s,a)
+    =
+    \begin{cases}
+    q_k(s,a) + \eta_k(s,a) \left(\tilde q_k(s,a) - q_k(s,a) \right), & (s,a)=(s_k,a_k) \\
+    % q_k(s,a) + \alpha_k \left(q_{\pi_k}(s,a)+v_k(s,a)-q_k(s,a) \right), & (s,a)=(s_k,a_k) \\ 
+    q_k(s,a) & \text{otherwise .}
+    \end{cases}
+    \end{align}
+    where $\tilde q_k$ is the episode return defined in \eqref{eq: episode return}.
+\end{enumerate}
+
+Section~\ref{sec: counterexample iv mces}, together with Appendix~\ref{app: non greedy} and Example~5.12 in \cite{Bertsekas1996Neuro-DynamicProgramming}, shows that IV MCES may converge to suboptimal solutions when the sampling distributions are biased towards either greedy or non-greedy actions.
+This section presents a way to compensate for such non-uniform sampling by appropriately normalizing the learning rates, and thereby restoring convergence to optimality.
+The approach relies on the chain rule decomposition of the sampling distribution:
+\begin{align}
+\label{eq: chain rule}
+\sigma_k(s,a) = f_k(s) \, g_k(a | s) .
+% \qquad 
+% \forall \, k \ge 0, \
+% \forall \, s \in \sset, \
+% \forall \, a \in \aset(s) .
+\end{align}
+
+
+To formalise this correction, 
+% Next, define the stochastic perturbation $v_k := g_k - q_{\pi_k}$.
+% Under initial- or first-visit updates, $g_k$ is an unbiased estimate of $q_{\pi_k}$ with uniformly bounded variance
+% \citep[Theorems 6 \& 8]{Singh1996ReinforcementTraces}.
+% Thus there exists a constant $c_v \in [0,\infty)$ such that
+% \begin{align}
+% \label{eq: properties episode noise}
+% \mathbb E\!\left[v_k(s,a) \mid \mathcal F_k \right] = 0 ,
+% \qquad
+% \mathbb E\!\left[v_k^2(s,a) \mid \mathcal F_k \right] \le c_v ,
+% \qquad
+% \forall \, k \ge 0, \
+% \forall \, s \in \sset, \
+% \forall \, a \in \aset(s) ,
+% \end{align}
+let $\mathcal F_k$ denote the information available after computing $q_k$,
+but before selecting policy $\pi_k$, sampling the initial pair $(s_k, a_k)$, and generating the episode $\mathcal E_k$.
+% We use the following assumptions.
+
+% The standard GLIE (greedy in the limit with infinite exploration) conditions require that every state–action pair is visited infinitely often and that the policy $\pi_k$ becomes greedy with respect to $q_k$ as $k \to \infty$. The first condition guarantees sufficient exploration, while the second ensures that the optimal solution $(q_{\pi_*}, \pi_*)$ is a fixed point of the algorithm.
+% Since our focus is on asymptotic behaviour, we may, without loss of generality, restrict attention to policies $\pi_k$ that are greedy with respect to $q_k$ at each iteration, as GLIE implies that any admissible exploration strategy becomes asymptotically equivalent to this greedy regime.
+
+% \textcolor{red}{need to introduce $\polset$ somewhere}
+
+% \begin{assumption}
+% \label{asp: standing}
+% \phantom{Assume}
+% \begin{enumerate}[label=(\arabic*)]
+%     \item \textbf{Discounted or episodic MDP.}
+%     Either the discount factor satisfies $\gamma \in [0, 1)$ or each episode of the MDP almost surely reaches a terminal state.
+
+%     \item \textbf{Uniform tie-breaking of greedy policies.}
+%     There exists a constant \(\beta>0\) such that,
+%     if several policies are greedy with respect to $q_k$,
+%     \begin{equation}
+%     \label{eq:greedy-pol-tie-breaking}
+%     \mathbb P(\pi_k(a | s) = 1 \mid \mathcal F_k)\ge \beta,
+%         \qquad 
+%         \forall \, k \ge 0, \
+%         \forall \, s \in \sset, \
+%         \forall \, a \in \arg\max_{\mathcal A(s)} q_k(s,\cdot) .
+%     \end{equation}
+
+%     \item \textbf{Strict exploring starts.}
+%     The sampling distributions $\{\sigma_k\}_{k \ge 0}$ satisfy
+%     \begin{align}
+%     \label{eq: strict exploring starts}
+%         \sigma_k(s,a) \ge \sigma_{\min}
+%         \qquad 
+%         \forall \, k \ge 0, \
+%         \forall \, s \in \sset, \
+%         \forall \, a \in \aset(s) ,
+%     \end{align}
+%     for some constant $\sigma_{\min} \in (0,\infty)$.
+
+
+%     \item \textbf{Scalar, Robbins--Monro and comparable learning rates.} 
+%     The sequence $\{\alpha_k\}_{k \ge 0}$ forms a scalar non-increasing sequence: $\alpha_{k+1} \leq \alpha_k$ for every $k \ge 0$.
+%     It satisfies
+%     % The learning rates $(\eta_k)$ satisfy
+%     \begin{align}
+%     \label{eq: robbins monro conditions}
+%         \sum_{k =0}^\infty \alpha_k = \infty , 
+%         \qquad
+%         \sum_{k =0}^\infty \alpha_k^2 < \infty ,
+%     \end{align}
+%     and there exist a time $K_\alpha < \infty$ and a constant $\rho_\alpha \in(0,1]$ such that
+%     \begin{align}
+%     \label{eq: comparability of learning rates}
+%     \alpha_{k+i} \ge \rho_\alpha \alpha_k ,
+%     \qquad
+%     \forall \, k \ge K_\alpha, \
+%     \forall \, i \in \{0, \dots, \left\lfloor 1 / \alpha_k \right\rfloor\} .
+%     \end{align}
+%     Given that condition \eqref{eq: robbins monro conditions} requires that $\alpha_k \to 0$ and we study the asymptotic behaviour of MCES, we assume, without loss of generality, that $\alpha_k \in (0, 1]$.
+%     % \item \textbf{Initial-visit updates.} Only the initial state of each episode is updated.
+%     % So the episode noise is unbiased and has bounded variance:
+%     % \[
+%     % \mathbb E\!\left[v_k(s,a) \mid \mathcal F_k \right] = 0 ,
+%     % \qquad
+%     % \mathbb E\!\left[v_k^2(s,a) \mid \mathcal F_k \right] \le c_v ,
+%     % \qquad
+%     % \forall \, k \ge 0, \
+%     % \forall \, s \in \sset, \
+%     % \forall \, a \in \aset(s).
+%     % \]
+%     % for some constant $c_v \in [0,\infty)$.
+% \end{enumerate}
+% \end{assumption}
+
+% given that the episode returns are unbiased estimates of $q_{\pi_k}$ and have uniformly bounded variance \cite{Singh1996ReinforcementTraces}, there exists a constant $c_v \in [0,\infty)$ such that 
+% $\mathbb E\!\left[v_k(s,a) \mid \mathcal F_k \right] = 0$
+% and
+% $\mathbb E\!\left[v_k^2(s,a) \mid \mathcal F_k \right] \le c_v$
+% for every time $k \ge 0$, every state $s \in \mathcal S$ and every action $a \in \mathcal A(s)$.
+% The sequence $\{v_k\}_{k \ge 0}$ is thus a martingale difference sequence adapted to the filtration $\{\mathcal F_{k}\}_{k \ge 0}$.
+
+
+\begin{theorem}
+\label{thm: iv mcopi with 1/g scaling}
+Assume
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{Discounted or episodic MDP.}
+    Either the discount factor satisfies $\gamma \in [0, 1)$ or each episode of the MDP almost surely reaches a terminal state.
+
+    \item \textbf{Uniform tie-breaking of greedy policies.}
+    There exists a constant \(\beta>0\) such that,
+    if several policies are greedy with respect to $q_k$,
+    \begin{equation}
+    \label{eq:greedy-pol-tie-breaking}
+    \mathbb P(\pi_k(a | s) = 1 \mid \mathcal F_k)\ge \beta,
+        \qquad 
+        \forall \, k \ge 0, \
+        \forall \, s \in \sset, \
+        \forall \, a \in \arg\max_{\mathcal A(s)} q_k(s,\cdot) .
+    \end{equation}
+
+    \item \textbf{Strict exploring starts.}
+    The sampling distributions $\{\sigma_k\}_{k \ge 0}$ satisfy
+    \begin{align}
+    \label{eq: strict exploring starts}
+        \sigma_k(s,a) \ge \sigma_{\min}
+        \qquad 
+        \forall \, k \ge 0, \
+        \forall \, s \in \sset, \
+        \forall \, a \in \aset(s) ,
+    \end{align}
+    for some constant $\sigma_{\min} \in (0,\infty)$.
+
+
+    \item \textbf{Scalar, Robbins--Monro and comparable learning rates.} 
+    The sequence $\{\alpha_k\}_{k \ge 0}$ forms a scalar non-increasing sequence: $\alpha_{k+1} \leq \alpha_k$ for every $k \ge 0$.
+    It satisfies
+    % The learning rates $(\eta_k)$ satisfy
+    \begin{align}
+    \label{eq: robbins monro conditions}
+        \sum_{k =0}^\infty \alpha_k = \infty , 
+        \qquad
+        \sum_{k =0}^\infty \alpha_k^2 < \infty ,
+    \end{align}
+    and there exist a time $K_\alpha < \infty$ and a constant $\rho_\alpha \in(0,1]$ such that
+    \begin{align}
+    \label{eq: comparability of learning rates}
+    \alpha_{k+i} \ge \rho_\alpha \alpha_k ,
+    \qquad
+    \forall \, k \ge K_\alpha, \
+    \forall \, i \in \{0, \dots, \left\lfloor 1 / \alpha_k \right\rfloor\} .
+    \end{align}
+    Given that condition \eqref{eq: robbins monro conditions} requires that $\alpha_k \to 0$ and we study the asymptotic behaviour of MCES, we assume, without loss of generality, that $\alpha_k \in (0, 1]$.
+    % \item \textbf{Initial-visit updates.} Only the initial state of each episode is updated.
+    % So the episode noise is unbiased and has bounded variance:
+    % \[
+    % \mathbb E\!\left[v_k(s,a) \mid \mathcal F_k \right] = 0 ,
+    % \qquad
+    % \mathbb E\!\left[v_k^2(s,a) \mid \mathcal F_k \right] \le c_v ,
+    % \qquad
+    % \forall \, k \ge 0, \
+    % \forall \, s \in \sset, \
+    % \forall \, a \in \aset(s).
+    % \]
+    % for some constant $c_v \in [0,\infty)$.
+\end{enumerate}
+% Take a sequence $\{\alpha_k\}_{k \ge 0}$ satisfying \autoref{asp: standing}.(4) and set the learning rate in \eqref{eq: update iv mcopi} as
+Then IV MCES converges almost surely to $q_{\pi_*}$ when using learning rates
+% learning rates
+\begin{align}
+\label{eq: normalised learning rates}
+\eta_k(s,a) := \dfrac{\alpha_k}{g_k(a|s)} .
+% \eta_k(s,a) := \dfrac{\alpha_k}{g_k(a|s) |\mathcal A(s)|} .
+% \qquad 
+% \forall \, k \ge 0 .
+\end{align}
+\end{theorem}
+
+
+The scaling in \eqref{eq: normalised learning rates} is a local analogue of SA learning rates.
+While $1/n_k(s,a)$ gives a greater weight to actions that have been sampled less often in the past,
+the factor $1/g_k(a|s)$ gives a greater weight to actions which are less likely to be sampled at the current step.
+The correction is thus local in time: it compensates for the current sampling bias rather than the historical sampling frequency.
+
+The key idea in proving \autoref{thm: iv mcopi with 1/g scaling} is to analyse the sequence of policies $\{\pi_k\}_{k\ge 0}$ rather than the evolution of the estimates $\{q_k\}_{k\ge 0}$.
+We find that the normalization in \eqref{eq: normalised learning rates}
+causes the associated mean-field dynamics to generate monotonically improving policies
+because it equalises the rate of change across actions on a state-by-state basis at every step.
+This structure allows us to establish convergence of the original stochastic solutions. The complete proof is given in \autoref{app: proof of stochastic theorem}.
+
+
+% The proof is a direct application of the general result stated next and proved in \autoref{app: proof of stochastic theorem}.
+
+% \begin{theorem}
+% \label{thm: iv mcopi converges as}
+% Assume the sampling distributions $\{\sigma_k\}_{k \ge 0}$ are uniform over the actions in each state:
+% \begin{align}
+% \label{eq: uniform sampling}
+% % \sigma_k(s,a) = \sigma_k(s,a')
+% \sigma_k(s,a) = \frac{f_k(s)}{|\aset(s)|},
+% \qquad 
+% \forall \, k \ge 0, \
+% \forall \, s \in \sset, \
+% \forall \, a \in \aset(s) .
+% \end{align}
+% % for every time $k \ge 0$, every state $s \in \mathcal S$, and all actions $a, a' \in \mathcal A(s)$.
+% Under \autoref{asp: standing}, solutions of IV MCES \eqref{eq: update iv mcopi} converge almost surely to $q_{\pi_*}$.
+% \end{theorem}
+\begin{proof}[Proof sketch]
+Equation \eqref{eq: update iv mcopi} with learning rates as in \eqref{eq: normalised learning rates} is equivalent to
+\begin{align}
+\nonumber
+    q_{k+1}(s,a)
+    &=
+    q_k(s,a) + \alpha_k \left( \frac{\sigma_k(s,a)}{g_k(a|s)} \big( q_{\pi_k}(s,a) - q_k(s,a) \big) + w_k(s,a) \right)
+    \\
+\label{eq: iv mcopi in stochastic theorem}
+    &=
+    q_k(s,a) + \alpha_k \left( f_k(s) \big( q_{\pi_k}(s,a) - q_k(s,a) \big) + w_k(s,a) \right)
+    % q_k(s,a) + \alpha_k \big( \sigma_k(s,a) (q_{\pi_k}(s,a) - q_k(s,a)) + w_k(s,a) \big)
+    % \qquad
+    % \forall \, (s,a)
+\end{align}
+% where $\sigma_k(s) := \sigma_k(s,a)$ since, by condition \eqref{eq: uniform sampling}, $\mu_k$ is uniform over the actions in each state,
+% and 
+for every state-action pair.
+Here, $w_k$ incorporates the perturbations caused by the episode simulation and the asynchronous updates of state-action pairs.
+Given that $\tilde q_k$ is an unbiased estimate of $q_{\pi_k}$ under initial-visit updates, it follows that $\mathbb E[w_k(s,a) \mid \mathcal F_k] = 0$.
+% with uniformly bounded variance~\cite{Singh1996ReinforcementTraces},
+% the stochastic perturbations $\{w_k\}_{k \ge 0}$ satisfy, for some constant $c_w \in [0,\infty)$,
+% \begin{align}
+% \label{eq: condition on combined noise}
+% \mathbb E[w_k(s,a) \mid \mathcal F_k] = 0,
+% \ \ \
+% \mathbb E[w_k^2(s,a) \mid \mathcal F_k] \le c_w(1+\|q_k\|^2),
+% \ \ \
+% \forall \, k \ge 0, \,
+% \forall \, s \in \mathcal S, \,
+% \forall \, a \in \mathcal A(s) .
+% \end{align}
+
+
+% For every $k \ge 0$, every $s \in \mathcal S$ and every $a \in \mathcal A(s)$, it satisfies $\mathbb E[w_k(s,a) \mid \mathcal F_k] = 0$
+% and there exists a constant $c_w \in [0,\infty)$ such that $\mathbb E[w_k^2(s,a) \mid \mathcal F_k] \le c_w(1+\|q_k\|^2)$.
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \medskip
+\textit{Step 1. Mean-field generates monotonically improving policies}
+
+Consider the mean-field dynamics underlying \eqref{eq: iv mcopi in stochastic theorem}:
+\begin{align}
+\label{eq: deterministic mcopi}
+    q_{k+1}(s,a)
+    =
+    q_k(s,a) + \alpha_k f_k(s) (q_{\pi_k}(s,a) - q_k(s,a)) .
+    % q_k(s,a) + \alpha_k \sigma_k(s,a) (q_{\pi_k}(s,a) - q_k(s,a)) .
+\end{align}
+Since the new policy $\pi_{k+1}$ will be greedy with respect to $q_{k+1}$, we have $q_{k+1}(s,\pi_{k+1}(s)) \ge q_{k+1}(s, \pi_k(s))$ for every state $s$.
+Using \eqref{eq: deterministic mcopi}, this becomes
+\begin{multline*}    
+    q_k(s, \pi_{k+1}(s)) + \alpha_k 
+    % \sigma_k(s,\pi_{k+1}(s)) 
+    f_k(s)
+    \big( q_{\pi_k}(s, \pi_{k+1}(s)) - q_k(s, \pi_{k+1}(s)) \big)
+    \\
+    \ge
+    q_k(s, \pi_k(s)) + \alpha_k 
+    % \sigma_k(s,\pi_k(s)) 
+    f_k(s)
+    \big( q_{\pi_k}(s, \pi_k(s)) - q_k(s, \pi_k(s)) \big) .
+\end{multline*}
+% By assumption, $0< \mu_k(s) \le 1$. 
+Rearranging the inequality
+% and using \eqref{eq: uniform sampling} 
+yields
+\begin{align*}    
+    q_{\pi_k}(s, \pi_{k+1}(s)) - q_{\pi_k}(s, \pi_k(s))
+    \ge
+    % \dfrac{1 - \alpha_k \mu_k(s)}{\alpha_k \mu_k(s)} 
+    \dfrac{1 - \alpha_k f_k(s)}{\alpha_k f_k(s)}
+    \big( q_k(s, \pi_k(s)) - q_k(s, \pi_{k+1}(s)) \big) .
+\end{align*}
+Since $\pi_k$ is greedy with respect to $q_k$ and $0 < \alpha_k f_k(s) \le 1$ for sufficiently large $k$, 
+% the left-hand side is nonnegative. As a result, 
+it follows that
+\begin{align*}
+% \label{eq: ineq for improvement}
+    % q_{\pi_k}(s, \pi_k(s)) \le q_{\pi_k}(s, \pi_{k+1}(s))
+    q_{\pi_k}(s, \pi_{k+1}(s)) - q_{\pi_k}(s, \pi_k(s)) \ge 0
+\end{align*}
+for every state $s$.
+As a result, the Policy Improvement Theorem guarantees that the new policy $\pi_{k+1}$ is at least as good as policy $\pi_k$~\cite{Sutton2018ReinforcementIntroduction}.
+% Since this improvement holds at every step, solutions \eqref{eq: deterministic mcopi} is monotonically improving.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \medskip
+\textit{Step 2. Noise cannot consistently prevent policy improvement}
+
+We enforce improving transitions by maintaining a positive distance to "bad" regions using three events with fixed non-zero probabilities:
+\begin{enumerate}
+\item \emph{Seed}: Force the distance to $O(\alpha_k)$, with probability $p_s>0$.
+\item \emph{Grow}: Bring it to $O(1)$ using the mean-field drift, with probability $p_g>0$.
+\item \emph{Lock-in}: Keep it strictly positive until the next transition, with probability $p_l>0$.
+\end{enumerate}
+Since, at any time, the next policy will be better with probability at least $p_s p_g p_l > 0$,
+the probability of never reaching and locking-in to the optimal region grows as $\big(1 - (p_s p_g p_l)^{|\mathcal P|} \big)^n$, where $\mathcal P$ is the set of deterministic policies.
+This probability tends to zero as $n$ tends to infinity because the number of deterministic policies is finite.
+As a result, the complement event, i.e. locking into the optimal region and $q_k \to q_{\pi_*}$, occurs eventually with probability 1.
+\end{proof}
+
+% We prove
+% % \autoref{thm: iv mcopi converges as} in \autoref{app: proof of stochastic theorem}, and
+% \autoref{thm: iv mcopi with 1/g scaling} in \autoref{app: proof of normalisation theorem}.
+
+% reduces to showing that
+% equation \eqref{eq: update iv mcopi} with learning rates as in \eqref{eq: normalised learning rates} is to
+% \begin{align}
+% \label{eq: intermediate stochastic step}
+% q_{k+1}(s,a)
+% =
+% q_k(s,a) + \alpha_k \frac{u_k(s,a)}{g_k(a | s) |\mathcal A(s)|} \big( q_{\pi_k}(s,a) + v_k(s,a) - q_k(s,a) \big) .
+% \end{align}
+% where the stochastic perturbations satisfy \autoref{eq: condition on combined noise}.
+
+% As a result, the proof of \autoref{thm: iv mcopi converges as} in \autoref{app: proof of stochastic theorem} applies with only a minor modification: the constant $c_s$ governing growth in the seed stage must be additionally scaled by $1 / |\mathcal A|$ to lower bound the extra factor $1/( g_k(a|s) |\mathcal A(s)| )$ that appears in the update and is absent in \autoref{thm: iv mcopi converges as}.
+% This rescaling does not affect the argument, and IV MCES still converges almost surely to $q_{\pi_*}$.
+
+
+% Overall, the normalised learning rates in \eqref{eq: normalised learning rates} 
+% As a result, stochastic perturbations cannot systematically cancel the mean-field policy improvement, and the iterates converge to the optimal action values.
+
+Since \(g_k(\cdot \mid s)\) is a distribution over \(\mathcal A(s)\), its values scale as \(1/|\mathcal A(s)|\). Hence, \(1/g_k(a\mid s)\) is typically larger in states with more available actions.
+If necessary, dividing the learning rates in \eqref{eq: normalised learning rates} by \(|\mathcal A(s)|\) cancels out this effect.
+Since this additional factor is constant across actions within a state, it does not affect the argument. It only introduces extra state-dependent scaling factors in the proof.
+
+
+Earlier work recovers convergence to optimality by scaling the learning rates with $1/\sigma_k$~\cite{Tsitsiklis2002OnIteration, Liu2021OnStarts}.
+However, this requires knowing the sampling distribution over \textit{all} state-action pairs.
+% which is typically difficult to track or estimate in large state spaces.
+% especially when \(q_k\) cannot be stored exactly and must be approximated.
+% where $q_k$ cannot be stored exactly but needs to be approximated.
+In contrast, the learning rates in \eqref{eq: normalised learning rates} 
+% show that it's sufficient for updates to be uniform over the actions in each state.
+only require the conditional sampling probability of the
+initial action given the initial state.
+% in order to make updates uniform over the actions in each state.
+Thus, convergence can still be recovered when the initial-state distribution is unknown, provided the action distribution within each state is known. This is often the case in practice, for example when episodes are initialized using an epsilon-greedy policy.
+% 
+This weaker condition is more practical for real-world applications,
+in particular when the state-space is large. For instance, chess has
+$O(10^{45})$ different board layouts but only $O(10^1)$ legal moves per layout.
+Keeping track of a distribution over the joint state-action space is not feasible, whereas representing the action distribution within a given state is straightforward.
+
+
+Earlier work recovers convergence to optimality by making updates effectively uniform over all state-action pairs, 
+whereas \autoref{thm: iv mcopi with 1/g scaling} shows that uniform updates over the actions within each state are sufficient.
+The earlier work is based on the theorem of Tsitsiklis in~\cite{Tsitsiklis2002OnIteration}, which uses commutativity in a central way.
+Since this technique does not work when updates are only uniform over the actions within each state, a different mathematical approach is required.
+
+% that does not generalise to this case, necessitating a new mathematical approach.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Counterexample for first-visit MCES with sample average updates}\label{sec:fv}
+
+Under first-visits, the state-action pairs updated after an episode depend on the transition dynamics induced by the greedy policy on the MDP.
+FV MCES is thus harder to analyse than IV MCES and counterexamples are harder to construct.
+This section presents such a counterexample: a cyclic MDP with $13$ states
+generalising \autoref{fig: explain loop on-policy bias MDP}, on which FV/SA MCES frequently converges to a suboptimal solution.
+% Nevertheless, this section presents an example where FV/SA MCES frequently converges to a suboptimal solution.
+% explanation MDP
+% We illustrate this using a cyclic MDP with $N$ states, generalising \autoref{fig: explain loop on-policy bias MDP}. 
+Each state has two actions:
+$a_*$ gives reward $1$ and moves to the next state with probability $\tau$ or terminates the episode with probability $1-\tau$; action $\bar a$ yields no reward and stays in the same state.
+
+%\input{figures/33/4s_gamma0999_eps0005_spirals_2x2}
+% 
+% First-visit updates are both harder to analyse than initial-visit updates because dependencies between the updates occurring at any time step, and to construct potential counterexamples for, due to the added constraints on these updates. 
+% Nevertheless, we demonstrate here an example where FV/SA MCES frequently converges to a suboptimal fixed point on the boundary between policy regions. 
+
+% explanation find example
+We found the example by first analysing FV/SA MCES without noise, namely when $q_k(s,a)$ is updated towards the exact value $q_{\pi_k}(s,a)$, and $n_k(s,a)$ is incremented by the probability of updating $(s,a)$ after an episode simulated with policy $\pi_k$.
+For $N=3$ this deterministic process does not converge to a suboptimal solution. 
+For $N=4$ it can oscillate indefinitely between suboptimal policies, but 
+this behaviour is fragile as it requires that the greedy policy changes in two states simultaneously.
+For $N \ge 5$ the same type of oscillation can proceed through one-state policy changes;  the oscillation alternates between policies with one and two "stay" actions, as depicted in \autoref{fig: long MDP}. 
+This suboptimal behaviour persists under the noise of the fully sampled FV/SA MCES process for sufficiently late starts, becoming increasingly robust to fluctuations early in the simulation as $N$ grows. We describe below the case N=13.
+
+
+
+% The $\bar a$ action is to stay at the current state. 
+% To construct this example we started by constructing examples with noise removed, and then demonstrated that the behaviour is robust to the noise in the full sampled process. For $N=3$ states the system cannot cycle. For $N=4$ it can, but the cycle is fragile as it requires the actions in two states to change at each step. For $N=5$ and above cycles are possible with just one greedy action changing at a time, with the behaviour becoming more robust as $N$ increases. These cycles follow the same pattern as earlier, with a rotation between policies with one and two "stay" states. We found that for $N=14$ the behaviour was robust to the noise of the fully sampled process.
+
+% explanation of where to start episode
+The deterministic solutions oscillate indefinitely between the 26 policies when initialising episodes as follows.
+At each time step, with probability $\epsilon_{\mathrm{ES}}$ sample the initial state–action pair uniformly amongst the 26 pairs;
+otherwise, choose it according to the current greedy policy.
+If that policy has a single "stay" action at $s_i$, start the episode in $(s_{i+6}, \bar a)$.
+If the policy has adjacent "stay" actions at $s_i$ and $s_{i+1}$, start in $(s_{i-1}, \bar a)$ with probability $\lambda$ or in $(s_{i+1}, a_*)$ with probability $(1-\lambda)$.
+All state indices are to be taken modulo 13.
+Under this initialisation scheme, 
+\autoref{fig:spiral} shows that the deterministic solutions spiral into a fixed point on the the boundary.
+This behaviour is robust as a large set of initial conditions produce this spiral.
+We derive the value $\widehat q$ in Appendix~\ref{sec:balance-general},
+and show that the subsequence $\{q_{k + 26 i}\}_{i \ge 0}$ moves along a straight line towards that fixed point in Appendix~\ref{sec:linear-interpolation}.
+As a result, it is guaranteed that the deterministic solutions visits only these 26 policies.
+
+\input{figures/spiral}
+
+
+% The designed cycle, for $N=14,$ uses a rotational family of starts, with one initial state/action pair $(s_{i+6}, \bar a)$ in the policies with a single stay at state $i$ (the "odd" policies $\pi_1$, $\pi_3$, $\pi_5$ for our earlier $N=3$ example in Figure~\ref{fig: explain loop on-policy bias MDP}). All state indices are to be taken modulo 14.  On the "even" policies, with adjacent stays at $\{s_i,s_{i+1}\}$, the process makes a sampled choice of $(s_{i-1}, \bar a)$ with probability $\lambda$ or $(s_{i+1}, a_*)$ with probability $(1-\lambda)$. At each timestep, with probability $\epsilon_{\mathrm{ES}}$ the designed choice of start is replaced by a uniform random choice amongst the 28 possible starts.
+
+% Figure~\ref{fig:spiral} shows the evolution of $\mathbb E[q_{k+1}]$ under this rule when at each step $q_{k+1}$ and $n_{k+1}$ are replaced by their expected value. This behaviour is robust, in the sense that a large open set of initial conditions lead to solutions which spiral into the fixed point on boundary. The Appendix \ref{app: } shows that the point after one full cycle is a linear
+% interpolation between the current point and the boundary point and thus that these policies are the only ones visited in the absence of noise.
+
+
+% The fully sampled process is extremely noisy, 
+% with stochastic returns due to the variable episode length and the sampled normal and exploring starts. 
+% As a result the process frequently visits off cycle policies; 
+% in this case a linear program is solved at each such step to choose a distribution of starts which points the process back towards the cycle. Exploring starts remain active during this recovery. Thus the sampling strategy is a memoryless function of the current $q_k$ (as would be the case for an $\epsilon$-greedy policy, for example) with a uniform lower bound on the probability of sampling any state/action pair at each step.
+
+% The full sampled process is extremely noisy, with stochastic returns due to the variable episode length and the sampled normal and exploring starts. As a result the process frequently visits off cycle policies; in this case a linear program is solved at each such step to choose a distribution of starts which points the process back towards the cycle. Exploring starts remain active during this recovery. Thus the sampling strategy is a memoryless function of the current $q_k$ (as would be the case for an $\epsilon$-greedy policy, for example) with a uniform lower bound on the probability of sampling any state/action pair at each step.
+
+% We systematically ran 33 simulations of the full FV/SA MCES sampled process for $\gamma=0.9999$, $\tau\approx 0.5088$ and 
+% with exploring starts at the level of $\epsilon_{ES}=10^{-4}$ and found that, provided they survived an initial burn in, they converged towards a suboptimal point on the boundary.
+% To be precise, 5 of the 33 simulations survived $10\times 10^6$ timesteps without escaping the boundary and, of these, 3 simulations survived a further $10\times 10^6$ timesteps. We continued these 3 for a further $10\times 10^6$ timesteps, a total $30\times 10^6$ timesteps, and all 3 survived.  We separately ran $100$ length $10^6$ simulations with the same parameters and a variety of seeds from the $k=20\times 10^6$ timestep of a long run and every one continued to converge to a suboptimal point on the boundary. Representative behaviour is shown in \autoref{fig:fvsasim}, and full details are provided in the Appendix.
+
+
+Fully sampled FV/SA MCES solutions are extremely noisy, due to both sample returns and exploring starts.
+As a result, they frequently visit off-cycle policies.
+%\textcolor{red}{(suggestion)}
+We then initialise episodes to 
+guide the process back to an on-cycle policy as follows.
+% Initial start pairs are then chosen to 
+% guide the process back to a cycle policy as follows: 
+On visiting the optimal all-"move" policy,
+% the simulation chooses "stay" at the state for which the action-values are closest to the boundary as its initial condition.
+we start episodes in the "stay" action of the state for which the action-values are closest to the boundary.
+The first visit structure ensures that "move" is then also updated in that, and potentially downstream, states, 
+and also that "move" actions are updated more often than "stay" actions overall. The $1/n_k(s,a)$ weighting then results in solutions being pushed towards and eventually across the boundary, creating a "stay" state.
+% 
+In all other off-cycle policies,
+%\textcolor{red}{(suggestion)}
+we first consider all states where "stay" is greedy and keep only those with the fewest neighbours that also prefer "stay". Among that subset, we choose the state whose action values are closest to the decision boundary, then initialize the episode in the "stay" action of that state.
+% the simulation chooses "stay" at one of the states for which "stay" is greedy choosing, from the set with fewest "stay" neighbours, the one with action-values nearest the boundary. 
+This eventually results in solutions crossing the boundary in the opposite direction, reducing the number of "stay" states until only a singleton or adjacent pair remain.   
+%Full details are provided in Appendix~\ref{sec:recovery-strategy} 
+Exploring starts remain active during the recovery.
+The sampling strategy is thus completely determined by the current $q_k$ (as would be the case for an $\epsilon$-greedy policy, for example) with a uniform lower bound on the probability of sampling any state-action pair at each step.
+
+
+We simulated $40,000$ solutions of FV/SA MCES with $\gamma=0.9999$, $\tau\approx 0.5123$ and $\epsilon_{ES}=10^{-4}$ for $10^9$ steps for a range of initial counts $n_k(s,\bar a)=M$, $n_k(s,a_*)=2.01M$ with $M$ from  $3000$ to $12000$ and found that all but a proportion of approximately $(2200/M)^{5.4}$ remained trapped in a shrinking strip around the boundary significantly below the optimal value. In each run, for approximately $14.9\%$ of steps the greedy policy was the all-"move" policy $\pi_*$ and for approximately $1.5\%$ of steps it was another off-cycle policy. Thus for a large majority of steps the system is in a cycle phase.       
+For a representative sample of runs which hadn't escaped at $10^9$ steps we continued the simulation up to $10^{12}$ steps and none escaped. We then ran $8$ simulations from $M=10^5$ and all remained trapped at $10^{12}$ steps. That is, all trials that survived $10^9$ steps went on to survive $10^{12}$ steps. 
+\autoref{fig:fvsasim} shows representative behaviour from a start at $M=1000$, demonstrating an initial lock in followed by the long $1/k$ tail.
+%with further discussion in \autoref{app:fv}.
+Altogether, these simulations provide strong evidence 
+of high probability non-convergence to optimality from late starts of FV/SA MCES for this MDP; i.e.
+that, for large $M$, starts from $n_k(s,\bar a)=M$ escape from the stable suboptimal basin with probability $O(M^{-K})\rightarrow 0$ for $K\approx 5.4$. 
+
+\input{figures/fv-sims}
+
+
+\section{Conclusion}
+
+We have presented two new counterexamples showing that both initial-visit and first-visit MCES can converge to suboptimal solutions, 
+and proposed a practical fix that guarantees convergence to optimality in the initial-visit case.
+
+Previous counterexamples for initial-visit MCES rely on sampling distributions that heavily favour non-greedy actions at every step.
+% towards non-greedy actions at each step.
+Our example shows that stable suboptimal solutions exist even when greedy actions are updated more frequently, as typically occurs during the exploitation phase.
+The suboptimal behaviour arose because the sample-average learning rates introduced an effective bias towards non-greedy actions when solutions were in the optimal region.
+% consistently driving solutions out of that region.
+% This highlights that the asymptotic behaviour of MCES depends critically on the interplay between the learning rates and the update frequencies of actions within each state, rather than either factor alone.
+
+% A simple learning-rate scheme restores convergence to optimality despite updating actions at different frequencies. 
+We then presented a practical learning-rate scheme that restores convergence to optimality despite updating actions at different frequencies. 
+% The key idea is to scale learning rates inversely with update frequencies on a state-by-state basis. This makes updates effectively uniform across actions within each state, causing the underlying mean-field to generate monotonically improving policies.
+The key idea is to scale learning rates inversely with update frequencies on a state-by-state basis, so that the effective update size is uniform across actions within each state. Under this correction, the underlying mean-field generates monotonically improving policies. 
+Since the stochastic perturbations cannot consistently prevent this improvement, initial-visit MCES eventually converges to the optimal policy and its action values.
+
+
+Finally, we constructed a 13-state MDP in which first-visit MCES with sample-average updates converges to a suboptimal solution.
+This example establishes that any convergence proof for first-visit MCES would need to show that solutions always escape suboptimal mean-field attractors.
+In our simulations this occurs with sharply decreasing frequency for later starts, providing strong evidence that exploring starts alone do not guarantee convergence of Monte Carlo control methods to optimality.
+% fundamental open question in reinforcement learning: 
+
+
+% This highlights that the asymptotic behaviour of MCES depends critically on the interplay between the learning rates and the update frequencies of actions within each state, rather than either factor alone.
+Overall, these results highlight that
+the asymptotic behaviour of MCES depends critically on the interplay between learning rates and sampling distributions.
+% the central issue when analysing MCES or implementing scalable variants is the interplay between learning rates and sampling distributions.
+By controlling the frequency and magnitude of updates to each action, these parameters determine the effective update size.
+Initial experiments (not presented here) suggest that MCES converges to optimality when, within each state, the effective update to the greedy action is at least as large as that to any other action.
+Establishing this condition formally is an important direction for future work
+as it may provide a foundation for analysing scalable MCES variants.
+
+
+
+\clearpage
+% \section*{References}
+% \bibliographystyle{apalike}
+\bibliographystyle{unsrt} % Use for unsorted references  
+% \bibliographystyle{plainnat} % use this to have URLs listed in References
+\bibliography{References/references} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\input{appendix}
+\input{appendix-proof}
+\input{appendix-fv}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newpage
+% \input{checklist.tex}
+
+
+\end{document}

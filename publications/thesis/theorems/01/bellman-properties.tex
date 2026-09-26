@@ -1,0 +1,17 @@
+\begin{property}[Monotonicity and contraction of Bellman operators] 
+% \label{thm: bellman operator monotonicity}
+Every Bellman operator is monotone, meaning that for every policy $\pol$ and all $q, q' \in \qset$ it holds that
+\begin{align*}
+    q \leq q' \implies \B_\pol q \leq \B_\pol q' .
+\end{align*}
+% \end{property}
+% 
+% \begin{property}[Contraction in discounted MDP] 
+% \label{thm: bellman operator contraction}
+Every Bellman operator in a discounted MDP is also contracting, meaning that 
+% if the discount factor $\discount<1$, then 
+for every policy $\pol$ and all $q, q' \in \qset$ it holds that
+\begin{align*}
+    \|q - q'\| \geq \discount \|\B_\pol q - \B_\pol q'\| .
+\end{align*}
+\end{property}

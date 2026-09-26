@@ -1,0 +1,363 @@
+\usepackage{amsthm}
+\renewcommand\qedsymbol{$\blacksquare$}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{bm}
+
+\usepackage{multirow}
+
+% \usepackage{setspace}
+% \setstretch{1}
+
+% \usepackage{natbib}
+
+
+% \usepackage{colortbl} 
+
+% define useful colors
+\usepackage[table,xcdraw]{xcolor}
+% 
+\definecolor{cambridgeblue}{RGB}{163, 193, 173}
+% 
+\definecolor{CambridgeSuperLightBlue}{RGB}{204, 227, 245}
+\definecolor{CambridgeSuperLightOrange}{RGB}{252, 229, 205}
+\definecolor{CambridgeSuperLightPurple}{RGB}{142,37,141}
+\definecolor{CambridgeSuperLightGreen}{RGB}{217, 234, 211}
+% 
+\definecolor{CambridgeDarkLightBlue}{RGB}{84,138,182}
+\definecolor{CambridgeLightBlue}{RGB}{106,173,228}
+\definecolor{CambridgeLightOrange}{RGB}{239,189,71}
+\definecolor{CambridgeLightGreen}{RGB}{168,180,0}
+\definecolor{CambridgeLightPurple}{RGB}{181,147,155}
+\definecolor{CambridgeLightTeal}{RGB}{163,193,173}
+% 
+\definecolor{CambridgeCoreBlue}{RGB}{0,115,207}
+\definecolor{CambridgeCoreOrange}{RGB}{227,114,34}
+\definecolor{CambridgeCoreBurgundy}{RGB}{144,27,59}
+\definecolor{CambridgeCoreGreen}{RGB}{88,166,24}
+\definecolor{CambridgeCorePurple}{RGB}{142,37,141}
+\definecolor{CambridgeCoreTeal}{RGB}{0,179,190}
+% 
+\definecolor{CambridgeDarkBlue}{RGB}{0,62,114}
+\definecolor{CambridgeDarkOrange}{RGB}{200,78,0}
+\definecolor{CambridgeDarkGreen}{RGB}{67,81,37}
+\definecolor{CambridgeDarkPurple}{RGB}{65,45,93}
+\definecolor{CambridgeDarkTeal}{RGB}{21,101,112}
+% 
+\definecolor{CambridgeWhitePrint}{RGB}{255,255,255}
+\definecolor{CambridgeBlackPrint}{RGB}{0,0,0}
+% 
+\definecolor{CambridgeYellow}{RGB}{220,20,6}
+
+\definecolor{mygrey}{RGB}{170, 170, 170}
+\definecolor{mylightgrey}{RGB}{230, 230, 230}
+
+
+% \usepackage[shortlabels]{enumitem}
+\renewcommand{\labelenumi}{(\theenumi)}
+
+% \usepackage[parfill]{parskip}
+% \setlength{\parskip}{10pt}
+
+
+\renewcommand\labelitemi{--}
+
+
+% \usepackage{titlesec}
+% % numbering of \paragraph like \subsubsubsection
+% % \setcounter{secnumdepth}{4}
+% \titleformat{\paragraph}
+% {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+% \titlespacing*{\paragraph}
+% {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+
+% packages for changing layout
+\usepackage{titlesec}
+% \usepackage{titling}
+% \headstyles{hangnum}
+\newlength\titleindent
+\setlength\titleindent{1.5cm}
+% 
+% \newlength\titlespace
+% \setlength\titlespace{0.5cm}
+% section
+\titleformat{\section}
+{\large\bfseries\sffamily}
+{\llap{\parbox[b]{\titleindent}{\hfill\thesection\phantom{0}}}}{0em}{}
+\titlespacing*{\section}{0pt}{10pt plus 4pt minus 2pt}{5pt plus 2pt minus 1pt}
+% subsection
+\titleformat{\subsection}
+{\normalsize\bfseries\sffamily}
+{\llap{\parbox[b]{\titleindent}{\hfill\thesubsection\phantom{0}}}}{0em}{}
+\titlespacing*{\subsection}{0pt}{5pt plus 2pt minus 1pt}{3pt plus 2pt minus 1pt}
+% subsubsection
+\titleformat{\subsubsection}
+{\bfseries\sffamily}
+{}{}{}
+\titlespacing*{\subsubsection}{0pt}{0pt plus 1pt minus 1pt}{0pt plus 1pt minus 1pt}
+
+
+\titleformat{\chapter}[display]
+  {\sffamily\LARGE\bfseries} % Font settings
+  {Chapter \ \thechapter} % Chapter number font
+  {20pt} % Space between number and title
+  {\sffamily} % Title font
+
+
+\usepackage{tocloft}
+\renewcommand{\cfttoctitlefont}{\sffamily\Huge\bfseries}
+\renewcommand{\cftchapfont}{\sffamily\bfseries}
+\renewcommand{\cftchappagefont}{\sffamily\bfseries}
+% \renewcommand{\cftsecfont}{\sffamily}
+% \renewcommand{\cftsubsecfont}{\sffamily}
+
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows.meta, decorations.markings, calc}
+\tikzset{
+    middle arrow/.style={
+        decoration={markings,
+            mark=at position #1 with {\arrow{>}}}, % Choose arrow style here
+        postaction={decorate},
+        thick
+    }
+}
+
+% Load hyperref package with custom link colors and without boxes
+% \usepackage[
+%     colorlinks=true,       % Enable colored links
+%     linkcolor=CambridgeCoreBlue,  % Color for internal links (e.g., sections, pages)
+%     citecolor=CambridgeCoreBlue,  % Color for citations
+%     urlcolor=CambridgeCoreBlue,   % Color for URLs
+%     filecolor=CambridgeCoreBlue,  % Color for files
+%     linkbordercolor={0 0 0},  % Black for link border (invisible)
+%     citebordercolor={0 0 0},  % Black for citation border (invisible)
+%     urlbordercolor={0 0 0}    % Black for URL border (invisible)
+% ]{hyperref}
+
+\newcommand{\chapterautorefname}{Chapter}
+\newcommand{\sectionautorefname}{Section}
+\newcommand{\subsectionautorefname}{Section}
+\newcommand{\subsubsectionautorefname}{Section}
+
+
+% % Define a custom theorem style with non-italic text
+% \newtheoremstyle{nonItalic}%
+% {}   % Space above
+% {}   % Space below
+% {\upshape}  % Body font
+% {}          % Indent amount
+% {\bfseries} % Theorem head font % \sffamily
+% {}         % Punctuation after theorem head
+% {\newline}         % Space after theorem head
+% {}          % Theorem head spec (can be left empty, meaning `normal`)
+
+
+% % use frames
+% \usepackage{mdframed}
+% \mdfdefinestyle{thmstyle}{%
+%     % line
+%     linecolor = black,
+%     linewidth = 0.5 pt,
+%     topline=true,     % Show top border
+%     bottomline=true,  % Show bottom border
+%     leftline=true,   % Hide left border
+%     rightline=true,  % Hide right border
+%     % middlelinewidth=2pt,
+%     roundcorner = 10 pt,
+%     % background
+%     backgroundcolor = white,
+%     % frametitlebackgroundcolor= mygrey!20,
+%     % margins
+%     leftmargin = 0cm,
+%     rightmargin = 0cm,
+%     innerbottommargin = 0.3cm ,
+%     innertopmargin = 0.3cm,
+%     innerleftmargin = 0.4cm ,
+%     innerrightmargin = 0.4cm,
+%     % splittopskip = 0.5cm ,
+%     skipabove = 0.3cm ,
+%     skipbelow = 0.3cm ,
+%     % ntheorem = true,
+%     % frame title
+%     % frametitlerule=true,
+%     % frametitlefont= \bfseries, %\sffamily
+%     frametitlefont=\sffamily,
+% }
+
+% \usepackage{aliascnt}
+
+% % Apply the new non-italic style to the theorem environments
+% \theoremstyle{nonItalic}
+% \newtheorem{parentthm}{Theorem}
+% \numberwithin{parentthm}{chapter}
+% \numberwithin{figure}{chapter}
+
+% \newaliascnt{theorem}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{theorem}[theorem]{Theorem}
+% \aliascntresetthe{theorem}
+% \renewcommand{\theHtheorem}{theorem.\thesection.\thetheorem}
+% \renewcommand{\theoremautorefname}{Theorem}
+
+% \newaliascnt{assumption}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{assumption}[assumption]{Assumption}
+% \aliascntresetthe{assumption}
+% \renewcommand{\theHassumption}{assumption.\thesection.\theassumption}
+% \newcommand{\assumptionautorefname}{Assumption}
+
+% \newaliascnt{proposition}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{proposition}[proposition]{Proposition}
+% \aliascntresetthe{proposition}
+% \renewcommand{\theHproposition}{proposition.\thesection.\theproposition}
+% \newcommand{\propositionautorefname}{Proposition}
+
+% \newaliascnt{lemma}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{lemma}[lemma]{Lemma}
+% \aliascntresetthe{lemma}
+% \renewcommand{\theHlemma}{lemma.\thesection.\thelemma}
+% \newcommand{\lemmaautorefname}{Lemma}
+
+% \newaliascnt{conjecture}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{conjecture}[conjecture]{Conjecture}
+% \aliascntresetthe{conjecture}
+% \renewcommand{\theHconjecture}{conjecture.\thesection.\theconjecture}
+% \newcommand{\conjectureautorefname}{Conjecture}
+
+% \newaliascnt{corollary}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{corollary}[corollary]{Corollary}
+% \aliascntresetthe{corollary}
+% \renewcommand{\theHcorollary}{corollary.\thesection.\thecorollary}
+% \newcommand{\corollaryautorefname}{Corollary}
+
+% \newaliascnt{definition}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{definition}[definition]{Definition}
+% \aliascntresetthe{definition}
+% \renewcommand{\theHdefinition}{definition.\thesection.\thedefinition}
+% \newcommand{\definitionautorefname}{Definition}
+
+% \newaliascnt{example}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{example}[example]{Example}
+% \aliascntresetthe{example}
+% \renewcommand{\theHexample}{example.\thesection.\theexample}
+% \newcommand{\exampleautorefname}{Example}
+
+% \newaliascnt{remark}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{remark}[remark]{Remark}
+% \aliascntresetthe{remark}
+% \renewcommand{\theHremark}{remark.\thesection.\theremark}
+% \newcommand{\remarkautorefname}{Remark}
+
+% \newaliascnt{claim}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{claim}[claim]{Claim}
+% \aliascntresetthe{claim}
+% \renewcommand{\theHclaim}{claim.\thesection.\theclaim}
+% \newcommand{\claimautorefname}{Claim}
+
+% \newaliascnt{algorithm}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{algorithm}[algorithm]{Algorithm}
+% \aliascntresetthe{algorithm}
+% \renewcommand{\theHalgorithm}{algorithm.\thesection.\thealgorithm}
+% \newcommand{\algorithmautorefname}{Algorithm}
+
+% \newaliascnt{property}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{property}[property]{Property}
+% \aliascntresetthe{property}
+% \renewcommand{\theHproperty}{property.\thesection.\theproperty}
+% \newcommand{\propertyautorefname}{Property}
+
+% \newaliascnt{notation}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{notation}[notation]{Notation}
+% \aliascntresetthe{notation}
+% \renewcommand{\theHnotation}{notation.\thesection.\thenotation}
+% \newcommand{\notationautorefname}{Notation}
+
+
+\usepackage[framemethod=TikZ]{mdframed}
+% \mdfsetup{skipabove=7pt, skipbelow=0pt}
+% \mdfdefinestyle{MyFrame}{%
+%     linecolor=white,
+%     outerlinewidth=0.3pt,
+%     roundcorner=0pt,
+%     innertopmargin=10pt,
+%     innerbottommargin=10pt,
+%     innerrightmargin=10pt,
+%     innerleftmargin=10pt,
+%     backgroundcolor=black!10}
+\mdfdefinestyle{theoremstyle}{%
+    % line
+    linecolor=black,
+    linewidth=0.5 pt,%
+    % middlelinewidth=0.5pt,
+    roundcorner = 2 pt,%
+    % background
+    backgroundcolor = white,%
+    frametitlebackgroundcolor= white,
+    % 
+    leftmargin = 0cm,
+    rightmargin = 0cm,
+    innerbottommargin = 0.3cm ,
+    innertopmargin = 0.cm,
+    innerleftmargin = 0.3cm ,
+    innerrightmargin = 0.3cm,
+    splittopskip = 0cm ,
+    skipabove = 0.5 cm ,
+    skipbelow = 0cm,
+    % ntheorem = true ,%
+    frametitlerule=false,%
+    frametitlefont= \bfseries, %\sffamily
+}
+% 
+\mdtheorem[style=theoremstyle]{definition}{\sffamily Definition}[chapter]
+\newcommand{\definitionautorefname}{Definition}
+% 
+\mdtheorem[style=theoremstyle]{remark}{\sffamily Remark}[chapter]
+\newcommand{\remarkautorefname}{Remark}
+% 
+\mdtheorem[style=theoremstyle]{assumption}{\sffamily Assumption}[chapter]
+\newcommand{\assumptionautorefname}{Assumption}
+% 
+\mdtheorem[style=theoremstyle]{property}{\sffamily Property}[chapter]
+\newcommand{\propertyautorefname}{Property}
+% 
+\mdtheorem[style=theoremstyle]{theorem}{\sffamily Theorem}[chapter]
+\newcommand{\theoremautorefname}{Theorem}
+% 
+\mdtheorem[style=theoremstyle]{corollary}{\sffamily Corollary}[chapter]
+\newcommand{\corollaryautorefname}{Corollary}
+% 
+\mdtheorem[style=theoremstyle]{proposition}{\sffamily Proposition}[chapter]
+\newcommand{\propositionautorefname}{Proposition}
+% 
+\mdtheorem[style=theoremstyle]{lemma}{\sffamily Lemma}[chapter] 
+\newcommand{\lemmaautorefname}{Lemma}
+% 
+\mdtheorem[style=theoremstyle]{example}{\sffamily Example}[chapter] 
+\newcommand{\exampleautorefname}{Example}
+% 
+\mdtheorem[style=theoremstyle]{conjecture}{\sffamily Conjecture}[chapter] 
+\newcommand{\conjectureautorefname}{Conjecture}
+
+
+% use to do notes
+\usepackage[colorinlistoftodos, textsize=scriptsize, textwidth=3.3cm]{todonotes}
+\newcommand{\mytodo}[1]{\todo[linecolor=CambridgeCoreOrange,backgroundcolor=CambridgeSuperLightOrange,bordercolor=CambridgeCoreOrange]{\textcolor{CambridgeCoreOrange}{#1}}}
+
+% \usepackage{graphicx}
+\usepackage{subcaption}
+\captionsetup[sub]{labelfont={sf, bf}}
+\usepackage{caption}
+% \DeclareCaptionFormat{ruled}{#1#2#3\par\vspace{2pt}\hrule}
+\captionsetup[figure]{labelfont=bf}
+\captionsetup[table]{labelfont=bf}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{pgfplotstable}
+\usepgfplotslibrary{fillbetween}
+
+\usepackage{float}

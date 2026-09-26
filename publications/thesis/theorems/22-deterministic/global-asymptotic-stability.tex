@@ -1,0 +1,39 @@
+\begin{definition}[Global asymptotic stability]
+\label{def: global asymptotic stability}
+% ~\citep{Teel2017RecentInclusions}]
+    A point $\best{x}$ is globally asymptotically stable for the system $x_+ \in F(x)$ if and only if it is stable and globally attractive,
+    meaning that for every $\epsilon > 0$ there exists a $\delta>0$ such that, for all $k \geq 0$,
+    \begin{align*}
+        % \forall \epsilon > 0, \exists \delta > 0 
+        % \ : \
+        % q_0 \in \ball_{\delta}(q_{\best{\pol}})
+        % \implies
+        % q_\kpz \in \ball_{\epsilon}(q_{\best{\pol}}), \ \forall k \geq 0 ,
+        % \forall \epsilon > 0, \exists \delta > 0 
+        % \ : \
+        \| \best{x} - x_0 \| < \delta
+        \implies
+        \| \best{x} - x_k \| < \epsilon
+    \end{align*}
+    % for every $\epsilon > 0$, there exists a $\delta > 0$ such that 
+    % for each $q_0 \in \ball_{\delta}(\best{q})$, the solution $q_\kpz \in \ball_{\epsilon}(\best{q})$ for all $k>0$.
+    and for every initial condition $x_0$, every resulting solution $(x_k)_{k \geq 0}$ satisfies
+    \begin{align*}
+        % \forall q_0 \in \qset, \forall k \geq 0, \exists \varrho(k) < \infty 
+        % \ : \
+        % q_k \in \ball_{\varrho(k)}(q_{\best{\pol}})
+        % \ \text{and} \
+        % \lim_{k \to \infty} \varrho(k) = 0 .
+        % 
+        % \forall q_0 \in \qset, \forall k \geq 0
+        % \ : \
+        \sup_{k \geq 0}\| \best{x} - x_k \| < \infty
+        \ \text{and} \
+        \lim_{k \to \infty} \| \best{x} - x_k \| = 0 .
+    \end{align*}
+    % and
+    % \begin{align*}
+    %     \lim_{k \to \infty} \|q_{\best{\pol}} - q_k\| = 0
+    % \end{align*}
+    % every solution is bounded on every bounded subset of its domain, and every solution with an unbounded time domain satisfies $\lim_{k \to \infty} \| \qval_\kpz - \best{q} \| = 0$.
+\end{definition}

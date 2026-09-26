@@ -1,0 +1,189 @@
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.6]
+
+            % Draw the grid and axes
+            \draw[thin,->] (0,0) -- (2,0) node[right, font=\small] {$\pol(s)$};
+            \draw[thin,->] (0,0) -- (0,2) node[above, font=\small] {$\pol'(s)$};
+    
+            % Draw the line y = x
+            \draw[black] (0,0) -- (2,2);
+            
+            % Add the points with associated text
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\pol'}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol}$};
+
+            \draw[CambridgeCoreBlue] (0,0.2) -- (2,1.5333);
+            \draw[CambridgeCoreGreen] (0.4667,0) -- (1.8,2);
+            
+            % Add the points with associated text
+            % \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (0.6, 0.6) circle (1pt);
+            % \filldraw[fill=CambridgeCoreGreen, draw=CambridgeCoreGreen] (1.4,1.4) circle (1pt);
+
+            \pgfmathsetmacro{\arrowsize}{0.1} % Scale factor for the arrow
+            \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (0.3, 0.3) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (1, 1) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (1.7, 1.7) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (0.3, 0.3) -- ++(-\arrowsize,\arrowsize);
+            \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (1, 1) -- ++(-\arrowsize,\arrowsize);
+            \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (1.7, 1.7) -- ++(-\arrowsize,\arrowsize);
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.75:1.9,
+                % samples=50
+            ]
+                % see notes 240903
+                % bias 1.5:1 off-policy
+                \addplot[black, domain=0.6:1.8, samples=50] {
+                ( 1.5*(1.5*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( 1.5*(1.5*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+        
+            \end{axis}
+
+        \end{tikzpicture}
+        \caption{global convergence}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.6]
+
+            % Draw the grid and axes
+            \draw[thin,->] (0,0) -- (2,0) node[right, font=\small] {$\pol(s)$};
+            \draw[thin,->] (0,0) -- (0,2) node[above, font=\small] {$\pol'(s)$};
+    
+            % Draw the line y = x
+            \draw[black] (0,0) -- (2,2);
+            
+            % Add the points with associated text
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\pol'}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol}$};
+
+            \filldraw[fill=black, draw=black] (1.,1.) circle (1pt) ;
+
+            \draw[CambridgeCoreBlue] (0,0.5) -- (2,1.5);
+            \draw[CambridgeCoreGreen] (0.5,0) -- (1.5,2);
+            
+            % Add the points with associated text
+            % \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1,1) circle (1pt) {};
+            % \filldraw[fill=CambridgeCoreGreen, draw=CambridgeCoreGreen] (1,1) circle (1pt);
+
+            \pgfmathsetmacro{\arrowsize}{0.1} % Scale factor for the arrow
+            \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (0.5, 0.5) -- ++(\arrowsize,-\arrowsize);
+            % \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (1, 1) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (1.5, 1.5) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (0.5, 0.5) -- ++(-\arrowsize,\arrowsize);
+            % \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (1, 1) -- ++(-\arrowsize,\arrowsize);
+            \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (1.5, 1.5) -- ++(-\arrowsize,\arrowsize);
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.75:1.9,
+                % samples=50
+            ]
+                % see notes 240903
+                % bias 2:1 off-policy
+                \addplot[black, domain=0.6:1.8, samples=50] {
+                ( 2*(2*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( 2*(2*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+        
+            \end{axis}
+        \end{tikzpicture}
+        \caption{bifurcation}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.33\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.6]
+
+            % Draw the grid and axes
+            \draw[thin,->] (0,0) -- (2,0) node[right, font=\small] {$\pol(s)$};
+            \draw[thin,->] (0,0) -- (0,2) node[above, font=\small] {$\pol'(s)$};
+    
+            % Draw the line y = x
+            \draw[black] (0,0) -- (2,2);
+            
+            % Add the points with associated text
+            \filldraw[fill=black, draw=black] (0.6,0.2) circle (1pt) node[right, text=black, font=\small] {$q_{\pol'}$};
+            \filldraw[fill=black, draw=black] (1.8,1.4) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol}$};
+
+            \filldraw[fill=black, draw=black] (0.6176,0.6176) circle (1pt) ;
+            \filldraw[fill=black, draw=black] (1.3824,1.3824) circle (1pt) ;
+
+            % \draw[CambridgeCoreBlue] (1.32,1.32) -- (1.8,1.4);
+            % \draw[CambridgeCoreGreen] (0.68,0.68) -- (0.6, 0.2);
+            \draw[CambridgeCoreBlue] (0,1.1) -- (2,1.4333);
+            \draw[CambridgeCoreGreen] (0.9,2) -- (0.5667, 0);
+            
+            % Add the points with associated text
+            % \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.32,1.32) circle (1pt);
+            % \filldraw[fill=CambridgeCoreGreen, draw=CambridgeCoreGreen] (0.68,0.68) circle (1pt);
+
+            \pgfmathsetmacro{\arrowsize}{0.1} % Scale factor for the arrow
+            \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (0.34, 0.34) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (1, 1) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (1.66, 1.66) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (0.34, 0.34) -- ++(-\arrowsize,\arrowsize);
+            \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (1, 1) -- ++(-\arrowsize,\arrowsize);
+            \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (1.66, 1.66) -- ++(-\arrowsize,\arrowsize);
+
+            \begin{axis}[
+                hide axis,
+                xmin=0, xmax=2,
+                ymin=0, ymax=2,
+                % domain=0.7:1.9, % adjust the domain as necessary
+                width=2cm, % adjust width to match your canvas size
+                height=2cm, % adjust height to match your canvas size
+                at={(0,0)},
+                scale only axis,
+                % clip=false,
+                anchor=south west, % Anchor alignment to match the tikz picture
+                % domain=0.78:1.9,
+                % samples=50
+            ]
+                % see notes 240903
+                % bias 6:1 off-policy
+                % \addplot[CambridgeCoreBlue, thick, domain=0:0.75, samples=50] {
+                % ( 6*(6*(0.8-x))/(1*(1.7-x)) * 1.2 - 1 * 0.3 ) 
+                % /
+                % ( 6*(6*(0.8-x))/(1*(1.7-x)) - 1 )
+                % };
+                
+                \addplot[black, domain=0.6:1.8, samples=50] {
+                ( 6*(6*(0.6-x))/(1*(1.8-x)) * 1.4 - 1 * 0.2 ) 
+                /
+                ( 6*(6*(0.6-x))/(1*(1.8-x)) - 1 )
+                };
+        
+            \end{axis}
+        \end{tikzpicture}
+        \caption{bi-stability}
+    \end{subfigure}%
+    \caption{show vector field for different $\rho$ and for different $\sigma_\pol / \sigma_{\pol'}$}
+    \label{fig: convergence with off-pol bias}
+\end{figure}

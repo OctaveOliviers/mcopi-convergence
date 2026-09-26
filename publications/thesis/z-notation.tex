@@ -1,0 +1,153 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% acronyms
+\nomenclature[a-rl]{RL}{reinforcement learning}
+\nomenclature[a-pi]{PI}{policy iteration}
+\nomenclature[a-mc]{MC}{Monte Carlo}
+\nomenclature[a-td]{TD}{temporal difference}
+% \nomenclature[z-iv]{IV}{initial visit}
+% \nomenclature[z-fv]{FV}{first visit}
+% \nomenclature[z-ev]{EV}{every visit}
+\nomenclature[a-glie]{GLIE}{greedy in the limit with infinite exploration}
+\nomenclature[a-mdp]{MDP}{Markov decision process}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% maths
+
+% sets
+% \nomenclature[b-00-reals0]{$\real$}{set of real numbers}
+
+\nomenclature[b-01-reals1]{$\real_{> 0}$}{set of real numbers strictly larger than zero}
+
+\nomenclature[b-02-set]{$\{x,y\}$}{set containing elements $x$ and $y$}
+
+\nomenclature[b-03-interval]{$[x,y)$}{real interval from $x$ to $y$, including $x$ but excluding $y$}
+
+\nomenclature[b-04-sequence]{$(x_k)_{k \geq 0}$}{sequence $x_0$, $x_1$, $x_2$, etc., also referred to as $(x_k)$}
+
+
+% number, functions, maps
+\nomenclature[b-11-function]{$f : \xset \to \yset$}{function $f$ mapping elements of $\xset$ to elements of $\yset$}
+
+\nomenclature[b-12-setfunction]{$F : \xset \rightrightarrows \yset$}{set-valued function $F$ mapping elements of $\xset$ to subsets of $\yset$}
+
+% {function mapping all elements in its domain to one}
+
+\nomenclature[b-13-zerofunction]{$\zerofun$, $\onefun$}{functions identically equal to 0 and 1, respectively}
+
+\nomenclature[b-14-onefunction]{$\onefun_{\mathcal E}$}{indicator function that is 1 if event $\mathcal E$ occurs and 0 otherwise}
+
+% \nomenclature[b-13-maxtime]{$x \wedge y$}{greatest lower bound of scalars $x$ and $y$, meaning $\min\{x,y\}$}
+
+
+% operators
+% \nomenclature[0compare]{$f \leq g$}{all}
+% \nomenclature[0sum]{$f + g$}{}
+% \nomenclature[0leq]{$f \leq g$}{}
+% \nomenclature[0assigm]{$\coloneqq$}{}
+% \nomenclature[norm]{$\| f \|$}{max norm of $f$, i.e. $\| f \| = \max [ | f(x) | : x \in \xset ]$}
+
+% probability
+\nomenclature[b-21-prob]{$\prob(\mathcal E)$}{probability of a random event $\mathcal E$}
+\nomenclature[b-22-expect]{$\E[x]$}{expectation of a random variable $x$}
+
+% \nomenclature[max]{$\max_{\xset} f$}{maximal value of $f$ over $xset$}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MDPs
+
+\nomenclature[c-00-state]{$s$}{state}
+\nomenclature[c-01-action]{$a$}{action}
+\nomenclature[c-02-states]{$\sset$}{set of states}
+\nomenclature[c-03-actions]{$\aset(s)$}{set of actions available in state $s$}
+
+\nomenclature[c-11-discount]{$\discount$}{discount factor}
+\nomenclature[c-12-reward]{$r(s,a)$}{reward for taking action $a$ in state $s$}
+\nomenclature[c-13-transition]{$\transit(s' \mid s,a)$}{probability of reaching state $s'$ when taking action $a$ in state $s$}
+
+
+\nomenclature[c-21-pol]{$\pol$}{policy}
+
+\nomenclature[c-22-pol]{$\pol(a \mid s)$}{probability of taking action $a$ in state $s$ under policy $\pol$}
+
+\nomenclature[c-23-pol]{$\pol(s)$}{action taken in state $s$ by a deterministic policy $\pol$}
+
+\nomenclature[c-24-order]{$\pol \preceq \pol'$}{policy $\pol'$ is at least as good as policy $\pol$}
+
+\nomenclature[c-24-polset]{$\polset$}{set of deterministic policies over $\sset \times \aset$}
+
+\nomenclature[c-25-poloptset]{$\mathcal P_*$}{set of optimal policies}
+
+\nomenclature[c-26-polopt]{$\best{\pol}$}{optimal policy that is also deterministic}
+
+\nomenclature[c-27-polopt]{$\worst{\pol}$}{worst policy}
+
+
+\nomenclature[c-31-svalpol]{$v_{\pol}(s)$}{value of state $s$ under policy $\pol$}
+% {expected return when following policy $\pol$ from state $s$}
+
+\nomenclature[c-32-avalpol]{$q_{\pol}(s,a)$}{value of action $a$ in state $s$ under policy $\pol$}
+% {expected return when taking action $a$ in state $s$, then following policy $\pol$}
+
+\nomenclature[c-33-advantage]{$a_{\pol}(s,a)$}{advantage of action $a$ over action $\pol(s)$ in state $s$ under policy $\pol$}
+
+
+\nomenclature[c-41-bellpol]{$\B_{\pol}$}{Bellman operator associated with policy $\pol$}
+\nomenclature[c-42-bellpolopt]{$\B$}{Bellman optimality operator}
+\nomenclature[c-43transitpol]{$\T_{\pol}$}{transition operator associated with policy $\pol$}
+\nomenclature[c-44-transitpolopt]{$\T$}{transition optimality operator}
+\nomenclature[c-45-identity]{$\I$}{identity operator mapping each function to itself \\ \\}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MC-O-PI
+
+\nomenclature[m-00index]{$k$}{index for discrete time steps}
+
+\nomenclature[m-01estimate]{$q_k$}{estimate for the optimal action values at time $k$}
+\nomenclature[m-01pol]{$\pol_k$}{estimate for the optimal policy at time $k$}
+
+\nomenclature[m-02estimate-single]{$q_+$}{updated estimate when considering a single step}
+\nomenclature[m-02pol-single]{$\pol_+$}{updated policy when considering a single step}
+
+% \nomenclature[m-12avalpolapprox]{$\Tilde{q}_{\pol}(s,a)$}{approximate value of taking action $a$ in state $s$ under policy $\pol$}
+
+\nomenclature[m-11lrate]{$\lrate_k$}{learning rate at time $k$, with $\lrate_k \in (0,1)$ unless stated otherwise}
+
+\nomenclature[m-11lraten]{$n_k(s,a)$}{number of updates to pair $(s, a)$ up to time $k$}
+
+
+\nomenclature[m-21-start]{$\start_k$}{distribution of the initial state-action pair of the $k^\nth$ episode}
+
+\nomenclature[m-22-update]{$f_k$}{update function at time $k$, either initial- or first-visit}
+
+% \nomenclature[m-update]{$u$}{indicator variable}
+\nomenclature[m-23-update]{$\update_k$}{update distribution at time $k$}
+
+% \nomenclature[m-24-update]{$\update(\start_k, \pol_k, f_k)$}{update distribution obtained with a sampling distribution $\start_k$, simulating the episode with policy $\pol_k$ and deciding which state-action pairs to update using the update function $f_k$.}
+
+\nomenclature[m-25-noise]{$w_k$}{stochastic perturbation caused by episode simulation and/or asynchronous updates at time $k$}
+
+
+\nomenclature[m-31-qset]{$\qset$}{function space from $\sset \times \aset$ to $\real$}
+
+\nomenclature[m-32-qset-lt]{$\qset_\infty$}{all action-value functions $q \in \qset$ such that $q_{\worst{\pol}} \leq q \leq \qopt$}
+
+\nomenclature[m-33-ball]{$\ball$}{closed unit ball defined by the infinity norm over $\qset$, centered at the origin}
+
+\nomenclature[m-41-grpol]{$\grpol(q)$}{set of deterministic policies greedy with respect to the action-value function $q$}
+
+\nomenclature[m-42-graval]{$\graval(\pol)$}{set of action-value functions $q \in \qset$ for which policy $\pol$ is greedy, the region of policy $\pol$}
+
+
+
+% first letter X is for Other Symbols
+% \nomenclature[x-i]{$\oint_\gamma$}{integration around a curve $\gamma$}
+
+% first letter R is for superscripts
+% \nomenclature[r-j]{$j$}{superscript index}                        
+% first letter S is for subscripts
+% \nomenclature[s-0]{$0$}{subscript index}
+

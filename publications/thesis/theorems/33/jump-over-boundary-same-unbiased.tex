@@ -1,0 +1,223 @@
+\begin{lemma}
+\label{thm: cannot exit sliding mode if not all states are better}
+
+Suppose $q$ and $q_+$ satisfy \eqref{eq: definition of q+ greedy section}.
+The following statements hold 
+% for all action values $q$ and $q_+$ that satisfy \eqref{eq: definition of q+ greedy section},
+for every policy $\pol \in \grpol(q)$, $\pol_+ \in \grpol(q_+)$, and state $s \in \sset$ where the update distribution $\update$ satisfies $\update(s, \pol) > \update(s, \pol_+)$:
+% is biased towards the action $\pol(s)$:
+% For every state $s$ that is updated and where the policy changes,
+% i.e. $\update(s, \pol)>0$, $\update_+(s, \pol_+)>0$ and $\pol(s) \neq \pol_+(s)$, 
+% i.e. $\update(s, \pol)>0$ and $\pol(s) \neq \pol_+(s)$,
+\begin{enumerate}
+    \item If $q_{\pol}(s, \pol_+) < q_{\pol}(s, \pol)$, then
+    % \item If $\aval_{\pol}(s, \pol_+) < 0$, it follows that
+    % it holds that
+    % \begin{align}
+    % \label{eq: lemma a v a advantage polk}
+    %     \aval_{\pol}(s, \pol_+(s)) < 0 ,
+    % \end{align}
+    \begin{align}
+        \nonumber
+        &q_{\pol}(s, \pol_+) 
+        < q_{\pol}(s, \pol) 
+        < q_+(s, \pol) 
+        \\
+        \label{eq: q approach from above}
+        &\hspace{2.5cm} 
+        \leq q_+(s, \pol_+)
+        \leq q(s, \pol_+) \leq q(s, \pol) .
+    \end{align}
+
+    \item If $q_{\pol}(s, \pol_+) < q_{\pol}(s, \pol)$ and $v_{\pol_+}(s) < v_{\pol}(s)$, then 
+    % along with \eqref{eq: q approach from above}
+    % \item If $\aval_{\pol}(s, \pol_+) < 0$ and $\sval_{\pol}(s) > \sval_{\pol_+}(s)$ it follows that
+    % in addition to condition \eqref{eq: lemma a v a advantage polk}, it holds that
+    % \begin{align}
+    % \label{eq: lemma a v a value}
+    %     \sval_{\pol}(s) > \sval_{\pol_+}(s) ,
+    % \end{align}
+    \begin{align}
+    \label{eq: q+ approach from above}
+        q_{\pol_+}(s, \pol_+) < q_+(s, \pol) \leq q_+(s, \pol_+) .
+    \end{align}
+
+    \item If $q_{\pol}(s, \pol_+) < q_{\pol}(s, \pol)$, $v_{\pol_+}(s) < v_{\pol}(s)$ and $q_{\pol_+}(s, \pol_+) < q_{\pol_+}(s, \pol)$, then
+    % along with \eqref{eq: q approach from above} and \eqref{eq: q+ approach from above}
+    % \item If $\aval_{\pol}(s, \pol_+) < 0$, $\sval_{\pol}(s) > \sval_{\pol_+}(s)$ and $\aval_{\pol_+}(s, \pol) > 0$, it follows that
+    % in addition to conditions \eqref{eq: lemma a v a advantage polk} and \eqref{eq: lemma a v a value}, it holds that
+    % \begin{align}
+    % \label{eq: lemma a v a advantage polkpo}
+    %     \aval_{\pol_+}(s, \pol(s)) > 0 ,
+    % \end{align}
+    \begin{align}
+        \nonumber
+        &\update_+(s, \pol) (\qval_{\pol_+}(s, \pol) - \qval_+(s, \pol))
+        \\
+        & \hspace{2cm} >
+        \update_+(s, \pol_+) (\qval_{\pol_+}(s, \pol_+) - \qval_+(s, \pol_+))
+    \end{align}
+    for every update distribution $\update_+$ where $\update_+(s, \pol_+) > \update_+(s, \pol)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) Suppose that in state $s$
+\begin{align}
+    \label{eq: cond 1 on qpol}
+    &q_{\pol}(s, \pol_+) < q_{\pol}(s, \pol) .
+\end{align}
+Since the policies $\pol$ and $\pol_+$ are greedy with respect to $q$ and $q_+$ we have
+\begin{align}
+    \label{eq: cond 2 on q}
+    &q(s, \pol) \geq q(s, \pol_+) ,
+    \\
+    \label{eq: cond 3 on q+}
+    &q_+(s, \pol) \leq q_+(s, \pol_+) .
+\end{align}
+By combining \eqref{eq: cond 1 on qpol} with \autoref{thm: all inequalities when switching policy}(2), we obtain that
+\begin{align*}
+    \update(s, \pol) ( \qval_{\pol}(s, \pol) - \qval(s, \pol_+) )
+    &\leq
+    \update(s, \pol_+) ( \qval_{\pol}(s, \pol_+) - \qval(s, \pol_+) )
+    \\
+    &< 
+    \update(s, \pol_+) ( \qval_{\pol}(s, \pol) - \qval(s, \pol_+) )
+\end{align*}
+which simplifies to
+\begin{align*}
+% \label{eq: first ineq for greedy proof}
+    ( \update(s, \pol) - \update(s, \pol_+) )
+    ( q_{\pol}(s, \pol) - q(s, \pol_+) ) < 0.
+\end{align*}
+Therefore, if $\update(s, \pol) > \update(s, \pol_+)$, it follows that
+\begin{align*}
+% \label{eq: approach from above}
+    q_{\pol}(s, \pol)
+    <
+    q(s, \pol_+) ,
+\end{align*}
+and together with inequalities \eqref{eq: cond 1 on qpol} and \eqref{eq: cond 2 on q} we see that
+\begin{align}
+\label{eq: first set of conditions}
+    q_{\pol}(s, \pol_+)
+    < q_{\pol}(s, \pol)
+    < q(s, \pol_+) 
+    \leq q(s, \pol) .
+\end{align}
+
+Further, the definition of $q_+$ indicates that
+\begin{align*}
+    q_+(s, \pol)
+    &= ( 1 - \lrate \update(s, \pol) ) q(s, \pol) 
+    + \lrate \update(s, \pol) q_{\pol}(s, \pol) ,
+    \\
+    q_+(s, \pol_+)
+    &= ( 1 - \lrate \update(s, \pol_+) ) q(s, \pol_+) 
+    + \lrate \update(s, \pol_+) q_{\pol}(s, \pol_+) .
+\end{align*}
+Without loss of generality, we assume that the effective learning rate $\lrate \update$ is positive and smaller than one for all state-action pairs.
+The inequalities in \eqref{eq: first set of conditions} then imply that
+\begin{align}
+\label{eq: condition on s pol}
+    &q_{\pol}(s, \pol) < q_+(s, \pol) < q(s, \pol) ,
+    \\
+\label{eq: condition on s pol+}
+    &q_{\pol}(s, \pol_+) < q_+(s, \pol_+) \leq q(s, \pol_+) .
+\end{align}
+Altogether, expression \eqref{eq: q approach from above} is \eqref{eq: cond 1 on qpol} followed by the first inequality in \eqref{eq: condition on s pol}, then \eqref{eq: cond 3 on q+}, the second inequality in \eqref{eq: condition on s pol+} and finally \eqref{eq: cond 2 on q}.
+
+
+(2) Suppose that in state $s$
+\begin{align*}
+    q_{\pol_+}(s, \pol_+) = v_{\pol_+}(s) < v_{\pol}(s) = q_{\pol}(s, \pol) .
+\end{align*}
+Expression \eqref{eq: q+ approach from above} then follows directly from \eqref{eq: q approach from above}.
+
+
+(3) Suppose that in state $s$
+\begin{align}
+    \label{eq: cond on qpol+}
+    &q_{\pol_+}(s, \pol_+) < q_{\pol_+}(s, \pol) .
+\end{align}
+Since policy $\pol_+$ is greedy with respect to $q_+$, it follows that
+\begin{align}
+    q_{\pol_+}(s, \pol_+) - q_+(s, \pol_+) 
+    < q_{\pol_+}(s, \pol) - q_+(s, \pol) .
+\end{align}
+Expression \eqref{eq: q+ approach from above} indicates that the left-hand side is strictly negative. 
+Thus for every update distribution $\update_+$ satisfying $\update_+(s, \pol_+) > \update_+(s, \pol)$, the order of the inequality remains when multiplying both sides as
+\begin{multline*}
+    \update_+(s, \pol_+) (\qval_{\pol_+}(s, \pol_+) - \qval_{+}(s, \pol_+))
+    \\
+    < 
+    \update_+(s, \pol) ( \qval_{\pol_+}(s, \pol) - \qval_{+}(s, \pol) ) .
+\end{multline*}
+\end{proof}
+
+% \begin{lemma}
+% \label{thm: cannot exit sliding mode if not all states are better}
+% Consider the update defined in equation \eqref{eq: definition of q+ greedy section}, and suppose the update map $\updateset$ satisfies \autoref{asp: on-policy bias}.
+% For any state $s$ that is updated and where the policy changes,
+% i.e. $\update(s, \pol)>0$ and $\pol(s) \neq \pol_+(s)$, 
+% if
+% \begin{align}
+%     \label{eq: lemma a v a advantage polk}
+%     &\aval_{\pol}(s, \pol_+(s)) < 0 ,
+%     \\
+%     \label{eq: lemma a v a value}
+%     &\sval_{\pol}(s) > \sval_{\pol_+}(s) ,
+%     \\
+%     \label{eq: lemma a v a advantage polkpo}
+%     &\aval_{\pol_+}(s, \pol(s)) > 0 ,
+% \end{align}
+% then
+% \begin{multline}
+% \label{eq: switch inequality on side pol_new}
+%     \update_+(s, \pol) (\qval_{\pol}(s, \pol) - \qval_+(s, \pol))
+%     \\
+%     >
+%     \update_+(s, \pol_+) (\qval_{\pol_+}(s, \pol_+) - \qval_+(s, \pol_+)) .
+% \end{multline}
+% % Moreover, if policy $\pol_\kpo$ is strictly greedy on $q_\kpo$, i.e. $\qval_{\kpo}(s, \pol_\kpo) > \qval_{\kpo}(s, \pol_\kpz)$, then inequality \eqref{eq: switch inequality on side pol_new} is strict.
+% \end{lemma}
+
+% \begin{proof}
+% % For any state $s$ where $\pol_k(s) \neq \pol_\kpo(s)$, 
+% Conditions \eqref{eq: lemma a v a advantage polk} and \eqref{eq: lemma a v a value} imply, by \autoref{thm: approach from above}, that
+% \begin{align*}
+% % \label{eq: approach from above kpo}
+%     \qval_{\kpo}(s, \pol_\kpz) > \qval_{\pol_\kpo}(s, \pol_\kpo) .
+%     % \leq \qval_{\kpo}(s, \pol_\kpo) .
+%     % 0 >
+%     % \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpz)
+%     % \geq \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpo) .
+% \end{align*}
+% Thus, since the policy $\pol_\kpo$ is greedy on $q_\kpo$, i.e. $\qval_{\kpo}(s, \pol_\kpz) \leq \qval_{\kpo}(s, \pol_\kpo)$, it follows that
+% \begin{align*}
+% % \label{eq: greedy policy}
+%     \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpo) 
+%     \leq \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpz)
+%     < 0 .
+% \end{align*}
+% As a result, given that the difference on the left-hand side is strictly negative and that, by \autoref{asp: on-policy bias}, $\update_\kpo(s, \pol_\kpz(s)) \leq \update_\kpo(s, \pol_\kpo(s))$, we observe that
+% \begin{align*}
+%     \update_\kpo(s, \pol_\kpo) (\qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpo))
+%     &\leq 
+%     \update_\kpo(s, \pol_\kpz) ( \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpo) )
+%     \\
+%     &\leq 
+%     \update_\kpo(s, \pol_\kpz) ( \qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_{\kpo}(s, \pol_\kpz) )
+%     \\
+%     &< 
+%     \update_\kpo(s, \pol_\kpz) ( \qval_{\pol_\kpo}(s, \pol_\kpz) - \qval_{\kpo}(s, \pol_\kpz) ) ,
+% \end{align*}
+% where we used condition \eqref{eq: lemma a v a advantage polkpo} in the last step.
+% % The last inequality rewrites to
+% % \begin{multline*}
+% %     \update_\kpo(s, \pol_\kpz) (\qval_{\pol_\kpo}(s, \pol_\kpz) - \qval_\kpo(s, \pol_\kpz))
+% %     \\
+% %     >
+% %     \update_\kpo(s, \pol_\kpo) (\qval_{\pol_\kpo}(s, \pol_\kpo) - \qval_\kpo(s, \pol_\kpo)) .
+% % \end{multline*}
+% \end{proof}

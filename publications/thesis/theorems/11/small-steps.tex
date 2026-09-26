@@ -1,0 +1,72 @@
+\begin{lemma}[Steps become arbitrarily small]
+\label{thm: steps become arbitrarily small}
+    For every solution $(q_k)_{k \ge 0}$ of MC-O-PI (\autoref{def: mcopi}),
+    the sequence $( \|q_\kpo - q_k\| )_{k \geq 0}$ converges to zero with probability one
+    if the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}).
+    % meaning that, for every $\epsilon>0$,
+    % \begin{align}
+    %     \prob \big( \limsup_{k \to \infty} \| q_\kpo - q_k \| \leq \epsilon \big) = 1 .
+    % \end{align}
+\end{lemma}
+\vspace{-0.7cm}
+% \begin{proof}
+% We know from expression \eqref{eq: rm implies sqared eff lr is bounded}, that the effective learning rates $(\lrate_k \update_k)$ converge to zero for all state-action pairs if the modified Robbins-Monro conditions hold.
+% \autoref{thm: bounded solution} then establishes that solutions of MC-O-PI converge to the region $\qset_\infty$ with probability one.
+% Therefore, for every $\epsilon > 0$, there exists almost surely a time step $K'$ such that, for all $k \geq K'$,
+% \begin{align*}
+%  \|\lrate_k \update_k (q_{\pol_k} - q_k)\| 
+%  &\leq \|\lrate_k \update_k \| \|q_{\pol_k} - q_k\| 
+%  \\
+%  &\leq \|\lrate_k \update_k \| \|\qopt - q_{\worst{\pol}}\|
+%  \\
+%  &\leq \frac{\epsilon}{2} .
+% \end{align*}
+% Further, \autoref{thm: effects of noise decrease} demonstrates that there exists almost surely a time step $K''$ such that, for all $k \geq K''$,
+% \begin{align*}
+%  \|\lrate_k \update_k w_k \| \leq \frac{\epsilon}{2} .
+% \end{align*}
+% As a result, for every $\epsilon > 0$,
+% there exists almost surely a time step $K \geq \max[K', K'']$ such that, for all $k \geq K$,
+% \begin{align*}
+%     \| q_\kpo - q_k \| 
+%     &= \| \lrate_k \update_k (q_{\pol_k} - q_k + w_k) \|
+%     \\
+%     &\leq \| \lrate_k \update_k (q_{\pol_k} - q_k) \| + \| \lrate_k \update_k w_k \|
+%     \\
+%     &\leq \epsilon ,
+% \end{align*}
+% which indicates that the sequence $(\|q_\kpo - q_k\|)_{k \geq 0}$ converges to zero with probability one.
+% \end{proof}
+\begin{proof}
+    % Since $\update_k(s,a) \le 1$ for every S
+    The modified Robbins-Monro conditions and the boundedness of the update distributions ensure that the sequence $(\lrate_k \update_k)_{k \ge 0}$ converges to zero for all state-action pairs.
+    Additionally, \autoref{thm: bounded limit sets} implies that solutions of MC-O-PI converge almost surely to the region
+    \begin{align}
+        \big\{q \in \qset : q_{\worst{\pi}} \le q \le \qopt \big\}
+    \end{align}
+    where $q_{\worst{\pi}}$ and $\qopt$ are the action values of the worst and the best policies, respectively.
+    Therefore, for every $\epsilon > 0$, there exists an almost surely finite time $K'$ such that, for all $k \geq K'$,
+    \begin{align*}
+     \|\lrate_k \update_k (q_{\pol_k} - q_k)\| 
+     &\leq \|\lrate_k \update_k \| \|q_{\pol_k} - q_k\| 
+     \\
+     &\leq \|\lrate_k \update_k \| \|\qopt - q_{\worst{\pol}}\|
+     \\
+     &\leq \frac{\epsilon}{2} .
+    \end{align*}
+    Further, \autoref{thm: effects of noise decrease} demonstrates that there exists an almost surely finite time $K''$ such that, for all $k \geq K''$,
+    \begin{align*}
+     \|\lrate_k w_k \| \leq \frac{\epsilon}{2} .
+    \end{align*}
+    As a result, for every $\epsilon > 0$,
+    there exists an almost surely finite time $K \geq \max\{K', K''\}$ such that, for all $k \geq K$,
+    \begin{align*}
+        \| q_\kpo - q_k \| 
+        &= \| \lrate_k ( \update_k (q_{\pol_k} - q_k ) + w_k) \|
+        \\
+        &\leq \| \lrate_k \update_k (q_{\pol_k} - q_k) \| + \| \lrate_k w_k \|
+        \\
+        &\leq \epsilon ,
+    \end{align*}
+    indicating that the sequence $(\|q_\kpo - q_k\|)_{k \ge 0}$ converges almost surely to zero.
+\end{proof}

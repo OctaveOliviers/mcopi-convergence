@@ -1,0 +1,18 @@
+% \begin{definition}[Upper semicontinuity]
+%     The set-valued map $F: \xset \rightrightarrows \xset$ is \textit{upper semicontinuous} on $\xset$ if and only if,
+%     for every $x \in \xset$ and $\epsilon > 0$, there exists a $\delta > 0$ such that, for all $x' \in \xset$ satisfying $\| x - x' \| < \delta$,
+%     we have $F(x') \subseteq F(x) + \epsilon \ball$.
+% \end{definition}
+
+\begin{definition}[Outer semicontinuity]
+    The set-valued map $F: \xset \rightrightarrows \xset$ is outer semicontinuous 
+    % on $\xset$ 
+    if and only if,
+    for every $x \in \xset$ and every sequence $(x_k)_{k \geq 0}$ that converges to $x$,
+    every sequence $(f_k \in F(x_k))_{k \geq 0}$ satisfies
+    \begin{align*}
+        \lim_{k \to \infty} f_k \in F(x) .
+    \end{align*}
+    
+    
+\end{definition}

@@ -1,0 +1,7 @@
+\begin{example}[Chess] \label{ex: chess as MDP}
+The game of chess is a finite \mdpS.
+Namely, the position of all the pieces on the board forms the state of the game. Thus the set $\sset$ contains all the legal board configurations.
+% Besides, $\sset$ is finite because the size of the board and the number of pieces is finite.
+Further, for each board state $s_t$ a player can choose from a finite set of actions $\aset(s_t)$. As the player plays his move, the board transitions to a new state $s_\tpo$.
+Chess is a deterministic \mdpS~since the transition probabilities are either 1 or 0.
+\end{example}

@@ -1,0 +1,339 @@
+
+\newcommand{\astar}{a_*}
+\newcommand{\abar}{\bar a}
+\newcommand{\epsES}{\varepsilon_{\rm ES}}
+\newcommand{\qhat}{\widehat q}
+\newcommand{\calZ}{\mathcal Z}
+\newcommand{\calS}{\mathcal S}
+
+\section{13-state First-Visit MCES example}
+\label{app:fv}
+
+\subsection{MDP, cycle, and notation}
+
+This appendix describes the discounted 13-state example with 
+exploring starts.  The discount and exploring-start perturbation level are
+\begin{equation*}
+    \gamma=0.9999,
+    \qquad
+    \epsES=10^{-4}.
+\end{equation*}
+The "move" action is denoted by $\astar$ and the "stay" action by $\abar$.
+A successful "move" sends
+\begin{equation*}
+    s_i\longmapsto s_{i+1},
+\end{equation*}
+with indices understood modulo $13$.  See Figure~\ref{fig: long MDP}.
+Action $\astar$ gives reward $1$ and succeeds with probability $\tau$; on success it moves to the next state, and on failure the episode terminates.  Action $\abar$ gives reward $0$ and remains in the same state.
+
+A deterministic greedy policy is represented by its "stay" set $S\subseteq\{s_1,\ldots,s_{13}\}$.  Its value function satisfies
+\begin{equation*}
+V_S(s_i)=
+\begin{cases}
+\gamma V_S(s_i), & s_i\in S,\\[1mm]
+1+\gamma\tau V_S(s_{i+1}), & s_i\notin S,
+\end{cases}
+\end{equation*}
+and the exact policy action values are
+\begin{equation*}
+q_S(s_i,\astar)=1+\gamma\tau V_S(s_{i+1}),
+\qquad
+q_S(s_i,\abar)=\gamma V_S(s_i).
+\end{equation*}
+Because $\gamma<1$, "stay" states satisfy $V_S(s_i)=0$.
+
+The intended adjacent cycle is
+\begin{equation}
+\label{eq:intended-cycle}
+\{s_1\},\{s_1,s_{13}\},\{s_{13}\},\{s_{13},s_{12}\},\ldots,
+\{s_2\},\{s_2,s_1\}.
+\end{equation}
+Equivalently, the local pattern is
+\begin{equation*}
+    \{s_i\}\longrightarrow \{s_i,s_{i-1}\}\longrightarrow \{s_{i-1}\}.
+\end{equation*}
+The normal start laws will be chosen later.
+
+There are two requirements for a deterministic cycle. Firstly it must
+converge to a point on the boundary and secondly it must follow the
+right set of greedy policies as it does so. The first condition we
+call the full cycle balance condition and the second the sign-margin
+criterion. These are the subjects of the next two sections.
+
+\subsection{General full-cycle balance equations}
+\label{sec:balance-general}
+We require that, provided the trajectory follows the right policies,
+it converges onto the boundary.
+
+Let $\calZ=\{(s_i,a):1\le i\le13,\ a\in\{\astar,\abar\}\}$ be the set
+of state-action starts.  For phase $j$ in the intended cycle, let
+$S_j$ be the "stay" set, $q_j=q_{S_j}$ its exact action-values, and
+$\nu_j$ its nominal start distribution on $\calZ$. We impose a
+rotational symmetry, that 
+$\nu_{\{s_{i}\}}(s_{i+k},a)$ is a function of $k$ only, so it is only
+necessary to specify one distribution over $\calZ$.
+With
+exploring-starts the  mixture is
+\begin{equation*}
+    \nu_j^{\epsES}=(1-\epsES)\nu_j+\epsES U_{\calZ},
+    \qquad
+    U_{\calZ}(z)={1\over 26}.
+\end{equation*}
+Let $\mu_j^z(s,a)$ be the probability of visiting $(s,a)$ when the episode starts from $z$ and follows policy $S_j$ after the start action.  The phase-$j$ first-visit probability under the perturbed start law is
+\begin{equation*}
+    \mu_j(s,a)=\sum_{z\in\calZ}\nu_j^{\epsES}(z)\mu_j^z(s,a).
+\end{equation*}
+
+For one complete pass through the 26 intended phases, define
+\begin{equation*}
+    B_a(s)=\sum_{j=1}^{26}\mu_j(s,a),
+    \qquad
+    A_a(s)=\sum_{j=1}^{26}\mu_j(s,a)q_j(s,a).
+\end{equation*}
+Here $B_a(s)$ is the expected number of first-visit updates to $(s,a)$ per normal full cycle, and $A_a(s)$ is the corresponding expected return-weighted update mass.
+
+If fractional expected updates are applied over one full cycle, then
+\begin{equation*}
+    N^+(s,a)=N(s,a)+B_a(s)
+\end{equation*}
+and
+\begin{equation*}
+    q^+(s,a)=
+    {N(s,a)q(s,a)+A_a(s)\over N(s,a)+B_a(s)}.
+\end{equation*}
+Equivalently,
+\begin{equation*}
+    q^+(s,a)-q(s,a)
+    ={B_a(s)\over N(s,a)+B_a(s)}
+    \left({A_a(s)\over B_a(s)}-q(s,a)\right).
+\end{equation*}
+Thus the full-cycle target for coordinate $(s,a)$ is $A_a(s)/B_a(s)$.
+
+The boundary cancellation condition asks that, for every state,
+\begin{equation}
+    {A_{\astar}(s)\over B_{\astar}(s)}=
+    {A_{\abar}(s)\over B_{\abar}(s)}=
+    \qhat.
+\label{eq:abstract-balance}
+\end{equation}
+i.e. the target is on the boundary. By rotational symmetry it is enough to impose the scalar equation at one state,
+\begin{equation}
+    F:=A_{\astar}(s_1)B_{\abar}(s_1)-A_{\abar}(s_1)B_{\astar}(s_1)=0,
+\label{eq:abstract-F}
+\end{equation}
+The numerator of $F$ is a high order polynomial in $\tau$ and a low
+order polynomial in each component of $\nu$.
+
+The corresponding count ratio is
+\begin{equation}
+    r={B_{\astar}(s)\over B_{\abar}(s)}.
+\label{eq:abstract-ratio}
+\end{equation}
+Choosing initial counts in this ratio makes the two action coordinates have matching first-order full-cycle learning rates:
+\begin{equation*}
+    {B_{\astar}(s)\over N_0(s,\astar)}=
+    {B_{\abar}(s)\over N_0(s,\abar)}.
+\end{equation*}
+
+\subsection{Phase-sign margin LP}
+\label{sec:sign-margin-lp}
+
+The balance equations center the deterministic cycle on the boundary, but they do not by themselves ensure that the intended greedy policies occur in the right order.  Let
+\begin{equation*}
+    \sigma_j(s)=
+    \begin{cases}
+    +1, & s\in S_j,\\
+    -1, & s\notin S_j.
+    \end{cases}
+\end{equation*}
+At the boundary level $\qhat$, define the scaled expected gap increment in phase $j$ by
+\begin{equation}
+    g_j(s)=
+    \mu_j(s,\abar)\bigl(q_j(s,\abar)-\qhat\bigr)
+    -{\mu_j(s,\astar)\over r}\bigl(q_j(s,\astar)-\qhat\bigr).
+\label{eq:gap-increment}
+\end{equation}
+Let
+\begin{equation*}
+    C_k(s)=\sum_{j<k}g_j(s)
+\end{equation*}
+be the cumulative gap displacement before phase $k$.  The scaled
+initial gap $d_0(s)$ is then chosen by
+\begin{equation}
+\begin{aligned}
+\text{maximize}\quad & \rho,\\
+\text{over}\quad & d_0\in\mathbb R^{13},\ \rho\in\mathbb R,\\
+\text{subject to}\quad
+&\sigma_k(s)\bigl(d_0(s)+C_k(s)\bigr)\ge \rho,
+\qquad k=1,\ldots,26,
+\quad s=s_1,\ldots,s_{13}.
+\end{aligned}
+\label{eq:sign-lp}
+\end{equation}
+A positive optimal value $\rho$ means that the phases are followed in
+the intended order.
+
+The initial points are then placed symmetrically around the boundary:
+\begin{equation*}
+    q_0(s,\astar)=\qhat-{d_0(s)\over 2N_0(s,\abar)},
+    \qquad
+    q_0(s,\abar)=\qhat+{d_0(s)\over 2N_0(s,\abar)}.
+  \end{equation*}
+The factor $1/2$ splits the desired total action gap equally above and below $\widehat q$.
+
+
+
+\subsection{Rotational start search and selected start law}
+\label{sec:start-search}
+The initial search for a suitable start distribution $\nu$ was over a
+wide class of rotationally symmetric distributions. Distributions with
+small support were preferred, as these would avoid adding too much
+extra noise into the full simulations. We started by
+considering all $13^2$ pairs of deterministic starts. For each, we solved
+\eqref{eq:abstract-F} for $\tau$, and for any roots in $(0,1]$ we
+then solved  \eqref{eq:sign-lp} for $\rho$. There were no solutions
+with a positive $\rho$.
+
+We then broadened the search to distributions with a two point support
+in the two-"stay" phases. That is, 
+for offsets $o_1,o_2,o_3$ we set
+\begin{align}
+    \nu_{\{s_i\}}^{(o_1)}
+    &=\delta_{(s_{i+o_1},\abar)},\\
+    \nu_{\{s_i,s_{i-1}\}}^{(o_2,o_3,\lambda)}
+    &=\lambda\delta_{(s_{i+o_2},\abar)}+(1-
+    \lambda)\delta_{(s_{i+o_3},\astar)}.
+\end{align}
+For a fixed triple and trial $\tau$, equation~\eqref{eq:abstract-F} is
+solved for a root $\lambda\in[0,1]$ and then the sign-margin
+LP~\eqref{eq:sign-lp} is evaluated. The $\tau$ which gives the maximum margin $\rho$ is then
+found by gridding. The offsets
+$    (o_1,o_2,o_3)=(-6,+1,-1)$ were chosen as giving a good margin
+with the corresponding $\lambda$ close to 1.
+
+Thus
+\begin{align}
+\nu_{\{s_i\}}&=\delta_{(s_{i-6},\bar a)},\\
+\nu_{\{s_i,s_{i-1}\}}&=\lambda\delta_{(s_{i+1},\bar a)}+(1-
+\lambda)\delta_{(s_{i-1},a_*)}.
+\end{align}
+and the corresponding $\tau$ and $\lambda$ are given by
+\begin{equation*}
+    \tau=0.512333524979486,
+    \qquad
+    \lambda=0.923714016854384.
+\end{equation*}
+The resulting boundary quantities are
+\begin{equation*}
+    \qhat=1.971056244749326
+    \qquad
+    q_*={1\over 1-
+    \gamma\tau}=2.050366396036596
+    \qquad
+    r=2.010039006519156.
+\end{equation*}
+The sign-margin LP gives
+\begin{equation*}
+    \rho=8.527647265071263\times10^{-3}
+  \end{equation*}
+There were no  distributions with a two point support
+in the single-"stay" phases and a one point support in the two-"stay" phases which admitted a positive margin.
+
+Note that this procedure is not specific to the 13 state MDP, it in fact gives a suitable three point start distribution for the corresponding cycle on examples with 5 states and above, although a larger number of states gives a larger margin.
+
+Figure~\ref{fig:spiral} in the main text shows the resulting
+deterministic cycle. Note that the corners of the cycle contract
+linearly towards $(\widehat q,\widehat q)$, and so stay in the right greedy region, thus the cycles will persist indefinitely. The next section confirms this contraction.
+ 
+
+\subsection{Full-cycle linear interpolation toward $\widehat q$}
+\label{sec:linear-interpolation}
+
+Note that the full-cycle balance equations also imply a geometric contraction.  Suppose counts are exactly proportional to the full-cycle masses,
+\begin{equation*}
+    N_0(s,\astar)=c_sB_{\astar}(s),
+    \qquad
+    N_0(s,\abar)=c_sB_{\abar}(s).
+\end{equation*}
+Then after $m$ complete normal cycles,
+\begin{equation*}
+    N_{26m}(s,a)=(c_s+m)B_a(s).
+\end{equation*}
+Using $A_a(s)=\qhat B_a(s)$, the next full-cycle endpoint is
+\begin{align}
+q_{26(m+1)}(s,a)
+&={ (c_s+m)B_a(s)q_{26m}(s,a)+A_a(s) \over (c_s+m+1)B_a(s)}\\
+&={c_s+m\over c_s+m+1}q_{26m}(s,a)+{1\over c_s+m+1}\qhat.
+\end{align}
+Therefore the two-action point
+\begin{equation*}
+    P_m(s)=\bigl(q_{26m}(s,\astar),q_{26m}(s,\abar)\bigr)
+\end{equation*}
+satisfies
+\begin{equation}
+    P_{m+1}(s)=(1-\alpha_m)P_m(s)+\alpha_m(\qhat,\qhat),
+    \qquad
+    \alpha_m={1\over c_s+m+1}.
+\label{eq:linear-interpolation}
+\end{equation}
+Equivalently,
+\begin{equation*}
+    P_m(s)-(\qhat,\qhat)=
+    {c_s\over c_s+m}\bigl(P_0(s)-(\qhat,\qhat)\bigr).
+\end{equation*}
+Thus the full-cycle endpoints move on the line segment toward the boundary point. The intermediate phase points need not lie precisely on this line, but deviate only by order $1/k$.
+\subsection{First-visit probabilities}
+
+Fix an anchor state $s_i$ and write $d=(m-i)\bmod 13$, so $s_m=s_{i+d}$.  Let $\mu_1^\varepsilon$ and $\mu_2^\varepsilon$ denote the perturbed first-visit probabilities in the one-"stay" and two-"stay" phases for the selected start law. The values for the current $\tau$ and $\lambda$ are given in the following table for convenience. 
+\begin{table}[H]
+\centering
+\small
+\caption{Single-phase first-visit probabilities by relative distance $d$ for the tuned $n=13$ start law.}
+\vspace{0.3cm}
+\label{tab:first-visit-probabilities}
+%\resizebox{\textwidth}{!}{%
+\pgfplotstabletypeset[
+  col sep=comma,
+  columns/d/.style={int detect,column name={$d$}},
+  columns/{mu1_move}/.style={sci,sci zerofill,precision=6,column name={$\mu_1^\varepsilon(d,\textup{"move"})$}},
+  columns/{mu1_stay}/.style={sci,sci zerofill,precision=6,column name={$\mu_1^\varepsilon(d,\textup{"stay"})$}},
+  columns/{mu2_move}/.style={sci,sci zerofill,precision=6,column name={$\mu_2^\varepsilon(d,\textup{"move"})$}},
+  columns/{mu2_stay}/.style={sci,sci zerofill,precision=6,column name={$\mu_2^\varepsilon(d,\textup{"stay"})$}},
+  every head row/.style={before row=\toprule,after row=\midrule},
+  every last row/.style={after row=\bottomrule}
+]{figures/first-visit-probabilities.csv}
+\end{table}
+
+
+
+
+
+
+
+\subsection{Sampled recovery strategy}
+\label{sec:recovery-strategy}
+
+The balance equations and margin LP describe the intended normal
+cycle. In the sampled first-visit MC run, however, return noise,
+trajectory noise, and rare exploring starts can move the greedy policy off the intended 26-phase cycle. The simulation therefore has to choose start distributions even when the observed greedy "stay"-set is not one of the intended cycle phases.
+
+Let
+\begin{equation*}
+    S=\{s:q(s,\bar a)>q(s,a_*)\}
+\end{equation*}
+denote the set of states for which the "stay" action is greedy at the start of an update. If $S$ is one of the intended cycle phases, the controller uses the normal start law from Section~\ref{sec:start-search}.
+If $S$ is off-cycle, the rollout policy is the current greedy policy with "stay" set $S$, and the controller chooses from the $26$ state-action starts as follows:
+
+Let the current action gap be
+\begin{equation*}
+    G(s)=q(s,\bar a)-q(s,a_*).
+\end{equation*}
+If $S$ is empty then all $G(s)$ are negative, in this case we choose $s_0=\arg\max_s G(s)$ as the state whose action values are nearest the "move"/"stay" boundary. For other non-cycle phases then for $s_i\in S$ we let $m(s_i)= {\mathbf 1}(s_{i-1}\in M)+ {\mathbf 1}(s_{i+1}\in M)$ denote the number of neighbours of $s_i$ in $S$ and the $S_{\text{min}}=\{s\in S:m(s)=\min m\}$. That is, $S_{\text{min}}$ is the subset of $S$ consisting of the states with the minimum number of neighbours (all operations are modulo 13 and so $s_{1}$ and $s_{13}$ are considered neighbours). Finally we let $s_0=\arg\min_{s\in S_{\text{min}}} G(s)$
+be the "stay" state with the fewest number of "stay" neighbours whose action values are closest to the "move"/"stay" boundary. This guarantees, for example, that if $M$ consists of an adjacent pair and one or more isolated states then one of the isolated states is chosen, and in a run of adjacent states then the two ends are chosen in preference to an internal state. Finally, the starting pair is chosen as the "stay" action in this state $(s_0,\bar a)$, in an attempt to move the action value across the boundary. If successful this would create a "stay" state if $S$ is empty or reduce a "stay" state, moving $S$ closer to to a cycle phase, otherwise. If at the next step $S$ is still not a cycle phase then the process is repeated.      
+
+For the simulations we present, approximately $83.6\%$ of updates are
+normal on-cycle updates, $14.9\%$ are attempted recoveries from the
+optimal all-"move" policy and the remaining $1.5\%$ are recoveries from
+all other non-cycle policies.  
+
+\textit{ChapGPT 5.5 Pro was used to help refine and help code this example. The core simulation was hand-coded.}

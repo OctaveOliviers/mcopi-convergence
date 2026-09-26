@@ -1,0 +1,532 @@
+%!TEX root = ../thesis.tex
+%*******************************************************************************
+%****************************** Third Chapter **********************************
+%*******************************************************************************
+\chapter{Mean-field analysis}
+\label{ch: exact mcopi}
+
+% **************************** Define Graphics Path **************************
+\ifpdf
+    \graphicspath{{Chapter3/Figs/Raster/}{Chapter3/Figs/PDF/}{Chapter3/Figs/}}
+\else
+    \graphicspath{{Chapter3/Figs/Vector/}{Chapter3/Figs/}}
+\fi
+
+
+The previous chapter formulated MC-O-PI as a stochastic difference inclusion, established its basic properties, and reviewed existing convergence results.
+However, these results rely on standard methods that require restricting the update distributions or the optimal policy.
+
+
+This chapter first explains why MC-O-PI is difficult to analyse using standard methods.
+We show that its non-contractive flow, non-vanishing perturbations and non-convex mapping render three major analytical techniques for stochastic difference inclusions inapplicable.
+Nevertheless, the fundamental strategy of these methods, which is to study the unperturbed dynamics, remains an insightful starting point.
+
+
+Therefore, we study the mean-field dynamics that underlie MC-O-PI
+and show that, between transitions, MC-O-PI solutions remain within a shrinking tube of mean-field solutions.
+This coupling suggests that any suboptimal asymptotic behaviour of MC-O-PI must be inherited from its mean-field dynamics, and conversely, that MC-O-PI converges to the optimal action values if all mean-field solutions do.
+
+
+Finally,
+as the convergence of MC-O-PI is closely tied to the mean-field switching dynamics,
+we examine how the update distributions modulate these dynamics,
+and thereby influence MC-O-PI solutions.
+These results form the basis for our analyses in later chapters.
+
+% This clarifies why the choice of update-distributions is central to the asymptotic behaviour of MC-O-PI.
+% which will later enable us to
+% - build more intuitive convergence proofs 
+% - and construct new counterexamples
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Limitations of standard convergence frameworks}
+\label{sec: limitations of existing methods}
+
+This section reviews three standard frameworks for proving convergence of stochastic algorithms: 
+contraction-based analysis, 
+the robust control framework by \cite{Kellett2004SmoothInclusions}, 
+and the stochastic approximation method by \cite{Borkar2000TheLearning}. 
+We show that each of these methods fails to apply to MC-O-PI due to specific structural limitations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Contraction framework}
+
+A standard approach to proving the convergence of reinforcement learning algorithms relies on identifying a contractive map that underlies the mean-field update \citep{Bertsekas2018AbstractProgramming}.
+This ensures that the entire space contracts towards a unique fixed point, and consequently that solutions converge to that point despite stochastic perturbations.
+
+A critical, often implicit, feature of these contractive maps is their continuity. For instance, the mean-field updates of one-step TD-O-PI methods such as $Q$-learning are continuous at the boundaries where the greedy policy changes.
+In other words, if a point $q$ lies on the boundary between regions $\region(\pi_1)$ and $\region(\pi_2)$, 
+the update will be identical whether using the target obtained with $\pi_1$ or $\pi_2$ since $\B_{\pi_1} q = \B_{\pi_2} q = \B q$. As a result, two points that start close together remain close after each update.
+
+In contrast,
+when bootstrapping over more than one step, the update operator is generally discontinuous.
+For $n$-step TD-O-PI or MC-O-PI, even if $q$ sits exactly on the boundary between regions $\region(\pi_1)$ and $\region(\pi_2)$, the multi-step targets generally differ: $\B_{\pi_1}^n q \neq \B_{\pi_2}^n q$ for $n \ge 2$.
+As a result, the mean-field update can cause the space to locally expand around that boundary.
+Put differently, discontinuity of the mean-field updates allows solutions starting infinitesimally close together to diverge, and potentially end up in different limit sets, as in the counterexample of \autoref{sec: existing counter}.
+This effectively rules out contraction-based analysis.
+
+Tsitsiklis' convergence proof for MC-O-PI relies on a contraction argument. While this is a key result, it imposes impractical assumptions on the update distributions in order to identify a contractive map. In general, however, MC-O-PI does not admit a contraction-based analysis because the discontinuous mean-field dynamics can expand portions of the space $\qset$.
+
+% Overall, 
+% this contraction framework does not cover MC-O-PI, because the discontinuous mean-field dynamics can cause the space to expand locally.
+
+% Nevertheless, studying the unperturbed dynamics is a recurrent strategy when analysing stochastic difference inclusions.
+% The following section presents a method from the control field that, unfortunately, also runs into fundamental obstacles when applied to MC-O-PI.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Robustness framework}
+
+In the control literature, \citet{Kellett2004SmoothInclusions, Kellett2007SufficientInclusions} have developed a thorough framework for analysing the robustness of switching difference inclusions.
+Namely, given a set-valued function $F : \xset \rightrightarrows \xset$, Theorem~3 in \citep{Kellett2007SufficientInclusions} establishes that
+if an attractor $x_*$ is globally asymptotically stable for the difference inclusion
+\[
+x_{k+1} \in F(x_k) ,
+\]
+then under appropriate regularity conditions, there exists a continuous function $\delta : \xset \to \real_{\ge 0}$ satisfying $\delta(x)>0$ for all $x \neq x_*$, such that $x_*$ remains globally stable for the perturbed difference inclusion
+\[
+x_{k+1} \in F \bigl(x_k + \delta(x_k)\mathcal B \bigr) + \delta(x_k)\mathcal B ,
+\]
+where $\mathcal B$ denotes the closed unit ball in $\mathcal X$.
+In essence, a globally stable difference inclusion is robust to \textit{some} state-dependent, bounded perturbations.
+
+
+The MC-O-PI update satisfies the outer-semicontinuity required by this framework.
+Thus, Examples 2 and 3 in \citep{Kellett2007SufficientInclusions}
+initially suggest that if the optimal action values $\qopt$ are globally stable for the mean-field difference inclusion, they should be robust to perturbations within a state-dependent radius $\delta(q)$.
+Since the scaled stochastic perturbations $\alpha_k w_k$ decay towards zero, they would seemingly fall within this strictly positive margin $\delta(q)$ for sufficiently large $k$, thereby ensuring that MC-O-PI converges to $\qopt$.
+
+
+Unfortunately,
+this framework does not apply to MC-O-PI because the scaled stochastic perturbations cannot be contained within the perturbation radius described by Kellett and Teel.
+Specifically, this framework treats perturbations as an adversary choosing the worst possible value from the perturbed set at every step.
+Therefore, the perturbation radius must progressively decrease to zero as solutions approach the global attractor.
+For instance, consider a stable linear system in $\mathbb R$:
+\[
+x_{k+1} = x_k + \alpha (x_* - x_k)
+\]
+with $\alpha \in (0,1)$.
+The perturbation radius is bounded by 
+$\delta(x) < \alpha | x_* - x |$,
+otherwise, perturbed solutions
+\[
+x_{k+1} \in x_k + \alpha (x_* - x_k) + \delta(x_k) \mathcal B
+\]
+could consistently move away from the attractor $x_*$.
+As a result, the scaled stochastic perturbations would have to satisfy
+\[
+\alpha |w_k| \le \delta(x_k) < \alpha | x_* - x_k | ,
+\]
+forcing $w_k$ to vanish as $x_k$ approaches $x_*$.
+However, the perturbation $w_k$ in MC-O-PI does not vanish as solutions approach $\qopt$, or any other point in $\qset$.
+
+
+Altogether, this robustness framework is unsuitable for stochastic difference inclusions like MC-O-PI because by choosing to deal with worst-case perturbations, it cannot exploit the temporal averaging that naturally mitigates the cumulative impact of stochastic perturbations in MC-O-PI.
+The next section presents a framework that exploits this property, but still cannot handle MC-O-PI due to additional convexity requirements.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stochastic approximation framework}
+
+Generalisations of the Borkar-Meyn Theorem \citep{Benaim2005StochasticInclusions, Ramaswamy2017AInclusions, Perkins2012AsynchronousInclusions}
+show that, given a set-valued function $F : \xset \rightrightarrows \xset$, solutions of the stochastic difference inclusion
+\begin{align*}
+    x_{k+1} \in \big\{ x_k + \alpha_k ( f + w_k ) : f \in F(x_k) \big\} 
+\end{align*}
+converge almost surely to an equilibrium $\best{x}$,
+provided $\best{x}$ is the global equilibrium of the mean-field differential inclusion that arises when the stochastic perturbations are averaged out and the learning rate approaches zero:
+\begin{align*}
+    \dot{x}(t) \in F(x(t)) .
+\end{align*}
+In other words, under suitable assumptions, the global stability of a difference inclusion is robust to martingale difference noise and unaffected by the specific sequence of learning rates.
+This result typically simplifies analysis and simulation. 
+It generalises the Borkar-Meyn Theorem \citep[Theorem~2.2]{Borkar2000TheLearning}, which itself was inspired by the ODE method developed in the 1970s by~\cite{Derevitskii1974TwoAlgorithms} and \cite{Ljung1977AnalysisAlgorithms}.
+
+
+Unfortunately, the following example demonstrates that the general Borkar-Meyn Theorem does not apply to MC-O-PI.
+The core issue is that the set $F(x)$ must be convex for every $x \in \xset$ to ensure that solutions of the differential inclusion are well defined. However, the difference inclusion defined in \eqref{eq: complete difference inclusion} underlying MC-O-PI is not convex. 
+Convexifying the inclusion does not resolve the issue because the resulting differential inclusion can have suboptimal limit sets even though solutions of the original stochastic difference inclusion converge almost surely to the optimal action values.
+
+Consider the MDP in \autoref{fig: convex combi} with reward function $r$ and discount factor $\discount$.
+% Each state offers four actions, each leading to one of the four states.
+When running MC-O-PI, let us initialise each episode in any of the 16 state-action pairs with equal probability.
+This sampling strategy, combined with initial-visit updates, yields uniform update distributions.
+After specifying a sequence of learning rates $(\lrate_k)_{k \ge 0}$ that satisfies the Robbins-Monro conditions, we obtain the stochastic difference inclusion
+\begin{multline}
+\label{eq: ex no borkar meyn}
+    q_\kpo
+    \in
+    \Big\{ 
+    q_k + \lrate_k \left( \dfrac{1}{16} ( q_{\pol_k} - q_k) + w_k \right) 
+    :
+    \\
+    \pol_k \in \grpol(q_k),
+    w_k \sim w(\onefun/16, \pol_k, f_{IV})
+    \Big\} .
+\end{multline}
+The differential inclusion that results from taking the convex hull, averaging out the noise and decreasing the learning rate to zero is
+\begin{align}
+\label{eq: convex differential inclusion}
+    \Dot{q} &\in \conv \big\{ \qpol - q : \pol \in \grpol(q) \big\} .
+\end{align}
+Given that for all policies $\pol, \pol' \in \grpol(q)$, the Bellman operators 
+% introduced in 
+satisfy $\B_\pol q = \B q = \B_{\pol'} q$ (\autoref{def: bellman operators}),
+inclusion \eqref{eq: convex differential inclusion} is equivalent to
+\begin{align*}
+    \Dot{q} 
+    &\in \conv \big\{ \qpol - q : \pol \in \grpol(q) \big\} 
+    \\
+    &= \conv \big\{ (\I + \discount \T_\pol + \discount^2 \T_\pol^2 + \cdots) r - q : \pol \in \grpol(q) \big\}
+    \\
+    &= \conv \big\{ (\I - \discount \T_\pol)\inv r - q : \pol \in \grpol(q) \big\}
+    \\
+    &= \conv \big\{ (\I-\discount \T_\pol)\inv ( r - (\I-\discount \T_\pol) q ) : \pol \in \grpol(q) \big\}
+    \\
+    &= \conv \big\{ (\I-\discount \T_\pol)\inv ( \B_\pol q - q) : \pol \in \grpol(q) \big\} 
+    \\
+    &= \conv \big\{ ( \I-\discount \T_\pol)\inv : \pol \in \grpol(q) \big\} ( \B q - q )
+\end{align*}
+Thus if there exists a point $q \in \qset$ where an element of the convex set 
+\begin{align}
+\label{eq: comvex combi of inverses}
+    \conv \big\{ ( \I-\discount \T_\pol)\inv : \pol \in \grpol(q) \big\}
+\end{align}
+has a non-empty null space,
+then the right-hand side of \eqref{eq: convex differential inclusion} includes zero, 
+making $q$ a suboptimal fixed point of the differential inclusion.
+
+\input{figures/22/convex-combi-on-boundary}
+
+For example, 
+take any point $q$ on the boundary between the regions of policies $\pol_1$, $\pol_2$ and $\pol_3$ depicted in \autoref{fig: convex combi}.
+With $\discount = 0.9$, the determinant of \eqref{eq: comvex combi of inverses} is positive with weights $(\lambda_1, \lambda_2, \lambda_3) = (0.2, 0.2, 0.6)$, 
+but negative with $(\lambda_1, \lambda_2, \lambda_3) = (0.3, 0.4, 0.3)$.
+Since the determinant is a continuous function,
+% the Intermediate Value Theorem indicates that 
+there exists a convex combination that yields a zero determinant and accordingly a non-empty null space.
+After finding this singular convex combination using the bisection method with the given weights, we extract the eigenvector $e$ associated with the zero eigenvalue and compute the reward as
+% \begin{align*}
+$r = e + (\I - \discount \T_{\pol_1}) q$.
+% \end{align*}
+We then obtain an MDP where the differential inclusion \eqref{eq: convex differential inclusion} has a suboptimal fixed point on the boundary between the regions of policies $\pol_1$, $\pol_2$ and $\pol_3$,
+even though \autoref{thm: tsitsiklis convergence proof} proves that solutions of the difference inclusion \eqref{eq: ex no borkar meyn} converge almost surely to $q_{\best{\pol}}$.
+
+This pathology is not limited to isolated equilibria. For instance, when the convexified differential inclusion has multiple fixed points on the same boundary,
+any convex combination of these points is also a fixed point, creating a compact set where solutions can oscillate indefinitely.
+% even though MC-O-PI converges almost surely to the optimal action values.
+
+
+Altogether, extensions of the Borkar-Meyn theorem guarantee that MC-O-PI converges almost surely to a limit set of the convexified mean-field differential inclusion \citep[Proposition~1.3, Theorem~3.6]{Benaim2005StochasticInclusions}.
+However, this required convexification introduces spurious limit sets that are artifacts of the continuous-time approximation rather than genuine features of the algorithm.
+
+
+The combined stability-ODE method relaxes the global convexity requirement of the general Borkar-Meyn Theorem to a compact subset \cite[Section~5.4]{Kushner2003StochasticApplications}.
+If MC-O-PI visits that subset infinitely often, then, asymptotically, it follows mean-field solutions over that set.
+However, the lock-in phenomenon at the core of this argument requires
+continuity of the limiting ODE over a fixed enlargement of the subset under consideration \citep[Theorem 2.1]{Borkar2002OnApproximation}.
+Consequently, it is not sufficient that MC-O-PI solutions visit the region of a particular policy infinitely often. Instead, solutions must visit a fixed compact interior of that region infinitely often.
+Since decreasing learning rates cause successive entries into a policy’s region to occur closer and closer to its boundary,
+this method misses a way to establish that MC-O-PI solutions cover the gap between the boundary and a fixed compact interior of a policy's region infinitely often.
+
+
+The proof in the next chapter addresses this issue.
+We will first build a mechanism that ensures solutions move away from boundaries despite starting closer and closer,
+and then exploit the lock-in phenomenon 
+% described by \cite{Borkar2002OnApproximation, Borkar2003AvoidanceApproximation} 
+to derive convergence to the optimal action values. 
+
+
+% These include suboptimal points where the zero vector lies in the convex hull of update directions and persistent cycles formed by sliding modes. 
+% Consequently, proving MC-O-PI's global convergence via this route requires ruling out additional limit sets that are artefacts of the method rather than the problem itself.
+
+% cannot use this framework of ODE method,
+% or the generalisations by \cite{Perkins2012AsynchronousInclusions, Ramaswamy2017AInclusions} because is not convex
+% cannot use \cite{Liu2025TheNoise} because is not lipschitz
+
+% if we make the MC-O-PI inclusion convex to satisfy the conditions of the General Borkar-Meyn Theorem,
+% then $q_{\best{\pol}}$ is not always the unique fixed point of the corresponding differential inclusion, which invalidates the application of the theorem.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MC-O-PI tracks reinitialised mean-field solutions}
+\label{sec: track mean field}
+
+Although MC-O-PI's non-contractive flow, non-vanishing noise and non-convex mapping render standard convergence frameworks inapplicable,
+their common principle remains relevant: studying the unperturbed system reveals essential properties of the stochastic solutions.
+This section establishes a structural link between MC-O-PI and mean-field solutions. This link will provide critical insights into the algorithm's switching behaviour, forming the basis for our convergence analysis.
+
+First, observe that if the target action values $q_{\pi_k}$ in \eqref{eq: complete difference inclusion} were fixed, MC-O-PI would reduce to a stable linear system perturbed by noise.
+Solutions would thus converge almost surely to that target under the modified Robbins-Monro conditions (see \autoref{sec: modified robbins monro conditions}).
+% and the unbiased stochastic perturbations with bounded conditional variance.
+Therefore, the asymptotic behaviour of MC-O-PI hinges on how these target action values change over time.
+To isolate these changes, we introduce transition times.
+
+\begin{definition}[Transition times]
+\label{def: transition times}
+Given a sequence of policies $(\pi_k)_{k \ge 0}$,
+define the transition times $(t_n)_{n \ge 0}$ as
+\begin{align*}
+t_0 &\coloneqq 0 ,
+\\
+t_{n+1} &\coloneqq \inf\{k>t_n : q_{\pi_k} \neq q_{\pi_{t_n}} \},
+\end{align*}
+with the convention that $\inf \varnothing = \infty$.
+Thus, if $t_n = \infty$, then $t_{n+i} = \infty$ for all $i \ge 1$.
+These times decompose the sequence $(\pi_k)_{k \ge 0}$ into blocks of constant action values, such that $q_{\pi_k} = q_{\pi_{t_n}}$ for all $k \in \{t_n, \dots, t_{n+1}-1 \}$.
+\end{definition}
+
+\vspace{-0.6cm}
+
+Clearly, if $\pi_{t_n}$ is suboptimal, then $t_{n+1}<\infty$.
+Otherwise the target would remain equal to \(q_{\pi_{t_n}}\) forever, forcing convergence to \(q_{\pi_{t_n}}\).
+However, a suboptimal policy is not greedy with respect to its own action values.
+Thus no solution can get arbitrarily close to $q_{\pi_{t_n}}$ without causing the greedy policy to improve. Therefore no suboptimal block can persist indefinitely.
+
+Consequently, if there exists a finite index $n$ such that $t_{n} = \infty$, the associated solution converges to the action values of the last bounded transition time, which must be optimal.
+Conversely, any suboptimal asymptotic behaviour requires an infinite sequence of bounded transition times.
+
+
+Using the transition times, we define reinitialised mean-field solutions that follow the mean-field dynamics with frozen target $q_{\pi_{t_n}}$ during the interval $\{t_n, \dots, t_{n+1}-1\}$, and are reinitialised at the next transition time.
+
+\begin{definition}[Reinitialised mean-field solutions]
+\label{def: reinitialised mean field}
+Let $(q_k)_{k \ge 0}$ and $(\pi_k)_{k \ge 0}$ be generated by MC-O-PI with learning rates $(\lrate_k)_{k \ge 0}$ and update distributions $(\update_k)_{k \ge 0}$.
+Let $(t_n)_{n \ge 0}$ be the associated transition times.
+We define the reinitialised mean-field solution $(\bar q_k)_{k\ge 0}$ associated with $(q_k)_{k \ge 0}$ as
+\begin{subequations}
+\label{eq: deterministic reinitialised mcopi}
+\begin{align}
+    \bar q_{t_n} &:= q_{t_n}  &&\forall \, n\ge 0,\\
+    \bar q_{k+1} &:= \bar q_k + \alpha_k \mu_k ( q_{\pi_{t_n}} - \bar q_k)
+    &&\forall \, k \in \{t_n,\dots,t_{n+1}-1\}.
+    % \bar q_{k+1}
+    % \coloneqq
+    % \begin{cases}
+    %     \, q_{k+1} &\text{if } (k+1) \in \{t_n : n \ge 0\}
+    %     \\
+    %     \, \bar q_k + \alpha_k \mu_k ( q_{\pi_{t_n}} - \bar q_k) &\text{otherwise}
+    % \end{cases}
+\end{align}
+\end{subequations}
+\end{definition}
+\vspace{-0.6cm}
+
+This definition ensures that the stochastic solution $q_k$ remains within a shrinking distance of $\bar q_k$.
+
+\begin{lemma}
+\label{thm: shrinking epsilon tube around deterministic solution}
+Let $(q_k)_{k\ge 0}$ be any solution of MC-O-PI (\autoref{def: mcopi}),
+let $(t_n)_{n \ge 0}$ be the associated transition times (\autoref{def: transition times}),
+and let $(\bar q_k)_{k\ge 0}$ be the associated reinitialised mean-field solution (\autoref{def: reinitialised mean field}).
+If the learning rates $(\alpha_k)_{k \ge 0}$ and the update distributions $(\mu_k)_{k \ge 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}),
+then for every $\epsilon>0$, there exists an almost surely finite time $K$ such that for every transition time $t_n$ satisfying $K \le t_n<\infty$,
+\[
+\sup_{t_n \le k < t_{n+1}} \|q_k - \bar q_k \|_\infty \le \epsilon .
+\]
+\end{lemma}
+% \vspace{-0.cm}
+\begin{proof}
+% For every time $k \in \{t_n, \dots, t_{n+1}-2\}$,
+The error $e_k := q_k - \bar q_k$ satisfies
+\begin{align}
+\label{eq: error dynamics}
+e_{k+1} = (\I -\alpha_k \mu_k) e_k + \alpha_k w_k ,
+\end{align}
+while being reinitialised to zero at every transition time.
+Let $\tilde{e}_k$ denote the solution of \eqref{eq: error dynamics} without reinitialisations.
+The error $e_k$ can then be expressed as 
+\[
+e_k = \tilde{e}_k - \Gamma(t_n, k) \tilde{e}_{t_n}
+\]
+for every time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+where $\Gamma(t_n, k) = \prod_{i=t_n}^{k-1} (\I - \alpha_i \mu_i)$.
+By assumption, $0 \le \alpha_k \mu_k(s,a) < 1$ for every time $k$ and every pair $(s,a)$. As a result $\| \Gamma(t_n, k) \| \le 1$, and hence $\|e_k\| \le \|\tilde{e}_k\| + \|\tilde{e}_{t_n}\|$.
+
+
+Given that the perturbations $(w_k)_{k \ge 0}$ form a martingale difference sequence (\autoref{thm: properties of noise}),
+% and \autoref{thm: bounded limit sets},
+Example~4.3 in \citep{Bertsekas1996Neuro-DynamicProgramming} guarantees that
+% under the modified Robbins-Monro conditions, 
+$\lim_{k \to \infty} \|\tilde{e}_k\| = 0$ almost surely.
+As a result,
+for every $\epsilon > 0$, there exists an almost surely finite time $K$ such that $\|\tilde{e}_k\| \le \epsilon/2$ for every $k \ge K$.
+Consequently, for every transition time that satisfies $K \le t_n < \infty$ and every $k \in \{t_n, \dots, t_{n+1} -1\}$, the accumulated error between reinitialisations is bounded by $\epsilon$:
+\[
+\sup_{t_n \le k < t_{n+1}} \|q_k - \bar{q}_k\|_\infty
+\le
+\sup_{k \ge t_n} \|\tilde e_k\|_\infty + \|\tilde e_{t_n}\|_\infty 
+\le
+\epsilon .
+\]
+\end{proof}
+
+Any suboptimal asymptotic behaviour of MC-O-PI requires infinitely many transitions. In this regime, \autoref{thm: shrinking epsilon tube around deterministic solution} guarantees that, in the limit, the algorithm remains arbitrarily close to the reinitialised mean-field solution.
+This coupling suggests that any suboptimal limit set of MC-O-PI must be inherited from the mean-field dynamics and, conversely, that MC-O-PI converges to the optimal action values if all mean-field solutions do.
+As a result, MC-O-PI's asymptotic behaviour depends on the mean-field switching dynamics.
+The following section therefore investigates these switching dynamics,
+specifically how they are shaped by the choice of update distributions.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Update distributions shape switching dynamics}
+\label{sec: update bias control behaviour}
+
+% as on \pageref{page: description of switched system}
+
+Consider two policies $\pi, \pi' \in \polset$ whose regions $\region(\pi)$ and $\region(\pi')$ share a boundary.
+Take any point $q$ on that boundary and update it using the mean-field dynamics under policy $\pi$. We obtain
+\begin{align}
+\label{eq: definition of q+ bias section}
+    q_+ 
+    =
+    q + \lrate \update (q_\pi - q) .
+\end{align}
+\autoref{fig: explain effect of bias on boundary} 
+depicts the boundary between regions $\region(\pi)$ and $\region(\pi')$ in blue, and the streamlines of \eqref{eq: definition of q+ bias section} over $\region(\pi)$ for small $\lrate$ in grey.
+The figure illustrates how 
+the bias in the update distribution $\mu$
+and the position of the action values $q_\pi$
+affect the mean-field in region $\region(\pi)$, and consequently also the switching dynamics on one side of the boundary.
+
+Specifically, the greedy policy $\pol_+ \in \grpol(q_+)$ remains equal to $\pol$ where the flow pulls boundary points into region $\region(\pi)$.
+Formally, this occurs where the step $\update (q_\pi - q)$ points to $\region(\pi)$ or, equivalently, where
+\begin{align*}
+    \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol) ) 
+    >
+    \update(s, \pol') ( q_{\pol}(s, \pol') - q(s, \pol') ) .
+\end{align*}
+On the other hand, $\pol_+$ switches to $\pol'$ where the flow pushes boundary points into $\region(\pi')$.
+This occurs where
+\begin{align*}
+    \update(s, \pol) ( q_{\pol}(s, \pol) - q(s, \pol) ) 
+    <
+    \update(s, \pol') ( q_{\pol}(s, \pol') - q(s, \pol') ) .
+\end{align*}
+The following lemma derives these inequalities formally.
+
+\input{figures/23/effect-bias}
+
+\input{theorems/22-deterministic/all-inequalities-when-switching-policy}
+
+\autoref{thm: all inequalities when switching policy} formalises the impact of the update distribution $\mu$ and the action values $q_\pi$ on the switching dynamics at any point on a boundary.
+Specifically, verifying the inequalities with an alternative action $a \neq \pi(s)$ for $\pi_+(s)$ indicates the local direction of the step $\mu(q_\pi-q)$ and thus whether that action is pushed to become greedy at $q$.
+
+% While $q_\pi$ is an intrinsic property of the MDP, 
+% the update distribution $\mu$ is a design parameter.
+% Thus the choice for the relative update probabilities of different actions controls the switching dynamics of MC-O-PI.
+% This choice fundamentally reflects the exploration-exploitation trade-off.
+% Exploitation prioritises updating actions with the highest current estimated value, which biases the update distributions towards the current greedy actions.
+% Exploration on the other hand favours actions whose current estimated value is most uncertain, due to for instance fewer updates.
+% Standard strategies provide concrete instances of this mechanism. For example, the epsilon-greedy approach with a decaying schedule starts with uniform update distributions,
+% whereas the UCB-method initially favours actions that have received few updates.
+% As the algorithm progresses, both methods progressively shift towards greedy update distributions.
+
+
+When $q_\pi$ and $\mu$ are fixed, \autoref{thm: all inequalities when switching policy} allows us to deduce the sign of the advantage of consecutive policies:
+\begin{align*}
+    a_{\pol}(s, \pol_+) = q_{\pol}(s, \pol_+) - q_{\pol}(s, \pol)
+\end{align*}
+from the position of $q$ relative to $q_\pol$, and vice versa.
+For instance,
+suppose that $q$ lies on the boundary between policies $\pi$ and $\pi'$ in state $s$, 
+that the mean-field dynamics point to region $\region(\pol')$, and that updates are biased towards action $\pol'(s)$,
+i.e. $\pol_+(s) = \pol'(s)$ and $\update(s, \pol) < \update(s, \pol')$.
+As shown in \autoref{fig: effect of bias 3},
+if $q$ approaches $q_\pol$ from above, i.e. $q(s, \pol') > q_{\pol}(s, \pol')$,
+inequality (2) of \autoref{thm: all inequalities when switching policy} implies that $q_{\pol}(s, \pol') > q_{\pol}(s, \pol)$.
+In other words, if the policy changes in state $s$ from $\pi$ to $\pi'$ while the update distribution $\update$ is biased towards $\pi_+(s)$ and $q$ approaches $q_\pol$ from above, the expected return of $\pi_+(s)$ under policy $\pol$ is larger than that of action $\pol(s)$.
+Conversely, as illustrated in \autoref{fig: effect of bias 1}, if the return of $\pi_+(s)$ under policy $\pol$ is smaller than that of action $\pol(s)$, inequalities (1) and (2) of \autoref{thm: all inequalities when switching policy} show that $q$ approaches $q_\pol$ from below, i.e. $q(s, \pol) < q_{\pol}(s, \pol)$ and $q(s, \pol') < q_{\pol}(s, \pol')$.
+
+
+While such observations provide valuable information about the current update from $q$ to $q_+$ and from $\pol$ to $\pol_+$,
+they are insufficient to establish convergence.
+A convergence proof requires identifying the implications of the current update on subsequent ones, specifically by linking the inequalities in \autoref{thm: all inequalities when switching policy} at consecutive time steps.
+This requires relating the action values of consecutive policies without knowing which policy the solution transitions to.
+The following lemma and its contraposition address this challenge by characterising the structure of the action values for any pair of policies.
+
+\input{theorems/23-bias/general-pit}
+
+% \vspace{-0.1cm}
+
+Contraposition of \autoref{thm: general PIT} yields the following useful result.
+
+\input{theorems/23-bias/contra-general-pit}
+
+\vspace{-0.5cm}
+
+\autoref{thm: contra general pit} establishes a structural link between the action values of consecutive policies:
+if an MC-O-PI solution transitions from policy $\pi$ to $\pi'$ and $q_\pi \neq q_{\pi'}$,
+then there exists at least one state $s$ where $q_{\pol}$ and $q_{\pol'}$ lie on the side of the boundary that corresponds to the policy with the highest expected return in $s$.
+
+Assuming a small learning rate such that $q$ and $q_+$ are close,
+and known update distributions $\mu$ in $\region(\pi)$ and $\mu'$ in $\region(\pi')$,
+we can use this structural property to trace a chain of geometric implications.
+Namely, consider a state where $q_\pi$ and $q_{\pi'}$ satisfy \eqref{eq: contra pit}, and thus lie in region $\region (\pi)$.
+A switch from $\pi$ to $\pi'$ indicates that the mean-field update $\mu(q_\pi - q)$ points to region $\region(\pi')$.
+This direction reveals the position of $q$ relative to $q_{\pol}$, using \autoref{thm: all inequalities when switching policy} and inequality \eqref{eq: contra pit aval pi}.
+Combining this with the known relative positions of $q_\pi$ and $q_{\pol'}$, we can locate the new estimate $q_+$ relative to $q_{\pol'}$.
+Using \autoref{thm: all inequalities when switching policy} and inequality \eqref{eq: contra pit aval pi'} then yields the direction of the subsequent update $\mu'(q_{\pi'} - q_+)$. 
+Together, $\mu(q_\pi - q)$ and $\mu'(q_{\pi'} - q_+)$ then allow us to deduce the future behaviour of the solution.
+
+Depending on the bias in $\mu$ and $\mu'$, this dynamic leads to different outcomes.
+For instance, suppose update distributions are strongly biased towards non-greedy actions, as depicted in \autoref{fig: explain effect of bias both sides boundary a}.
+A switch from region $\region(\pi)$ (below the boundary) to region $\region(\pi')$ (above the boundary) indicates that $q < q_\pi$.
+The subsequent update in $\region(\pi')$ either pulls $q_+$ deeper into $\region(\pi')$ or pushes it back to the boundary, into a sliding mode.
+In either case, the solution eventually converges to a fixed point on the boundary.
+
+Conversely, if update distributions are strongly biased towards greedy actions, as in \autoref{fig: explain effect of bias both sides boundary b}, a switch from region $\region(\pi)$ to region $\region(\pi')$ implies that $q > q_\pi$, and thus $q_+ > q_{\pi'}$.
+In this scenario, the flow in $\region(\pi')$ consistently pushes $q_+$ back to the boundary, forming a sliding mode.
+As the greedy policy oscillates between $\pi$ and $\pi'$, the solution progressively slides down the boundary until it exits the sliding mode and converges to $q_\pi$.
+
+The following chapters formalise this analysis for different types of update distributions and examine the implications on the sequences $(q_k)_{k \ge 0}$ and $(\pol_k)_{k \ge 0}$ generated by MC-O-PI.
+
+\vspace{0.8cm}
+\input{figures/23/bias-both-sides}
+
+
+\begin{remark}
+    \autoref{thm: general PIT} offers new insights on MDPs and the structure of their value functions.
+    % For instance, equations \eqref{eq: v diff as discounted sum pol} and \eqref{eq: v diff as discounted sum pol'} imply that the difference 
+    % state with maximum difference in value function is state where policy differ 
+For instance, the lemma generalises the \hyperref[thm: policy improvement theorem]{Policy Improvement Theorem} by showing that policies can be ordered based only on the difference of value functions in states where they differ.
+This difference can be computed using one policy's value function for some states, and the other's for the rest.
+Additionally, the recursions derived in the proof 
+% of \autoref{thm: general PIT}
+% equations \eqref{eq: v diff as discounted sum pol} and \eqref{eq: v diff as discounted sum pol'}
+reveal that, with minor modifications, the advantage values and the discounted future-state distribution in the Performance Difference Lemma of \citet{Kakade2002ApproximatelyLearning} can be computed using any policy because we can use either recursion at every step when expanding the sum.
+% Most importantly, \autoref{thm: general PIT} has a corollary that establishes a connection between the action values of different policies in the same state.
+\end{remark}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+Chapter 3 showed that the convergence properties of MC-O-PI are strongly tied to the mean-field switching dynamics.
+These dynamics primarily depend on the update distributions.
+Therefore, the remainder of this thesis explores how bias in the update distribution impacts the solutions of MC-O-PI.
+Along the way, we derive new convergence proofs and build new counterexamples.
+
+
+% indicate that the evolution of the policy depends on three factors: 
+% (1) the position of the action values relative to the boundary,
+% (2) where the algorithm crosses the boundary relative to the action values,
+% and (3) the bias in the update distribution.
+% When running MC-O-PI, we cannot modify the first factor or predict the second one. 
+% We can only control the update distribution by choosing particular start distributions and update functions.
+% Therefore study the evolution of the sequences for different types of update distribution
+
+
+% Therefore, we study the convergence of MC-O-PI in the remainder of this work through the deterministic difference inclusion that arises when averaging out the noise.
+% % simpler analysis
+% This approach highlights essential properties of MC-O-PI by removing the obfuscating effects of noise
+% % simpler simulations
+% It also enables faster simulations as all state-action pairs can be updated synchronously.
+% % no need to sample state-actions at the beginning of each episode
+% Moreover, as we discuss in the next chapter, this method allows us to relate the evolution of the action values $(q_k)$ to the evolution of the policies $(\pol_k)$, leaving us the choice between either sequence when studying the convergence of MC-O-PI.
+
+
+\clearpage

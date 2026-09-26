@@ -1,0 +1,57 @@
+\section{Results}
+\label{sec: results}
+
+
+% \textcolor{red}{remove references to asp 2}
+
+Experiments show that initial-visit MC-O-PI can converge to suboptimal solutions under arbitrary update distributions, even when the Robbins–Monro 
+and strict exploring-starts conditions hold.
+% \citep[Example~5.12]{Bertsekas1996Neuro-DynamicProgramming}.
+% \textcolor{red}{+ cite our neurips submission - GV I don't think we should, the chronology is this paper preceeds neurips (the story was decided, and most of it was written, before) }.
+For instance, if at every step the actions associated with the current greedy policy are updated significantly less frequently than non-greedy actions, stable suboptimal equilibria can emerge even on the boundary of the optimal policy region.
+% These equilibria effectively attract and stall MC-O-PI solutions.
+This section shows that uniform update distributions prevent such issues because the mean-field dynamics then generate monotonically improving policies.
+As a result, MC-O-PI converges to the optimal action values $\qopt$.
+
+This result extends the guarantees of \citet{Tsitsiklis2002OnIteration}, \citet{Chen2018OnProblem} and \citet{Liu2021OnStarts} to a broader and more practical class of update distributions.
+Specifically, while they prove convergence to optimality when updates are \textit{uniform over all state-action pairs}, we show that it remains true when updates are only \textit{uniform over all actions in each state}.
+
+\begin{definition}[Uniform updates over all state-action pairs]
+\label{asp: unbiased tsitsiklis}
+The update distribution $\update$ is uniform over all state-action pairs
+if for all states $s, s' \in \sset$ and actions $a \in \aset(s)$ and $a' \in \aset(s')$, we have
+\begin{align*}
+    \mu(s, a) = \mu(s', a') .
+\end{align*}
+\end{definition}
+
+\begin{definition}[Uniform updates over actions in each state]
+\label{asp: unbiased over policies}
+The update distribution $\update$ is uniform over all actions in each state,
+if for every state $s \in \sset$ and all actions $a, a' \in \aset(s)$
+\begin{align*}
+    \mu(s, a) = \mu(s, a') .
+\end{align*}
+\end{definition}
+
+\autoref{asp: unbiased over policies} generalises \autoref{asp: unbiased tsitsiklis} because it allows updating different states at different frequencies.
+For instance, under initial-visit updates, the initial state of each episode can now be sampled according to \textit{any} distribution provided the initial action in that state is sampled uniformly.
+This additional flexibility disrupts Tsitsiklis' proof as the essential commutation step fails \citep[p.~64]{Tsitsiklis2002OnIteration}.
+% However, we show that MC-O-PI still converges to the optimal solution.
+
+This weaker condition is more practical for real-world applications, in particular when the state-space is large.
+For instance, chess has $O(10^{45})$ different board layouts but only $O (10^1)$ legal moves per layout.
+Uniformly sampling over the joint state-action space is thus not feasible, but sampling an action uniformly from a chosen state is straightforward.
+Henceforth, \textit{uniform updates} refers to \autoref{asp: unbiased over policies} rather than \autoref{asp: unbiased tsitsiklis}.
+
+
+We first demonstrate that the mean-field dynamics under uniform updates generate monotonically improving policies.
+We then show that the stochastic perturbations in MC-O-PI cannot consistently prevent this improvement, and hence that MC-O-PI converges to the optimal action values.
+Since the non-contracting, discontinuous and non-convex MC-O-PI dynamics preclude using classical methods, we derive convergence from first principles.
+
+
+\input{results/1-mean-field}
+
+\input{results/2-probability-to-improve}
+
+\input{results/3-convergence}

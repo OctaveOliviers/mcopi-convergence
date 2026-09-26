@@ -1,0 +1,41 @@
+\begin{lemma}
+\label{thm: switching state}
+For any policies $\pol$ and $\pol'$, it holds that
+\begin{align}
+    &s = \argmin_{s' \in \sset} \sval_{\pol}(s') - \sval_{\pol'}(s')
+    \ \implies \
+    \pol(s) \neq \pol'(s) \\
+    &s = \argmax_{s' \in \sset} \sval_{\pol}(s') - \sval_{\pol'}(s')
+    \ \implies \
+    \pol(s) \neq \pol'(s)
+\end{align}
+\textcolor{red}{only if minimum is negative and if maximum is positive}
+if $v_\pol > v_{\pol'}$ then the minimum could be in a state where the policies are the same.
+\end{lemma}
+\begin{proof}
+For any policies $\pol$ and $\pol'$, 
+let the set $\sset_{=}$ contain the states $s$ where $\pol(s) = \pol'(s)$,
+and the set $\sset_{\neq}$ contain the states $s$ where $\pol(s) \neq \pol'(s)$.
+
+Take any state $s$ where $\pol(s) = \pol'(s)$, then
+\begin{align*}
+    \sval_{\pol}(s) - \sval_{\pol'}(s) 
+    &= 
+    \reward(s, \pol(s)) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol(s)) \sval_{\pol}(s_+) \\
+    & \shoveright{ - \reward(s, \pol'(s)) + \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol'(s)) \sval_{\pol'}(s_+) }
+    \\
+    &= \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol(s)) ( \sval_{\pol}(s_+) -\sval_{\pol'}(s_+) )
+    % \\
+    % &> \discount \min_{s' \in \sset} \sval_{\pol}(s') - \sval_{\pol'}(s')
+\end{align*}
+As a result, it is possible to write the difference $v_$
+
+Similarly, for any state $s$ where $\pol(s) = \pol'(s)$
+\begin{align*}
+    \sval_{\pol}(s) - \sval_{\pol'}(s) 
+    &= \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol(s)) ( \sval_{\pol}(s_+) -\sval_{\pol'}(s_+) )
+    \\
+    &< \discount \max_{s' \in \sset} \sval_{\pol}(s') - \sval_{\pol'}(s')
+\end{align*}
+
+\end{proof}

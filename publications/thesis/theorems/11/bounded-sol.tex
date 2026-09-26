@@ -1,0 +1,23 @@
+\begin{corollary}
+\label{thm: solution of mcopi is bounded}
+    If the learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}),
+    then for every solution $(q_k)_{k \geq 0}$ of MC-O-PI, as defined in \eqref{eq: complete difference inclusion}, there exists almost surely a constant $c \in \real_{\geq 0}$ such that
+    \begin{align}
+        \| q_k \|^2 < c
+    \end{align}
+    for all $k \geq 0$.
+\end{corollary}
+\begin{proof}
+    Consider any bounded initial condition $q_0 \in \qset$.
+    By assumption, the action values of all policies are bounded.
+    Furthermore, \autoref{eq: properties of noise} establishes that the variance of $\update_k w_k$ is bounded.
+    Therefore, if $q_k$ is bounded, the update $\lrate_\kpz \update_k ( q_{\pol_k} - q_k + w_k )$ is bounded, and consequently $q_\kpo$ is bounded.
+    \autoref{thm: bounded solution} then shows that the sequence $(q_k)$ does not grow indefinitely as it establishes that for every $\epsilon>0$, there exists almost surely a time step $K$ such that
+    \begin{align*}
+        q_{\worst{\pol}} - \epsilon \onefun \leq q_k \leq q_{\best{\pol}} + \epsilon \onefun 
+    \end{align*}
+    for all $k \geq K$.
+    As a result, the solution is bounded from zero to $K$ and from $K$ to infinity with probability one.
+    Thus, there exists almost surely a constant $c \in \real_{\geq 0}$ such that $\| q_k \|^2 < c$
+    for all $k \geq 0$.
+\end{proof}

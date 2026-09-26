@@ -1,0 +1,15 @@
+\begin{definition}[Greedy bias]
+\label{asp: on-policy bias}
+For a deterministic policy $\pol \in \polset$,
+the update distribution $\update$
+% obtained with policy $\pol$ 
+% $= \update(\dot, \pol, \cdot)$ 
+% is biased in state $s$ towards the greedy action $\pol(s)$ 
+exhibits a greedy bias in state $s$
+if for every action $a \in \aset(s)$ with $a \neq \pol(s)$,
+\vspace{-0.3cm}
+\begin{align*}
+    \update(s, a) < \update(s, \pol) .
+\end{align*}
+% MC-O-PI thus updates the greedy action $\pol(s)$ more frequently than any non-greedy action.
+\end{definition}

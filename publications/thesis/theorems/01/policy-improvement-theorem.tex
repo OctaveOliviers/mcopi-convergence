@@ -1,0 +1,120 @@
+\label{thm: policy improvement theorem}\begin{theorem}[Policy Improvement Theorem 
+% \citep{Sutton2018ReinforcementIntroduction}
+% \citep{Howard1960DynamicProcesses}
+]
+For all policies $\pol$ and $\pol'$, we have $\pol \preceq \pol'$
+if for every state $s \in \sset$
+\begin{align}
+\label{eq: PIT if}
+    q_\pol(s, \pol) \leq q_\pol(s, \pol') .
+\end{align}
+% Then the policy $\pol'$ is at least as good as $\pol$. In other words, 
+% % it must obtain a greater or equal expected return from all states 
+% % for every state $s \in \sset$ 
+% it holds that
+% \begin{align}
+% \label{eq: PIT then}
+%     v_{\pol} \leq v_{\pol'} 
+%     \quad \tand \quad
+%     q_{\pol} \leq q_{\pol'} .
+% \end{align}
+% Moreover, if in some state inequality \eqref{eq: PIT if} is strict, then inequality \eqref{eq: PIT then} is strict in that state as well.
+
+% \begin{enumerate}[(a)]
+    
+%     \item 
+%     % $\forall\; s \in \sset \quad q_\pol(s, \pol(s)) \leq q_\pol(s, \pol'(s)) \quad\implies\quad v_\pol \leq v_{\pol'}$
+%     $q_\pol(\pol) \leq q_\pol(\pol') \quad\implies\quad v_\pol \leq v_{\pol'}$
+    
+%     \item 
+%     % $\forall\; s \in \sset \quad q_\pol(s, \pol(s)) \geq q_\pol(s, \pol'(s)) \quad\implies\quad v_\pol \geq v_{\pol'}$
+%     $q_\pol(\pol) \geq q_\pol(\pol') \quad\implies\quad v_\pol \geq v_{\pol'}$
+    
+% \end{enumerate}
+\end{theorem}
+% \begin{proof}
+% Equation \eqref{eq: PIT if} implies for every state-action pair $(s,a)$ that
+% \begin{align*}
+%     \big[ \B_\pol q_\pol \big] (s,a) 
+%     &= r(s,a) + \discount \sum_{s' \in \sset} \transit(s' \mid s,a) q_\pol(s', \pol(s')) 
+%     \\
+%     &\leq r(s,a) + \discount \sum_{s' \in \sset} \transit(s' \mid s,a) q_\pol(s', \pol'(s')) 
+%     \\
+%     &= \big[ \B_{\pol'} q_\pol \big](s,a) .
+% \end{align*}
+% \begin{align*}
+%     q_\pol (s,a) 
+%     &= \E_\transit \big[ r(S_0, A_0) + \discount q_\pol(S_1 \mid \pol) \mid S_0=s, A_0=a \big]
+%     \\
+%     &\leq \E_\transit \big[ r(S_0, A_0) + \discount q_\pol(S_1 \mid \pol') \mid S_0=s, A_0=a \big]
+%     \\
+%     &= \E_\transit \big[ r(S_0, A_0) + \discount r(S_1 \mid \pol') + \discount^2 q_\pol(S_2 \mid \pol) \mid S_0=s, A_0=a \big]
+%     \\
+%     &\leq \E_\transit \big[ r(S_0, A_0) + \discount r(S_1 \mid \pol') + \discount^2 q_\pol(S_2 \mid \pol') \mid S_0=s, A_0=a \big]
+%     \\
+%     &\dots
+%     \\
+%     &\leq \E_\transit \big[ r(S_0, A_0) + \discount r(S_1 \mid \pol') + \discount^2 r(S_2 \mid \pol') + \dots \mid S_0=s, A_0=a \big]
+%     \\
+%     &= q_{\pol'}(s,a) .
+% \end{align*}
+% Consequently, the monotonicity and the contraction of the Bellman operator $\B_{\pol'}$ indicate that
+% \begin{align}
+%     \B_\pol q_\pol = q_\pol \leq \B_{\pol'} q_\pol \leq \B_{\pol'}^2 q_\pol \leq \dots \leq \B_{\pol'}^\infty q_\pol = q_{\pol'} 
+% \end{align}
+% and
+% \begin{align}
+%     v_\pol
+% \end{align}
+
+% % % (Show $\implies$) 
+% % (a)
+% % Since $q_\pol(s, \pol(s)) \leq q_\pol(s, \pol'(s))$ for all states $s$, we obtain for every state-action pair that
+% % \begin{align*}
+% %     q_\pol(\sa) 
+% %     &= \reward(\sa) + \discount \sum_{s'} \transprob(s' \mid \sa) q_\pol(s', \pol(s')) , \\
+% %     &\leq \reward(\sa) + \discount \sum_{s'} \transprob(s' \mid \sa) q_\pol(s', \pol'(s')) = \big[\B_{\pol'} q_\pol \big](\sa) .
+% % \end{align*}
+% % % $q_\pol(s, \pol(s)) \leq q_\pol(s, \pol'(s))$ is equivalent with $\B_\pol q_\pol \leq $
+% % Then, the monotone and contractive properties of the operator $\B_{\pol'}$ imply that
+% % \begin{align*}
+% %     q_\pol \leq \B_{\pol'} q_\pol \leq \B_{\pol'}^2 q_\pol \leq \dots \leq \lim_{n \to \infty} \B_{\pol'}^n q_\pol = q_{\pol'} .
+% %     % v_\pol(s) &= q_\pol(s, \pol(s)) \\
+% %     % &\leq q_\pol(s, \pol'(s)) \\
+% %     % % &= \mathbb{E}\Big[ R_{t+1} + \discount v_\pol(S_{t+1}) \mid S_t = s, A_t = \pol'(s) \Big] \\
+% %     % &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount v_\pol(S_{t+1}) \mid S_t = s \Big] \\
+% %     % &\leq \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount q_\pol(S_{t+1}, \pol'(S_{t+1})) \mid S_t = s \Big] \\
+% %     % % &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount \mathbb{E}_{\pol'}\Big[ R_{t+2} + \discount v_\pol(S_{t+2}) \mid S_{t+1} \Big] \mid S_t = s \Big] \\
+% %     % &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount R_{t+2} + \discount^2 v_\pol(S_{t+2}) \mid S_t = s \Big] \\
+% %     % &\;\;\vdots \\
+% %     % &\leq \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount R_{t+2} + \discount^2 R_{t+3} + \discount^3 R_{t+4} + \dots \mid S_t = s \Big] = v_{\pol'}(s)
+% % \end{align*}
+% % Thus, for all states it holds that
+% % \begin{align*}
+% %     v_\pol(s) = q_\pol(s, \pol(s)) \leq q_\pol(s, \pol'(s)) \leq q_{\pol'}(s, \pol'(s)) = v_{\pol'}(s).
+% % \end{align*}
+
+% % % (Show $\impliedby$) 
+% % % Suppose $q_\pol(s, \pol(s)) \geq q_\pol(s, \pol'(s))$, then
+% % % \begin{align*}
+% % %     v_\pol(s) &= q_\pol(s, \pol(s)) \\
+% % %     &\geq q_\pol(s, \pol'(s)) \\
+% % %     % &= \mathbb{E}\Big[ R_{t+1} + \discount v_\pol(S_{t+1}) \mid S_t = s, A_t = \pol'(s) \Big] \\
+% % %     &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount v_\pol(S_{t+1}) \mid S_t = s \Big] \\
+% % %     &\geq \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount q_\pol(S_{t+1}, \pol'(S_{t+1})) \mid S_t = s \Big] \\
+% % %     % &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount \mathbb{E}_{\pol'}\Big[ R_{t+2} + \discount v_\pol(S_{t+2}) \mid S_{t+1} \Big] \mid S_t = s \Big] \\
+% % %     &= \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount R_{t+2} + \discount^2 v_\pol(S_{t+2}) \mid S_t = s \Big] \\
+% % %     &\;\;\vdots \\
+% % %     &\geq \mathbb{E}_{\pol'}\Big[ R_{t+1} + \discount R_{t+2} + \discount^2 R_{t+3} + \discount^3 R_{t+4} + \dots \mid S_t = s \Big] = v_{\pol'}(s)
+% % % \end{align*}
+
+% % (b) As in part (a), we obtain that
+% % \begin{align*}
+% %     q_\pol \geq \B_{\pol'} q_\pol \geq \B_{\pol'}^2 q_\pol \geq \dots \geq \lim_{n \to \infty} \B_{\pol'}^n q_\pol = q_{\pol'} .
+% % \end{align*}
+% % Thus, for all states it holds that
+% % \begin{align*}
+% %     v_\pol(s) = q_\pol(s, \pol(s)) \geq q_\pol(s, \pol'(s)) \geq q_{\pol'}(s, \pol'(s)) = v_{\pol'}(s).
+% % \end{align*}
+
+% \end{proof}

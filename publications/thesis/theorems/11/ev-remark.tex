@@ -1,0 +1,43 @@
+\begin{remark}[Every-visit updates can yield biased estimates]
+
+\textcolor{red}{confirm w notes 240521}
+
+If a state-action pair is visited several times during an episode, 
+% say at steps $t_1$, \ldots, $t_n$,
+% \begin{align*}
+%     (s,a) = (s_{t_1},a_{t_1}) = (s_{t_2},a_{t_2}) = (s_{t_3},a_{t_3}) = \dots
+% \end{align*}
+the every-visit method updates that state-action pair using the observed returns 
+from each of those visits.
+% $\Tilde{q}_\pol(s_{t_1},a_{t_1})$, \ldots, $\Tilde{q}_\pol(s_{t_n},a_{t_n})$. 
+However, this strategy underestimates the action-values $q_\pol$.
+% since these observed returns come from the same episode, 
+% giving the same weight to each of these observed returns yields a biased estimate for the action-values $q_\pol$.
+
+For instance, consider an MDP with a single state $s$ and a single action $a$. When taking action $a$, the agent receives a reward $r$ and either goes back to state $s$ with probability $p$, or the episode terminates with probability $1-p$. For an episode of length $L$, the observed returns are $r$, $2r$, \ldots, $Lr$. The first-visit method then updates $q(s,a)$ towards $Lr$, which is an unbiased estimate of the expected return because it captures the expected length of an episode.
+However, the every-visit method uses all the observed returns evenly. As a result, it underestimates the action value because it overestimates the frequency of short episodes.
+Mathematically, the expected return is
+\begin{align*}
+    \mathbb{P}(L&=1) r + \mathbb{P}(L=2) 2 r + \mathbb{P}(L=3) 3 r + \dots 
+    \\
+    &= (1-p)r + p(1-p)2r + p^2 (1-p) 3r + \dots
+    \\
+    &= (1-p) \sum_{n \geq 1} p^{n-1} n r
+    \\
+    &= \frac{r}{1-p} ,
+\end{align*}
+but the expected average observed return with every-visit update is 
+\begin{align*}
+    \mathbb{P}(L&=1) r + \mathbb{P}(L=2) \frac{r+2r}{2} + \mathbb{P}(L=3) \frac{r+2r+3r}{3} + \dots 
+    \\
+    &= (1-p)r + p(1-p)\frac{r + 2r}{2} + p^2 (1-p) \frac{r+2r+3r}{3} + \dots
+    \\
+    &= (1-p) \sum_{n \geq 1} p^{n-1} \sum_{1\leq i\leq n} \frac{i}{n} r
+    \\
+    &= (1-p) \sum_{n \geq 1} p^{n-1} \frac{n+1}{2} r
+    \\
+    &= \Big(1-\frac{p}{2}\Big) \frac{r}{1-p} .
+\end{align*}
+Thus as $p$ increases, the average length of an episode increases and the underestimation becomes more severe.
+% but the bias falls asymptotically to zero as the number of episodes increases \cite[Theorem~7]{Singh1996ReinforcementTraces}.
+\end{remark}

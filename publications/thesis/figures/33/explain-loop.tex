@@ -1,0 +1,238 @@
+\begin{figure}[htbp]
+    \centering
+
+    \begin{subfigure}{\textwidth}
+        \centering
+        \small{State $s_1$}
+        
+        \begin{tikzpicture}[scale=1.5]
+            % Draw the grid and axes
+            % \draw[step=0.5cm,very thin,mylightgrey] (0,0) grid (3,3);
+            \draw[thin,->] (0,0) -- (3.2,0) node[right] {$q(s_1,\best{a})$};
+            \draw[thin,->] (0,0) -- (0,2.2) node[above] {$q(s_1,\worst{a})$};
+            % \draw[thick,->] (0,0) -- (3.2,0) node[right] {\shortstack{$\best{a}$ \\ $\pol_1, \pol_5, \pol_6$}};
+            % \draw[thick,->] (0,0) -- (0,2.2) node[above] {\shortstack{$\worst{a}$ \\ $\pol_2, \pol_3, \pol_4$}};
+
+            % \node at (1.6, 2.2) [above, font=\small, color=black] {State $s_1$};
+
+            % Draw the grey square from (1,1) to (2,2)
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            
+            % Draw the line y = x
+            \draw[dotted, black] (0,0) -- (2.2,2.2);
+
+            % Add the points with associated text
+            \filldraw (3,0) circle (1pt) node[above] {$q_{\pol_1}$};
+            \filldraw (2,2) circle (1pt) node[right] {$q_{\pol_3}$};
+            \filldraw (2,0) circle (1pt) node[above] {$q_{\pol_2}$};
+            \filldraw (1,1) circle (1pt) node[above left] {$q_{\pol_5}$};
+            \filldraw (1,1) circle (1pt) node[below right] {$q_{\pol_4}$};
+            \filldraw (1,0) circle (1pt) node[above right] {$q_{\pol_6}$};
+            \filldraw (1,0) circle (1pt) node[above left] {$q_{\worst{\pol}}$};
+            
+            % Add labels to the axes
+            % \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+            \draw (0,0.1) -- (0,-0.1) node[below, font=\small] {0};
+            \draw (-0.1,0) -- (0.1,0) node[font=\small] {};
+            \foreach \x in {1,2,3}
+                \draw (\x,0.1) -- (\x,-0.1) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (0.1,\y) -- (-0.1,\y) node[left, font=\small] {\y};
+
+            % Add the red arrows
+            \draw[middle arrow=0.65, CambridgeCoreBlue] (1.9, 1.7) -- (1.3, 1.7) node[midway, above, sloped, font=\small] {5};
+            \draw[middle arrow=0.55, CambridgeCoreBlue] (1.3, 1.7) -- (1.3, 1.1) node[midway, left, font=\small] {2};
+            % \draw[middle arrow=0.5, CambridgeCoreBlue, thick] (1.3, 1.1) -- (1.9, 1.7) node[midway, below, sloped, font=\small] {3};
+
+            \draw[middle arrow=0.5, CambridgeCoreBlue] 
+            (1.3,1.1) to[bend right=45] 
+            node[midway, below right, font=\small] {3}
+            (1.9,1.7);
+
+            % \draw[thick, CambridgeCoreBlue] (1.45, 1.7) -- (1.45, 1.25);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {1};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (0pt) node[above, text=CambridgeCoreBlue, font=\small] {6};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.9,1.7) circle (1pt) node[right, text=CambridgeCoreBlue, font=\small] {4};
+            
+        \end{tikzpicture}
+        % \caption{State $s_1$}
+    \end{subfigure}%
+
+    \vspace{1.5cm}
+    % \vfill
+    
+    \begin{subfigure}{\textwidth}
+        \centering
+        \small{State $s_2$}
+        
+        \begin{tikzpicture}[scale=1.5]
+            % Draw the grid and axes
+            % \draw[step=0.5cm,very thin,mylightgrey] (0,0) grid (3,3);
+            \draw[thin,->] (0,0) -- (3.2,0) node[right] {$q(s_2,\best{a})$};
+            \draw[thin,->] (0,0) -- (0,2.2) node[above] {$q(s_2,\worst{a})$};
+            % \draw[thick,->] (0,0) -- (3.2,0) node[right] {\shortstack{$\best{a}$ \\ $\pol_1, \pol_5, \pol_6$}};
+            % \draw[thick,->] (0,0) -- (0,2.2) node[above] {\shortstack{$\worst{a}$ \\ $\pol_2, \pol_3, \pol_4$}};
+
+            % \node at (1.6, 2.2) [above, font=\small, color=black] {State $s_2$};
+
+            % Draw the grey square from (1,1) to (2,2)
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            
+            % Draw the line y = x
+            \draw[dotted, black] (0,0) -- (2.2,2.2);
+
+            % Add the points with associated text
+            \filldraw (3,0) circle (1pt) node[above] {$q_{\pol_5}$};
+            \filldraw (2,2) circle (1pt) node[right] {$q_{\pol_1}$};
+            \filldraw (2,0) circle (1pt) node[above] {$q_{\pol_6}$};
+            \filldraw (1,1) circle (1pt) node[above left] {$q_{\pol_3}$};
+            \filldraw (1,1) circle (1pt) node[below right] {$q_{\pol_2}$};
+            \filldraw (1,0) circle (1pt) node[above right] {$q_{\pol_4}$};
+            \filldraw (1,0) circle (1pt) node[above left] {$q_{\worst{\pol}}$};
+            
+            % Add labels to the axes
+            % \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+            \draw (0,0.1) -- (0,-0.1) node[below, font=\small] {0};
+            \draw (-0.1,0) -- (0.1,0) node[font=\small] {};
+            \foreach \x in {1,2,3}
+                \draw (\x,0.1) -- (\x,-0.1) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (0.1,\y) -- (-0.1,\y) node[left, font=\small] {\y};
+
+            % Add the red arrows
+            \draw[middle arrow=0.65, CambridgeCoreBlue] (1.9, 1.7) -- (1.3, 1.7) node[midway, above, sloped, font=\small] {3};
+            \draw[middle arrow=0.55, CambridgeCoreBlue] (1.3, 1.7) -- (1.3, 1.1) node[midway, left, font=\small] {6};
+            % \draw[->, CambridgeCoreBlue, thick] (1.3, 1.1) -- (1.9, 1.7) node[midway, below, sloped, font=\small] {1};
+
+            % % Define start and end coordinates
+            % \def\xstart{1.3}
+            % \def\xend{1.9}
+            % \def\ystart{1.1}
+            % \def\yend{1.7}
+            % \coordinate (start) at (\xstart,\ystart);
+            % % Number of steps
+            % \def\numsteps{10}
+            % % Calculate step sizes
+            % \pgfmathsetmacro{\xstep}{(\xend - \xstart)/(\numsteps/2)}
+            % \pgfmathsetmacro{\ystep}{(\yend - \ystart)/(\numsteps/2)}
+            % % Initialize current position
+            % \coordinate (current) at (start);
+            % \foreach \i in {1,...,\numsteps} {
+            %     \ifodd\i
+            %         \ifnum\i=5
+            %             \draw[middle arrow=1, CambridgeCoreBlue] (current) -- ++(\xstep,0) coordinate (current) node[midway, below right, font=\small] {1};
+            %         \else
+            %             \draw[-, CambridgeCoreBlue, thick] (current) -- ++(\xstep,0) coordinate (current);
+            %         \fi
+            %     \else
+            %         \draw[-, CambridgeCoreBlue, thick] (current) -- ++(0,\ystep) coordinate (current);
+            %     \fi
+            % }
+            \draw[middle arrow=0.5, CambridgeCoreBlue] 
+            (1.3,1.1) to[bend right=45] 
+            node[midway, below right, font=\small] {1}
+            (1.9,1.7);
+
+            % \draw[thick, CambridgeCoreBlue] 
+            (1.3,1.25) to[bend right=30] (1.71,1.55);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {5};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (0pt) node[above, text=CambridgeCoreBlue, font=\small] {4};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.9,1.7) circle (1pt) node[right, text=CambridgeCoreBlue, font=\small] {2};
+            
+        \end{tikzpicture}
+        % \caption{State $s_2$}
+    \end{subfigure}%
+
+    \vspace{1.5cm}
+    % \vfill
+    
+    \begin{subfigure}{\textwidth}
+        \centering
+        \small{State $s_3$}
+        
+        \begin{tikzpicture}[scale=1.5]
+            % Draw the grid and axes
+            % \draw[step=0.5cm,very thin,mylightgrey] (0,0) grid (3,3);
+            \draw[thin,->] (0,0) -- (3.2,0) node[right] {$q(s_3,\best{a})$};
+            \draw[thin,->] (0,0) -- (0,2.2) node[above] {$q(s_3,\worst{a})$};
+            % \draw[thick,->] (0,0) -- (3.2,0) node[right] {\shortstack{$\best{a}$ \\ $\pol_1, \pol_5, \pol_6$}};
+            % \draw[thick,->] (0,0) -- (0,2.2) node[above] {\shortstack{$\worst{a}$ \\ $\pol_2, \pol_3, \pol_4$}};
+
+            % \node at (1.6, 2.2) [above, font=\small, color=black] {State $s_3$};
+
+            % Draw the grey square from (1,1) to (2,2)
+            \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (2,2);
+            
+            % Draw the line y = x
+            \draw[dotted, black] (0,0) -- (2.2,2.2);
+
+            % Add the points with associated text
+            \filldraw (3,0) circle (1pt) node[above] {$q_{\pol_3}$};
+            \filldraw (2,2) circle (1pt) node[right] {$q_{\pol_5}$};
+            \filldraw (2,0) circle (1pt) node[above] {$q_{\pol_4}$};
+            \filldraw (1,1) circle (1pt) node[above left] {$q_{\pol_1}$};
+            \filldraw (1,1) circle (1pt) node[below right] {$q_{\pol_6}$};
+            \filldraw (1,0) circle (1pt) node[above right] {$q_{\pol_2}$};
+            \filldraw (1,0) circle (1pt) node[above left] {$q_{\worst{\pol}}$};
+            
+            % Add labels to the axes
+            % \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+            \draw (0,0.1) -- (0,-0.1) node[below, font=\small] {0};
+            \draw (-0.1,0) -- (0.1,0) node[font=\small] {};
+            \foreach \x in {1,2,3}
+                \draw (\x,0.1) -- (\x,-0.1) node[below, font=\small] {\x};
+            \foreach \y in {1,2}
+                \draw (0.1,\y) -- (-0.1,\y) node[left, font=\small] {\y};
+
+            % Add the red arrows
+            \draw[middle arrow=0.65, CambridgeCoreBlue] (1.9, 1.7) -- (1.3, 1.7) node[midway, above, sloped, font=\small] {1};
+            \draw[middle arrow=0.55, CambridgeCoreBlue] (1.3, 1.7) -- (1.3, 1.1) node[midway, left, font=\small] {4};
+            % \draw[->, CambridgeCoreBlue, thick] (1.3, 1.1) -- (1.9, 1.7) node[midway, below, sloped, font=\small] {5};
+
+            % % Define start and end coordinates
+            % \def\xstart{1.3}
+            % \def\xend{1.9}
+            % \def\ystart{1.1}
+            % \def\yend{1.7}
+            % \coordinate (start) at (\xstart,\ystart);
+            % % Number of steps
+            % \def\numsteps{10}
+            % % Calculate step sizes
+            % \pgfmathsetmacro{\xstep}{(\xend - \xstart)/(\numsteps/2)}
+            % \pgfmathsetmacro{\ystep}{(\yend - \ystart)/(\numsteps/2)}
+            % % Initialize current position
+            % \coordinate (current) at (start);
+            % \foreach \i in {1,...,\numsteps} {
+            %     \ifodd\i
+            %         \ifnum\i=5
+            %             \draw[middle arrow=1, CambridgeCoreBlue] (current) -- ++(\xstep,0) coordinate (current) node[midway, below right, font=\small] {5};
+            %         \else
+            %             \draw[-, CambridgeCoreBlue, thick] (current) -- ++(\xstep,0) coordinate (current);
+            %         \fi
+            %     \else
+            %         \draw[-, CambridgeCoreBlue, thick] (current) -- ++(0,\ystep) coordinate (current);
+            %     \fi
+            % }
+            \draw[middle arrow=0.5, CambridgeCoreBlue] 
+            (1.3,1.1) to[bend right=45] 
+            node[midway, below right, font=\small] {5}
+            (1.9,1.7);
+            % \draw[thick, CambridgeCoreBlue] (1.9, 1.7) -- (1.45, 1.55);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (1pt) node[left, text=CambridgeCoreBlue, font=\small] {3};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.3,1.7) circle (0pt) node[above, text=CambridgeCoreBlue, font=\small] {2};
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (1.9,1.7) circle (1pt) node[right, text=CambridgeCoreBlue, font=\small] {6};
+            
+        \end{tikzpicture}
+        % \caption{State $s_3$}
+    \end{subfigure}  
+
+    \vspace{0.8cm}
+    
+    \caption{The updating strategy described on page \pageref{pg: sampling strat 3 states} generates a cycle between the suboptimal policies $\pol_1$, $\pol_2$, $\pol_3$, $\pol_4$, $\pol_5$ and $\pol_6$ for every initial condition in $\qset_0$ defined in \eqref{eq: initial cond for 3 state counter}.}
+    % Spiral obtained for every initial condition in $\qset_0$ with the sampling strategy described on page \pageref{enum: sampling greedy initial visit}.
+    % MC-O-PI cycles indefinitely between the policies $\pol_1$ through $\pol_6$ despite the update distributions with a greedy bias.}
+    \label{fig: explain loop on-policy bias MDP}
+\end{figure}

@@ -1,0 +1,320 @@
+\begin{figure}
+    \centering
+
+    \pgfmathsetmacro{\xmin}{0}
+    \pgfmathsetmacro{\xmax}{2.6}
+    % \pgfmathsetmacro{\xmin}{0}
+    % \pgfmathsetmacro{\xmax}{2.2}
+    \pgfmathsetmacro{\width}{\xmax-\xmin}
+    \pgfmathsetmacro{\height}{\xmax-\xmin}
+
+    \pgfmathsetmacro{\qpolx}{\xmax/2+0.3}
+    \pgfmathsetmacro{\qpoly}{\xmax/2-0.3}
+    \pgfmathsetmacro{\mstrong}{5}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_buap.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpoly - \mpolx/\mpoly *(\qpolx-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=black, draw=black] (\qpolx,\qpoly) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+
+            \node at (\xmax/2, \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol$};
+            
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) > q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) = \update(s, \pol')$}
+        \label{fig: effect of bias a}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\mpolx}{\mstrong}
+        \pgfmathsetmacro{\mpoly}{1}
+        \pgfmathsetmacro{\qhat}{(\mpolx*\qpolx-\mpoly*\qpoly)/(\mpolx-\mpoly)}
+        \pgfmathsetmacro{\Lpos}{\qpolx - \mpoly/\mpolx *(\qpoly-\xmax)}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_buan.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpoly - \mpolx/\mpoly *(\qpolx-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=black, draw=black] (\qpoly,\qpolx) circle (1pt) node[above left, text=black, font=\small] {$q_\pol$};
+
+            \node at (\xmax/2, \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol'$};
+            
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) < q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) = \update(s, \pol')$}
+        \label{fig: effect of bias b}
+    \end{subfigure}%
+
+    \vfill
+    \vspace{0.1cm}
+    
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\mpolx}{1}
+        \pgfmathsetmacro{\mpoly}{\mstrong}
+        \pgfmathsetmacro{\qhat}{(\mpolx*\qpolx-\mpoly*\qpoly)/(\mpolx-\mpoly)}
+        \pgfmathsetmacro{\Lpos}{\qpoly - \mpolx/\mpoly *(\qpolx-\xmax)}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_bwap.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpoly - \mpolx/\mpoly *(\qpolx-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\qhat,\qhat) circle (1pt);
+            \filldraw[fill=black, draw=black] (\qpolx,\qpoly) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+            % \node at (\xmax,\Lpos) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+
+            \node at (\qhat, \qhat) [above left, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol'$};
+            \node at (\qhat/2 + \xmax/2, \qhat/2 + \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol$};
+            
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) > q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) < \update(s, \pol')$}
+        \label{fig: effect of bias 1}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\mpolx}{1}
+        \pgfmathsetmacro{\mpoly}{\mstrong}
+        \pgfmathsetmacro{\qhat}{(\mpolx*\qpoly-\mpoly*\qpolx)/(\mpolx-\mpoly)}
+        \pgfmathsetmacro{\Lpos}{\qpolx - \mpolx/\mpoly *(\qpoly-\xmax)}
+            
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_bwan.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpolx - \mpolx/\mpoly *(\qpoly-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\qhat,\qhat) circle (1pt);
+            \filldraw[fill=black, draw=black] (\qpoly,\qpolx) circle (1pt) node[above left, text=black, font=\small] {$q_\pol$};
+            % \node at (\xmax,\Lpos) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+
+            \node at (\qhat/2, \qhat/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol'$};
+            \node at (\qhat/2 + \xmax/2, \qhat/2 + \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol$};
+            
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) < q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) < \update(s, \pol')$}
+        \label{fig: effect of bias 3}
+    \end{subfigure}%
+   
+    \vfill
+    \vspace{0.1cm}
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\mpolx}{\mstrong}
+        \pgfmathsetmacro{\mpoly}{1}
+        \pgfmathsetmacro{\qhat}{(\mpolx*\qpolx-\mpoly*\qpoly)/(\mpolx-\mpoly)}
+        \pgfmathsetmacro{\Lpos}{\qpolx - \mpoly/\mpolx *(\qpoly-\xmax)}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_bsap.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpoly - \mpolx/\mpoly *(\qpolx-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\qhat,\qhat) circle (1pt);
+            \filldraw[fill=black, draw=black] (\qpolx,\qpoly) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+            % \node at (\xmax,\Lpos) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+
+            \node at (\qhat/2, \qhat/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol$};
+            \node at (\qhat/2 + \xmax/2, \qhat/2 + \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol'$};
+            
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) > q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) > \update(s, \pol')$}
+        \label{fig: effect of bias 2}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+
+        \pgfmathsetmacro{\mpolx}{\mstrong}
+        \pgfmathsetmacro{\mpoly}{1}
+        \pgfmathsetmacro{\qhat}{(\mpolx*\qpoly-\mpoly*\qpolx)/(\mpolx-\mpoly)}
+        \pgfmathsetmacro{\Lpos}{\qpoly - \mpoly/\mpolx *(\qpolx-\xmax)}
+        
+        \begin{tikzpicture}[scale=1.5]
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream_expl_bsan.csv};
+            
+                % \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+                % \qpolx - \mpolx/\mpoly *(\qpoly-x)
+                % };
+            \end{axis}
+
+            \fill[white] (\xmin,\xmin) -- (\xmin,\xmax) -- (\xmax,\xmax) -- cycle ;
+            \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+
+            \filldraw[fill=CambridgeCoreBlue, draw=CambridgeCoreBlue] (\qhat,\qhat) circle (1pt);
+            \filldraw[fill=black, draw=black] (\qpoly,\qpolx) circle (1pt) node[above left, text=black, font=\small] {$q_\pol$};
+            % \node at (\xmax,\Lpos) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+
+            \node at (\qhat, \qhat) [above left, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol$};
+            \node at (\qhat/2 + \xmax/2, \qhat/2 + \xmax/2) [above, sloped, rotate=45, font=\small, color=CambridgeCoreBlue] {$\pol_+ = \pol'$};
+
+        \end{tikzpicture}
+        \caption{\centering $q_{\pol}(s, \pol) < q_{\pol}(s, \pol')$ \\ and $\update(s, \pol) > \update(s, \pol')$}
+        \label{fig: effect of bias 4}
+    \end{subfigure}%
+    \caption{The streamlines of the mean-field update in \eqref{eq: definition of q+ bias section}
+    over the region of policy $\pol$ indicate that
+    % the impact of update \eqref{eq: definition of q+ bias section} on the greedy policy $\pol_+ \in \grpol(q_+)$ when $q$ is near the boundary with another policy $\pol'$.
+    the greedy policy $\pol_+ \in \grpol(q_+)$ remains equal to $\pol$ when the step $\update(q_\pol - q)$ points to the region of policy $\pol$, but it changes to $\pol'$ when the step points to the region of policy $\pol'$.}
+    \label{fig: explain effect of bias on boundary}
+\end{figure}

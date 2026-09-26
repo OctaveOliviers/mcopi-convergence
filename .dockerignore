@@ -1,0 +1,3 @@
+# The image contains tools only. Publication sources are mounted at runtime.
+*
+!Dockerfile

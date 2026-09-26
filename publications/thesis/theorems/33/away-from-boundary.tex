@@ -1,0 +1,23 @@
+\begin{lemma}
+For all action values $q$ and $q_+$ that satisfy \eqref{eq: definition of q+ greedy section} and all policies $\pol \in \grpol(q)$ and $\pol_+ \in \grpol(q_+)$,
+if for all states $s$ where $\pol(s) \neq \pol_+(s)$ the update distribution $\update_+$ is biased towards the action of policy $\pol_+$ and
+\begin{equation}
+\label{eq: condition move away boundary}
+    \update_+(s, \pol) (\qval_{\pol}(s, \pol) - \qval_+(s, \pol))
+    \leq
+    \update_+(s, \pol_+) (\qval_{\pol_+}(s, \pol_+) - \qval_+(s, \pol_+)) ,
+\end{equation}
+then policy $\pol_+$ is as good as, or better than, policy $\pol$.
+\end{lemma}
+\begin{proof}
+The contraposition of \autoref{thm: cannot exit sliding mode if not all states are better}(3) indicates that
+if the update distribution $\update_+$ has a greedy bias in state $s$, condition \eqref{eq: condition move away boundary} implies that
+\begin{align}
+    \aval_{\pol}(s, \pol_+(s)) \geq 0
+    \quad \tor \quad 
+    \sval_{\pol}(s) \leq \sval_{\pol_+}(s)
+    \quad \tor \quad 
+    \aval_{\pol_+}(s, \pol(s)) \leq 0 .
+\end{align}
+As a result, if for all states where the policies differ the update distribution $\update_+$ has a greedy bias and condition \eqref{eq: condition move away boundary} is satisfied, the assumptions of \autoref{thm: general PIT} are satisfied and, consequently, policy $\pol_+$ is as good as, or better than, policy $\pol$.
+\end{proof}

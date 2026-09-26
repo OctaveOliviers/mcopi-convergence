@@ -1,0 +1,32 @@
+\begin{lemma}
+\label{thm: tsitsiklis helper lemma}
+For every deterministic policy $\pol \in \polset$
+and every point $q \in \region(\pol)$ it holds that
+\begin{align}
+\label{eq: property of c(q)}
+    q_\pol \geq \B q - \dfrac{\discount c(q)}{1-\discount} \onefun .
+\end{align}
+\end{lemma}
+\begin{proof}
+By definition, $\B q = \B_\pol q$. Thus, equation \eqref{eq: def c tsitsiklis} implies that
+\begin{align*}
+    \B_\pol q \geq q - c(q) \onefun .
+\end{align*}
+Applying the monotone operator $\B_\pol$ to both sides of the inequality yields
+\begin{align*}
+    \B_\pol^2 q 
+    &\geq \B_\pol (q - c(q) \onefun)
+    = \B_\pol q - \discount c(q) \onefun
+    \geq q - c(q) \onefun - \discount c(q) \onefun .
+\end{align*}
+Continuing inductively, we obtain that
+\begin{align*}
+    \B_\pol^n q \geq q - (1 + \discount + \dots + \discount^{n-1}) c(q) \onefun
+\end{align*}
+for all $n \geq 1$.
+As $n$ tends to infinity, $\B_\pol^n q$ converges to $q_\pol$ and $(1 + \dots + \discount^{n-1})$ converges to $1/(1-\discount)$. Since the limit is well-defined for both sides of the inequality, we observe that
+\begin{align*}
+    q_\pol \geq q - \dfrac{c(q)}{1-\discount} \onefun .
+\end{align*}
+Finally, applying the operator $\B_\pol$ once more to both sides of this inequality yields equation \eqref{eq: property of c(q)}.
+\end{proof}

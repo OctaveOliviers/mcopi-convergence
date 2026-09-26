@@ -1,0 +1,28 @@
+% \appendix
+% Technical appendices with additional results, figures, graphs, and proofs may be submitted with the paper submission before the full submission deadline (see above). You can upload a ZIP file for videos or code, but do not upload a separate PDF file for the appendix. There is no page limit for the technical appendices. 
+
+% Note: Think of the appendix as ``optional reading'' for reviewers. The paper must be able to stand alone without the appendix; for example, adding critical experiments that support the main claims to an appendix is inappropriate.
+\newpage
+\section{Counterexample for initial-visit MCES with non-greedy bias}
+\label{app: non greedy}
+
+Bertsekas and Tsitsiklis show in \cite[Example~5.12]{Bertsekas1996Neuro-DynamicProgramming} that IV MCES can converge to suboptimal solutions when greedy actions are updated less frequently than non-greedy actions.
+The single-state MDP in \autoref{fig: experiment off-policy bias MDP} is the simplest such example.
+
+Episodes are initialised to favour the non-greedy action,
+meaning
+when $q_k(s,\pi_*(s)) \ge q_k(s,\bar\pi(s))$
+the initial state-action pair is $(s,\pi_*(s))$ with a small probability $\epsilon$ and $(s,\bar\pi(s))$ with probability $1-\epsilon$,
+with the probabilities reversed otherwise.
+% Alternatively, when
+% $q_k(s,\pi_*(s)) < q_k(s,\bar\pi(s))$
+% we initialise each episode in $(s,\pi_*(s))$ with probability $\epsilon$, or in $(s,\bar\pi(s))$ with probability $1-\epsilon$
+
+\autoref{fig: experiment for off-policy bias} shows simulations with $\epsilon = 0.1$. The streamlines indicate the mean-field flow.
+Solutions starting to the right of the separatrix typically converge to $q_{\pi_*}$, whereas those starting to the left leave the optimal region $Q(\pi_*)$ and converge to a boundary point.
+
+% solutions which start in the region of the optimal policy, below the boundary, can leave it when to the left of the indicated separatrix, and converge to a point on the boundary which has the property that outflow and inflow are in opposite directions.   
+
+\input{figures/counter-MDP}
+
+\input{figures/off-policy-simulation1}

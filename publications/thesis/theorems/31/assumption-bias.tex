@@ -1,0 +1,18 @@
+\begin{definition}[Uniform updates over actions in each state]
+\label{asp: unbiased over policies}
+The update distribution $\update$ is uniform over all actions in each state,
+% The update map $\updateset$ yields update distributions $\update$ that are uniform over the policies, i.e.
+if
+for every state $s \in \sset$ and all actions $a, a' \in \aset(s)$ we have
+\begin{align}
+    % \label{eq: uniform bias over policies}
+    \nonumber
+    % \forall k \geq 0,
+    % \forall \pol \in \polset,
+    % \forall s \in \sset,
+    % \forall a, a' \in \aset(s)
+    % : \quad
+    \update(s, a) = \update(s, a') .
+\end{align}
+% MC-O-PI thus updates the actions of each state as frequently.
+\end{definition}

@@ -1,0 +1,24 @@
+\begin{definition}[Finite Markov decision process]
+\label{def: mdp}
+A finite Markov decision process consists of
+\vspace{-0.3cm}
+\begin{enumerate}
+    \item a finite set of states $\sset$,
+    % with states that the agent can encounter.
+    
+    \item a finite set of actions $\aset(s)$ for each state $s \in \sset$,
+    % with actions that the agent can take in each state.
+    
+    \item a transition function $\transit : \sset \times \sset \times \aset \to [0,1]$ where
+    % \begin{align*}
+    %     \transit(s' \mid s, a) = \prob(S_{t+1} = s' \mid S_t = s, A_t = a)
+    % \end{align*}
+    $\transit(s' \mid s, a)$ denotes the probability of reaching state $s'$ when taking action $a$ in state $s$,
+    
+    \item a reward function $r : \sset \times \aset \to \real$ where $r(s,a)$ denotes the reward 
+    % that the agent receives 
+    when taking action $a$ in state $s$,
+
+    \item a discount factor $\discount \in [0,1]$ weighting the importance of immediate versus future rewards.
+\end{enumerate}
+\end{definition}

@@ -1,0 +1,62 @@
+\begin{lemma}
+\label{thm: state when don't want to switch}
+    % If $\discount \in [0,1)$ and 
+    If there exists a state $s'$ such that $\sval_{\pol}(s') > \sval_{\pol'}(s')$,
+    then
+    \begin{align}
+        \exists \ s \in \sset,
+        \pol(s) \neq \pol'(s)
+        \ : \
+        \sval_{\pol}(s) > \sval_{\pol'}(s), \
+        \aval_\pol(s, \pol') \leq 0, \
+        \aval_{\pol'}(s, \pol) \geq 0
+    \end{align}
+\end{lemma}
+\mytodo{strict inequality on advantages if $\discount < 1$}
+% \mytodo{can turn this into $\aval_\pol(s, \pol') \leq 0$ and $\aval_{\pol'}(s, \pol) \geq 0$ and rest of the proof still remains $\implies$ don't need \autoref{thm: bounded loop gain}}
+\begin{proof}
+    By assumption,
+    \begin{align}
+        \exists \ s \in \sset 
+        \ : \ 
+        \forall \ s'' \neq s \
+        \begin{cases}
+        \ \sval_{\pol}(s) - \sval_{\pol'}(s) > 0 ,
+        \\
+        \ \sval_{\pol}(s) - \sval_{\pol'}(s) \geq \sval_{\pol}(s'') - \sval_{\pol'}(s'') .
+        \end{cases}
+    \end{align}
+
+    \autoref{thm: switching state} shows that largest change in $\sval$ is in a state where $\pol(s) \neq \pol'(s)$.
+    
+    Therefore, 
+    % by \autoref{thm: bounded loop gain}, 
+    in state $s$ it holds that
+    \begin{align*}
+        \sval_{\pol}(s) - \sval_{\pol'}(s) 
+        &\geq \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol') (\sval_{\pol}(s) - \sval_{\pol'}(s))
+        \\
+        &\geq \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol') (\sval_{\pol}(s_+) - \sval_{\pol'}(s_+))
+        \\
+        &= \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol') (\sval_{\pol}(s_+) - \sval_{\pol'}(s_+)) + \reward(s, \pol') - \reward(s, \pol')
+        \\
+        &= \qval_\pol(s, \pol') - \sval_{\pol'}(s) .
+    \end{align*}
+    As a result $\aval_\pol(s, \pol') \leq 0$. Similarily,
+    \begin{align*}
+        \sval_{\pol}(s) - \sval_{\pol'}(s) 
+        &\geq \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol) (\sval_{\pol}(s) - \sval_{\pol'}(s))
+        \\
+        &\geq \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol) (\sval_{\pol}(s_+) - \sval_{\pol'}(s_+))
+        \\
+        &= \discount \sum_{s_+ \in \sset} \transit(s_+ \mid s, \pol) (\sval_{\pol}(s_+) - \sval_{\pol'}(s_+)) + \reward(s, \pol) - \reward(s, \pol)
+        \\
+        &= \sval_{\pol}(s) - \qval_{\pol'}(s, \pol) .
+    \end{align*}
+    As a result $\aval_{\pol'}(s, \pol) \geq 0$.
+
+    if the $\sval(s)$ are different in pol and pol', then somewhere in the path starting from s and following pol or pol' through the MDP, must have a difference in the paths (if the paths were the same, the v(s) would be the same)
+    => can retain strict inequality
+
+    prove strict inequality for $\discount < 1$, then let it tend to 1 and show that inequality remains?
+\end{proof}

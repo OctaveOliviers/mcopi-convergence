@@ -1,0 +1,1560 @@
+\subsection{Initial-visit MC-O-PI converges with uniform updates}
+
+% Propositions \ref{thm: improving policies}--\ref{thm: convergence deterministic mcopi} showed that mean-field solutions converge to the optimal action values through a sequence of improving policies when updates are uniform.
+
+This section proves that stochastic perturbations in initial-visit MC-O-PI cannot consistently offset the policy improvement of mean-field solutions.
+As a result, the algorithm converges to $\qopt$ when updates are uniform over the actions of each state.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Limitations of standard convergence analyses}
+\label{sec: limitations of existing methods}
+
+
+While several standard frameworks can derive the convergence of a stochastic difference inclusion from the corresponding mean-field dynamics, they each face structural limitations when applied to MC-O-PI.
+
+
+The robustness framework developed by \cite{Kellett2004SmoothInclusions}
+indicates that the mean-field solutions in \eqref{eq: deterministic mcopi} are robust to perturbations \cite[Examples 2 \& 3]{Kellett2007SufficientInclusions}.
+However, this method treats perturbations as an adversary choosing the worst possible value from the perturbed set.
+Therefore, the perturbation radius must progressively decrease to zero as solutions approach an attractor.
+Since the noise does not vanish in MC-O-PI, it cannot be contained within this shrinking radius.
+% Put differently, by choosing to deal with worst-case perturbations, 
+% this framework cannot exploit the martingale property and temporal averaging that naturally mitigate the cumulative impact of stochastic perturbations in MC-O-PI.
+
+
+In contrast, the generalised ODE method exploits 
+% the martingale property and 
+temporal averaging that naturally mitigates the cumulative impact of noise in MC-O-PI \citep{Benaim2005StochasticInclusions}.
+This method guarantees that solutions with uniform updates converge to an internally chain-transitive set of the differential inclusion
+\begin{align}
+\label{eq: limit differential inclusion}
+    \dot q \in \textup{conv} \big\{ q_\pi - q : \pi \in P(q) \big\} ,
+\end{align}
+where $\text{conv}$ denotes the convex hull. 
+However, the necessary convexification introduces spurious limit sets, such as suboptimal points that satisfy 
+% the zero vector lies in the convex hull of update directions (
+$0 \in \textup{conv} \{ q_\pi - q : \pi \in P(q) \}$,
+or persistent cycles formed by Filippov solutions on the boundary between policy regions.
+Thus, proving the global convergence of MC-O-PI with this method requires ruling out limit sets that are artifacts of the continuous-time approximation rather than genuine features of the algorithm.
+
+
+The combined stability-ODE method relaxes the global convexity requirement of the generalised ODE-method to a compact subset \cite[Section 5.4]{Kushner2003StochasticApplications}.
+If MC-O-PI visits that subset infinitely often, then, asymptotically, it follows mean-field solutions over that set.
+However, the lock-in phenomenon at the core of this method requires
+continuity of the limiting ODE over a fixed enlargement of the subset under consideration \citep{Borkar2002OnApproximation}.
+Consequently, it is not sufficient that MC-O-PI solutions visit the region of a particular policy infinitely often. Instead, solutions must visit a fixed compact interior of that region infinitely often.
+Since decreasing learning rates cause successive entries into a policy’s region to occur closer and closer to its boundary,
+this method misses a way to establish that solutions cover the gap between the boundary and a fixed compact interior of a policy's region infinitely often.
+
+
+% Why cannot use ODE method
+% cannot use this framework of ODE method,
+% or the generalisations by $\cite{Perkins2012AsynchronousInclusions, Ramaswamy2017AInclusions}$ because is not convex
+% cannot use \cite{Liu2025TheNoise} because is not lipschitz
+% Thus no guarantee solutions to resulting differnetial inclusion
+
+
+The proof in the following sections addresses this limitation.
+Namely, we first construct a mechanism that ensures solutions move away from boundaries despite starting closer and closer,
+and then exploit the lock-in phenomenon to derive convergence to the optimal action values. 
+This approach yields a fixed lower bound on the probability that policies improve at transitions.
+The unlimited number of attempts then guarantee that MC-O-PI solutions eventually reach the optimal policy and converge to the associated action values.
+
+% \textcolor{red}{continuity of other methods}
+% continuity allows other frameworks \cite{Benaim2005StochasticInclusions, Borkar2000TheLearning} to use gronwall which is more easy
+% however here discontinuity and non convexity make it quite a bit more complex
+% so instead of being able to rely on the existence of the solutions fo the deterministic differential inclusion, we need to ...
+
+% proof is essentially apply borkar lock in method but ...
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Lower bound on the probability of policy improvement at transitions}
+
+Consider the sequences $(q_k)_{k\ge 0}$ and $(\pi_k)_{k\ge 0}$ generated by MC-O-PI, and let $(t_n)_{n \ge 0}$ be the associated transition times.
+Over each interval $\{t_n, \dots, t_{n+1}\}$, we compare the evolution of $q_{k}$ at $(s,\pi_{t_n}(s))$ and pairs $(s,a)$ that would worsen the policy $\pi_{t_n}$, namely
+\[
+\mathcal B_{\pi_{t_n}} := \big\{ (s,a) : s \in \mathcal S, \ a \in \mathcal A(s), \ q_{\pi_{t_n}}(s,a) < q_{\pi_{t_n}}(s, \pi_{t_n}(s)) \big\} .
+\]
+We show that, with a fixed probability and for sufficiently large $n$,
+for every $k \in \{t_n, \dots, t_{n+1}\}$
+the greedy policy satisfies $(s, \pi_k(s)) \notin \mathcal B_{\pi_{t_n}}$.
+As a result, if $t_{n+1}<\infty$ we obtain
+\begin{align}
+\label{eq: goal of proof stoch improvement}
+q_{\pi_{t_n}} ( s, \pi_{t_{n+1}}(s) )
+\ge
+q_{\pi_{t_n}} ( s,\pi_{t_n}(s) )
+\end{align}
+and therefore policy $\pi_{t_{n+1}}$ is better than $\pi_{t_n}$ by \autoref{thm: strict PIT}.
+Or if $t_{n+1} = \infty$,
+\autoref{thm: suboptimal blocks finite} implies that $\pi_{t_n} = \pi_*$ and $q_k$ converges to the associated optimal action values.
+In other words, the policy either improves, or it is already optimal and stays optimal.
+
+
+First, let us impose one additional assumption on the learning rates.
+
+\begin{assumption}[Comparability of learning rates]
+\label{asp: additional conditions on learning rate}
+    The learning rates $(\alpha_k)_{\ge 0}$ are nonincreasing,
+    meaning $\alpha_{k+1}\le \alpha_k$,
+    and there exist a time $K_\alpha<\infty$ and a constant $\rho_\alpha\in(0,1]$ such that 
+    for every $k\ge K_\alpha$
+    and every $i \in \{0, \dots, \left\lfloor 1 / \alpha_k \right\rfloor\}$
+    \begin{equation}
+    \label{eq:comparison}
+    \alpha_{k+i}\ge \rho_\alpha \alpha_k .
+    \end{equation}
+\end{assumption}
+
+\autoref{asp: additional conditions on learning rate} is a common regularity condition when analysing asynchronous stochastic approximations
+\citep{Borkar1998AsynchronousApproximations, Perkins2012AsynchronousInclusions, Liu2025TheNoise}.
+It ensures the learning rates do not decay too quickly as they remain ``comparable'' to $\alpha_k$ for at least $\lfloor 1/\alpha_k \rfloor$ successive steps.
+Many classical learning-rate schemes satisfy this condition, such as $\alpha_k = c_1 / (k+c_2)^{c_3}$ with $c_1>0$, $c_2 \ge 0$ and $c_3 \in (1/2, 1]$.
+
+
+
+\begin{proposition}
+\label{thm: fixed prob that bad actions dont become greedy}
+    Let $(\pi_k)_{k\ge 0}$ be a sequence of policies generated by MC-O-PI
+    under \autoref{asp: standing},
+    with initial-visit updates,
+    learning rates that satisfy the comparability assumption (\autoref{asp: additional conditions on learning rate}),
+    and update distributions that are uniform over all actions in each state (\autoref{asp: unbiased over policies}).
+    Let $(t_n)_{n\ge 0}$ be the associated transition times.
+    % 
+    There exist a constant $p>0$ and an almost surely finite time $K$ such that
+    for every $n \in \mathbb Z_{\ge 0}$ with $K \le t_n < \infty$,
+    \begin{align}
+    \label{eq: porb better action value}
+    \mathbb P \big(
+    \forall \, s \in \sset, \
+    \forall \, k \in \{t_n, \dots , t_{n+1} \}
+    \ : \
+    (s, \pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+    \mid \mathcal F_{t_n}
+    \big) \ge p .
+    \end{align}
+\end{proposition}
+
+
+We track the distance between $(s,\pi_{t_n}(s))$ and pairs in $\mathcal B_{\pi_{t_n}}$ using gap variables.
+
+\begin{definition}[Gap variables]
+\label{def: gap variables}
+% Let $\{t_n\}_{n\ge 0}$ be the transition times associated with the policy sequence generated by system \eqref{eq: stochastic rep} under the setting of \autoref{thm: iv mcopi converges as}.
+Fix a finite transition index $n \in \mathbb Z_{\ge 0}$
+and write $\pi := \pi_{t_n}$.
+% For each state $s \in \mathcal S$ and action $a \in \mathcal A(s)$, the gap is initialised at time $t_n$ as
+For each $k \in \{t_n, \dots, t_{n+1}\}$, define
+\begin{align*}
+% \label{eq: def gap initialisation}
+% d_{t_n}(s,a) = q_{t_n}(s,\pi(s)) - q_{t_n}(s,a) ,
+d_{k}(s,a) = q_{k}(s,\pi(s)) - q_{k}(s,a) .
+\end{align*}
+While $k < t_{n+1}$, each gap evolves as
+\begin{align}
+\label{eq: def gap evolution}
+d_{k+1}(s,a) = d_k(s,a) + \alpha_k \left( \sigma_k(s)(d_\pi(s,a) - d_k(s,a)) + \xi_k(s,a) \right)
+\end{align}
+where we simplified the uniform update distributions under initial-visit updates to
+\begin{align*}
+    \sigma_k(s) := \sigma_k(s,a) = \mu_k(s,a) = \mu_k(s,\pi(s)),
+\end{align*}
+the target gap $d_\pi$ is
+\begin{align*}
+% \label{eq: def policy gap}
+    d_\pi(s,a) := q_{\pi}(s,\pi(s)) - q_{\pi}(s,a) ,
+\end{align*}
+and the gap noise $\xi_k$ is
+\begin{align*}
+% \label{eq:xi-def}
+    \xi_k(s,a) &:=
+w_{k}(s,\pi(s)) - w_{k}(s,a) .
+% \\
+% \nonumber
+% &\: = u_k(s,\pi(s))v_k(s,\pi(s)) - u_k(s,a) v_k(s,a)
+% \\
+% \nonumber
+% &\: \quad + \bigl( u_k(s,\pi(s)) - \mu_k(s) \bigr) \bigl( q_\pi(s,\pi(s)) - q_k(s,\pi(s)) \bigr)
+% \\
+% \nonumber
+% &\: \quad - \bigl( u_k(s,a) - \mu_k(s) \bigr) \bigl( q_\pi(s,a) - q_k(s,a) \bigr) .
+\end{align*}
+\end{definition}
+
+
+\begin{lemma}
+\label{thm: properties noise gap}
+There exist a constant $c_\xi \in [0,\infty)$ 
+and an almost surely finite time $K_\xi$ such that
+for every transition index $n \in \mathbb Z_{\ge 0}$ satisfying $t_n \ge K_\xi$,
+\begin{align}
+\label{eq:xi-mean}
+&\mathbb E [ \xi_{k}(s,a) \mid \mathcal F_k ] = 0
+\\
+\label{eq:xi-var}
+&\mathbb E [ \xi_{k}^2(s,a) \mid \mathcal F_k ] \le c_\xi
+\end{align}
+for every $k \in \{t_n, \dots, t_{n+1}-1\}$, every $s \in \mathcal S$, and every $a \in \mathcal A(s)$.
+\end{lemma}
+\begin{proof}
+\autoref{thm: properties of noise}
+% requires that $w_k(s,a)$ is unbiased.
+directly proves \eqref{eq:xi-mean} since
+\[
+\mathbb E \!\big[ \xi_{k}(s,a) \mid \mathcal F_k \big] 
+=
+\mathbb E \!\big[ w_{k}(s,\pi_{t_n}(s)) \mid \mathcal F_k \big] - \mathbb E \!\big[ w_{k}(s,a) \mid \mathcal F_k \big] 
+= 
+0 .
+\]
+Further,
+\autoref{thm: bounded limit sets} implies that
+% $q_k$ converge almost surely to the set $\bigl\{ q \in \mathcal Q : q_{\worst{\pi}} \le q \le q_{\best{\pi}} \bigr\}$, where $\overline \pi$ and $\pi_*$ are the worst and best policies of the MDP, respectively.
+% Thus, 
+there exists an almost surely finite time $K_{\xi}$ such that $\| q_k \| \le c_{\mathcal P} + 1$ for every $k \ge K_{\xi}$,
+with $c_{\mathcal P} := \max_{\pi \in \mathcal P}\| q_\pi \|_\infty$.
+Substituting this into \eqref{eq: muw_second_moment} yields
+\[
+\mathbb E[w_k^2(s,a) \mid \mathcal F_k] 
+\le c_w(1+\|q_k\|^2)
+\le c_w(1+(c_{\mathcal P} + 1)^2)
+\qquad
+\forall \, k \ge K_{\xi}, \
+\forall \, s \in \mathcal S, \
+\forall \, a \in \mathcal A(s).
+\]
+Using $(x-y)^2 \le 2 ( x^2 + y^2)$ then proves
+\eqref{eq:xi-var}
+because for every $k \ge K_{\xi}$, every $s \in \mathcal S$, and all $a, a' \in \mathcal A(s)$
+\begin{align*}   
+\mathbb E\!\left[ \bigl(w_k(s,a) - w_k(s,a') \bigr)^2 \ \big| \ \mathcal F_k \right]
+&\le
+2 \left( \mathbb E\!\left[ w_k^2(s,a) \mid \mathcal F_k \right] 
++ \mathbb E\!\left[ w_k^2(s,a') \mid \mathcal F_k \right] \right)
+\\
+&\le
+4 \, c_w \left( 1 + (c_{\mathcal P}+1)^2 \right)
+=: c_\xi .
+\end{align*}
+\end{proof}
+
+
+% \textcolor{red}{need $\mathcal B_{\pi_k} \equiv \mathcal B_{\pi}$ for all $k \in \{t_n, \dots t_{n+1}-1\}$? then easy to get proof, but if not necessary, dont add it}
+Over each interval $\{t_n, \dots, t_{n+1}\}$,
+we construct three events that guarantee that the gap $d_k$ of each pair in $\mathcal B_{\pi_{t_n}}$ is strictly positive up to time $t_{n+1}$,
+and consequently that no such pair is greedy.
+Specifically, we fix a margin $\delta>0$.
+The \textit{seed} event $\mathcal E^s_{t_n}$ first forces each ``bad'' gap at least up to $O(\alpha_k)$.
+The \textit{growth} event $\mathcal E^g_{t_n}$ then drives them from $O(\alpha_k)$ to $\delta$.
+Finally, the \textit{lock-in} event $\mathcal E^l_{t_n}$ ensures that, after reaching $\delta$, they remains strictly positive up to time $t_{n+1}$.
+
+
+Concretely, define the minimum target gap across all policies
+\[
+d_{\min}
+:=
+\min_{\pi\in\mathcal P}\ \inf_{(s,a)\in \mathcal B_\pi} d_\pi(s,a) > 0 .
+\]
+% with the convention that $\min\varnothing=\infty$.
+Using the constants $\sigma_{\min}$ and $\rho_\alpha$ from \autoref{asp: standing}.(3) and \autoref{asp: additional conditions on learning rate}, respectively,
+we choose $\delta$ such that
+\begin{equation}
+\label{eq:delta-choice}
+0<\delta<\min\left\{\frac{d_{\min}}{8},\,\frac{\rho_\alpha \sigma_{\min} d_{\min}}{32}\right\}.
+\end{equation}
+This allows us to further define the constants
+\begin{align}  
+\label{eq:c-def}
+% \label{eq:cs-def}
+c_s := \left( \frac{d_{\min}}{4} - \delta \right) > 0,
+% \\
+% \label{eq:cg-def}
+\qquad
+c_g := \sigma_{\min} ( d_{\min} - 2 \delta) > 0,
+% \\
+% \label{eq:c-def}
+\qquad
+c := \min \left\{ c_s, c_g \right\} > 0.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Seed event pushes gap up to $\bm{O(\alpha_k)}$}
+
+
+Let $M \in \mathbb N$ denote a finite time horizon whose value will be fixed later.
+For any time $k \in \{t_n, \ldots, t_{n+1}-1\}$, we define the seed event differently if the value of the greedy action is under- or overestimated.
+% Concretely, for any index $n \in \mathbb Z_{\ge 0}$,
+% any time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+% any state $s \in \mathcal S$,
+% and any action $a \in \mathcal A(s)$,
+Namely, if $q_{\pi_{t_n}}(s,\pi_{t_n}(s)) - q_{k}(s,{\pi_{t_n}}(s)) \ge d_{\min}/2$,
+we update the pair $(s,{\pi_{t_n}}(s))$ for $M$ consecutive steps and require that the noise at each step is not too negative. We gather these conditions in the event
+\begin{align*}
+    \mathcal E^+_k(s,a)
+    := 
+    \bigcap_{k'=k}^{k+M-1}
+    \left\{
+    u_{k'}(s,\pi_{t_n}(s)) = 1, \
+    v_{k'}(s,\pi_{t_n}(s)) \ge -\frac{d_{\min}}{4}
+    \right\} .
+\end{align*}
+On the other hand, if $q_{\pi_{t_n}}(s,\pi_{t_n}(s)) - q_{k}(s,{\pi_{t_n}}(s)) < d_{\min}/2$,
+we update $(s,a)$ and require that the noise is not too positive:
+\begin{align*}
+    \mathcal E^-_k(s,a)
+    := 
+    \bigcap_{k'=k}^{k+M-1}
+    \left\{
+    u_{k'}(s,a) = 1, \
+    v_{k'}(s,a) \le \frac{d_{\min}}{4}
+    \right\} .
+\end{align*}
+Altogether, we obtain the seed event
+\begin{multline}
+\label{eq: def good prefix}
+    \mathcal E^s_k(s,a) := 
+    \left( \left\{ q_{\pi_{t_n}}(s,\pi_{t_n}(s)) - q_{k}(s,{\pi_{t_n}}(s)) \ge \frac{d_{\min}}{2} \right\} \cap \mathcal E^+_k(s,a) \right) 
+    \\
+    \bigcup 
+    \left( \left\{ q_{\pi_{t_n}}(s,\pi_{t_n}(s)) - q_{k}(s,\pi_{t_n}(s)) < \frac{d_{\min}}{2} \right\} \cap \mathcal E^-_k(s,a) \right) .
+\end{multline}
+We also define the hitting time
+\[
+\tau^s_k(s,a) := \inf \big\{ k' \in \{k+1, \dots, k+M \} : q_{k'}(s,\pi_{t_n}(s))-q_{k'}(s,a) \ge \delta \} ,
+\]
+and the accumulated learning rate mass between times $k$ and $k'>k$ as
+\[
+A(k,k') := \sum_{i=k}^{k'-1} \alpha_{i} .
+\]
+% with the convention that $A(k, k) = 0$.
+We now show that, on $\mathcal E^s_k(s,a)$, ``bad'' gaps grow at least up to $O(\alpha_k)$ in $M$ steps.
+
+\begin{lemma}[Seed event]
+\label{thm: event to reach a_k margin}
+Consider the setting of \autoref{thm: fixed prob that bad actions dont become greedy}.
+For every index $n \in \mathbb Z_{\ge 0}$,
+every pair $(s,a) \in \mathcal B_{\pi_{t_n}}$
+and every time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+the joint event
+\begin{align}
+\label{eq: joint seed event}
+\mathcal E^s_k(s,a)
+\cap
+% \big\{0 \leq q_{k}(s,\pi_{t_n}(s)) - q_{k}(s,a) < \delta \big\}
+\big\{0 \leq d_k(s,a) < \delta \big\}
+\end{align}
+guarantees that 
+% for every $k'$ satisfying 
+% % $k < k' \le \big( \tau^s_k(s,a) \wedge (k+M) \wedge t_{n+1} \big)$,
+% $k < k' \le \min\{ \tau^s_k(s,a), k+M, t_{n+1} \}$,
+\begin{align}
+\label{eq: lower bound during good prefix}
+    d_{k'}(s,a)
+    % q_{k'}(s,\pi_{t_n}(s)) - q_{k'}(s,a)
+    > c_s A(k,k') > 0
+    \qquad 
+    \forall \, k < k' \le \min\{ \tau^s_k(s,a), k+M, t_{n+1} \} .
+\end{align}
+% for every $k'$ that satisfies $k < k' \le \big( \tau^s_k(s,a) \wedge (k+M) \wedge t_{n+1} \big)$.
+Moreover, 
+% the probability of $\mathcal E^s_k(s,a)$ is lower bounded by
+\begin{align}
+\label{eq: probability reach a_k margin}
+    \mathbb P ( \mathcal E^s_k(s,a) \mid \mathcal F_k, \pi_{t_n} ) \ge \left( \sigma_{\min} \frac{d_{\min}^2}{d_{\min}^2 + 16 c_v} \right)^M > 0 .
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Fix a transition index $n \in \mathbb Z_{\ge 0}$ and let $\pi := \pi_{t_n}$.
+Fix a pair $(s,a) \in \mathcal B_\pi$,
+define the sequence $\big( d_k(s,a) \big)_{k=t_n}^{t_{n+1}}$ as in \autoref{def: gap variables}, and write $d_k := d_k(s,a)$ and $d_\pi := d_\pi(s,a)$ for brevity.
+Fix a time $k \in \{t_n, \dots, t_{n+1}-1\}$ and write $\tau^s_k := \tau^s_k(s,a)$.
+
+% We split the proof along the two mutually exclusive cases that make up $\mathcal E^s_k(s,a)$.
+
+
+When $q_\pi(s,\pi(s)) - q_{k}(s,\pi(s)) \ge d_{\min}/2$,
+% On 
+event $\mathcal E^+_k(s,a)$
+% only $(s, \pi(s))$ is updated.
+% during $M$ consecutive steps,
+% and $v_{k'}(s,\pi(s)) \ge -d_{\min}/4$ for every $k' \in \{k, \dots, k+M-1\}$.
+implies that for every $k'$ satisfying
+% $k \le k' < \big((k+M) \wedge t_{n+1} \big)$,
+$k \le k' < \min\{ k+M, t_{n+1} \}$,
+\begin{align}
+\nonumber
+    d_{k'+1}
+    &= d_{k'} + \alpha_{k'} \big( q_\pi(s,\pi(s)) - q_{k'}(s,\pi(s)) + v_{k'}(s,\pi(s)) \big)
+    \\
+\label{eq: plug noise into update of seed stage case 1}
+    &\ge d_{k'} + \alpha_{k'} \left( q_\pi(s,\pi(s)) - q_{k'}(s,\pi(s)) - \frac{d_{\min}}{4} \right) .
+\end{align}
+Given that $0 \le d_{k} < \delta$ and $d_{k'} < \delta$ while $k'< \tau^s_k$,
+it follows that 
+\begin{align}
+% \nonumber
+\label{eq: lower bound update step in seed stage case 1}
+    q_\pi(s,\pi(s)) - q_{k'}(s,\pi(s))
+    = q_\pi(s,\pi(s)) - d_{k'} + d_{k} - q_{k}(s,\pi(s))
+    % \\
+    > \frac{d_{\min}}{2} - \delta > 0
+\end{align}
+as long as
+% $k \le k' < \big( \tau^s_k \wedge (k+M) \wedge t_{n+1} \big)$,
+$k \le k' < \min\{ \tau^s_k , k+M, t_{n+1} \}$.
+Equations \eqref{eq: plug noise into update of seed stage case 1} and \eqref{eq: lower bound update step in seed stage case 1}
+thus indicate that, on \eqref{eq: joint seed event},
+% for every $k'$ satisfying
+% $k \le k' < \min\{ \tau^s_k , k+M, t_{n+1} \}$,
+% the gap strictly increases at each time $k'$ in the restricted range:
+\begin{align}
+\label{eq: final lower bound case 1}
+    d_{k'+1}
+    > d_{k'} + \alpha_{k'} \left( \frac{d_{\min}}{4} - \delta \right)
+    = d_{k'} + \alpha_{k'} c_s
+    % > 0 .
+    \qquad
+    \forall \, k \le k' < \min\{ \tau^s_k , k+M, t_{n+1} \} .
+\end{align}
+
+Similarly, when $q_\pi(s,\pi(s)) - q_{k}(s,\pi(s)) < d_{\min}/2$
+% event $\mathcal E^-_k(s,a)$ guarantees that
+% only $(s, a)$ is updated during $M$ consecutive steps, and $v_{k'}(s,a) \le d_{\min}/4$ for every $k' \in \{k, \dots, k+M-1\}$.
+we obtain
+\begin{align}
+% \nonumber
+    d_{k'+1}
+    % &= d_{k'} + \alpha_{k'}(q_{k'}(s,a) - q_\pi(s,a) - v_{k'}(s,a))
+    % \\
+\label{eq: plug noise into update of seed stage case 2}
+    &\ge d_{k'} + \alpha_{k'} \left( q_{k'}(s,a) - q_\pi(s,a) - \frac{d_{\min}}{4} \right)
+\end{align}
+as long as
+% $k \le k' < \big((k+M) \wedge t_{n+1} \big)$,
+$k \le k' < \min\{ k+M, t_{n+1}\}$.
+Since $q_{k}(s,\pi(s))$ is unchanged on $\mathcal E^-_k(s,a)$
+and $d_{k'} < \delta$ while $k' < \tau^s_k$,
+it follows that
+\begin{align}
+% \nonumber
+    q_{k'}(s,a) - q_\pi(s,a)
+    = d_\pi - \big( q_\pi(s,\pi(s)) - q_{k}(s,\pi(s)) \big) - d_{k'}
+    % \\
+\label{eq: lower bound update step in seed stage case 2}
+    % > d_{\min} - \frac{d_{\min}}{2} - \delta
+    % \ge \frac{d_{\min}}{2} - \delta 
+    > \frac{d_{\min}}{2} - \delta 
+\end{align}
+as long as
+% $k \le k' < \big( \tau^s_k \wedge (k+M) \wedge t_{n+1} \big)$,
+$k \le k' < \min\{ \tau^s_k, k+M, t_{n+1} \}$.
+Hence \eqref{eq: plug noise into update of seed stage case 2} and \eqref{eq: lower bound update step in seed stage case 2} confirm that, on \eqref{eq: joint seed event},
+% the gap strictly increases at each time $k'$ in the restricted range:
+\begin{align}
+\label{eq: final lower bound case 2}
+    d_{k'+1}
+    > d_{k'} + \alpha_{k'} \left( \frac{d_{\min}}{4} - \delta \right)
+    = d_{k'} + \alpha_{k'} c_s
+    % > 0 .
+    \qquad
+    \forall \, k \le k' < \min\{ \tau^s_k , k+M, t_{n+1} \} .
+\end{align}
+By induction on \eqref{eq: final lower bound case 1} or \eqref{eq: final lower bound case 2},
+% and shifting the index by 1 to include time step $k'+1$,
+we obtain
+\begin{align}
+\label{eq: increase in d^b case B}
+    d_{k'}
+    > d_{k} + c_s A(k,k')
+    \ge c_s A(k,k') > 0
+    \qquad
+    \forall \, k < k' \le \min\{ \tau^s_k , k+M, t_{n+1} \} .
+\end{align}
+% for every $k'$ satisfying
+% $k < k' \le \min\{ \tau^s_k , k+M, t_{n+1} \}$,
+% as long as $k < k' \le \big( \tau^s_k \wedge (k+M) \wedge t_{n+1} \big)$, 
+which proves \eqref{eq: lower bound during good prefix}.
+
+Finally, 
+% we lower-bound the probability of $\mathcal E^s_k(s,a)$.
+given that $v_k$ is unbiased and its variance is bounded by $c_v$ uniformly over the policies,
+Cantelli's inequality implies that for every $k' \ge 0$, every $s \in \mathcal S$ and every $a \in \mathcal A(s)$,
+\begin{align}
+&\mathbb P \! \left( v_{k'}(s,a) \ge -\frac{d_{\min}}{4} \,\middle|\, \mathcal F_{k'}, u_{k'}(s,a)=1 \right) \ge \frac{d_{\min}^2}{d_{\min}^2 + 16 c_v},
+\label{eq:noise-lower}
+\\
+&\mathbb P \! \left( v_{k'}(s,a) \le \frac{d_{\min}}{4} \,\middle|\, \mathcal F_{k'}, u_{k'}(s,a)=1 \right) \ge \frac{d_{\min}^2}{d_{\min}^2 + 16 c_v}.
+\label{eq:noise-upper}
+\end{align}
+Since the case choice in \eqref{eq: def good prefix} is measurable on $\{\mathcal F_{k}, \pi_{t_n}\}$ and the minimum sampling probability of any state-action pair is $\sigma_{\min}$ by \autoref{asp: standing}.(3),
+% under strict exploring starts, 
+repeated conditioning over $M$ steps yields
+\begin{align}
+\label{eq: prob of good prefix}
+\mathbb P \big( \mathcal E^s_k(s,a) \mid \mathcal F_{k} , \pi_{t_n} \big) \ge \left( \sigma_{\min} \frac{d_{\min}^2}{d_{\min}^2 + 16 c_v} \right)^M > 0 .
+\end{align}
+Since $n$, $(s,a)$ and $k$ were chosen arbitrarily from their respective sets, the result holds uniformly.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Growth event pushes gap from $\bm{O(\alpha_k)}$ to $\bm{\delta}$}
+
+
+% Let $N(k)$ denote the minimum number of steps required to accumulate a particular amount of learning rate mass:
+Define the growth window $N(k)$ as
+\begin{align}
+N(k)
+% :=
+% \inf \left\{ i \ge 1 : 
+% A(k,k+i)
+% \ge \frac{4 \delta}{c_g} \right\} .
+\:=
+\left\lceil \frac{4 \delta}{c_g \rho_\alpha \alpha_k} \right\rceil . 
+\end{align}
+
+\begin{lemma}
+\label{thm: growth window}
+Under \autoref{asp: standing},
+there exists a finite time $K_N$ such that for every $k \ge K_N$,
+\[
+N(k) \le \frac{1}{\alpha_{k}},
+\qquad 
+A(k,k + N(k)) \ge \frac{4 \delta}{c_g} .
+\]
+\end{lemma}
+\begin{proof}
+The definitions of $\delta$ and $c_g$ in \eqref{eq:delta-choice}--\eqref{eq:c-def} ensure that
+\begin{multline*}
+    \frac{4 \delta}{c_g \rho_\alpha}
+    < 
+    \frac{4 \rho_\alpha \sigma_{\min} d_{\min}}{32 \sigma_{\min}(d_{\min} - 2 \delta) \rho_\alpha}
+    =
+    \frac{d_{\min}}{8 (d_{\min} - 2 \delta)}
+%    \\
+    <
+    \frac{d_{\min}}{8(d_{\min} - d_{\min}/4)}
+    =
+    \frac{1}{6}
+    < 1 .
+\end{multline*}
+The Robbins--Monro conditions in \autoref{asp: standing}.(1) imply that 
+$(\alpha_k)_{k \ge 0}$ decreases to 0. So there exists a finite $K$ such that $4\delta / c_g \rho_\alpha + \alpha_k < 1$ for all $k \ge K$,
+and hence
+\[
+N(k) < \frac{4 \delta}{c_g \rho_\alpha \alpha_k} + 1 < \frac{1}{\alpha_k} .
+\]
+% Let
+% \[
+% r_k := \left\lceil \frac{4 \delta}{c_g \rho_\alpha \alpha_k} \right\rceil .
+% \]
+% Since $r_k \le 1/ \alpha_k$,
+The comparability property of the learning rates in \autoref{asp: additional conditions on learning rate} then guarantees that $A(k, k+N(k)) \ge N(k) \rho_\alpha \alpha_{k} \ge 4 \delta / c_g$ for every $k \ge K_n := \max\{K, K_\alpha\}$.
+% \[
+% A(k, k+r_{k}) \ge r_{k} \rho_\alpha \alpha_{k} \ge 4 \delta / c_g .
+% \]
+% As a result, there exists a finite time $K_N \ge \max\{K, K_\alpha\}$ such that $N(k) \le r_k \le 1/\alpha_{k}$ for all $k \ge K_N$.
+\end{proof}
+
+For any $k \in \{t_n, \dots, t_{n+1}-1\}$,
+% any state $s \in \mathcal S$
+% and any action $a \in \mathcal A(s)$,
+define the accumulated stochastic perturbations between times $k$ and $k'>k$ as
+\[
+\Xi(k, k' \mid s,a) 
+:= 
+\sum_{i=k}^{k'-1} \alpha_{i} \xi_i(s,a)
+=
+\sum_{i=k}^{k'-1} \alpha_{i} \big( w_i(s, \pi_{t_n}(s))-w_i(s,a) \big) ,
+\]
+% with the convention $\Xi(k, k \mid s,a) = 0$.
+the growth event
+% For any index $n \in \mathbb Z_{\ge 0}$,
+% any time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+% any state $s \in \mathcal S$
+% and any action $a \in \mathcal A(s)$,
+as
+\[
+\mathcal E^g_k(s,a)
+:=
+\bigcap_{k'=k+1}^{k+N(k)}
+\left\{
+\Xi(k,k' \mid s,a) > - \frac{c_s}{2} \rho_\alpha M \alpha_k - \frac{c_g}{2} A(k,k')
+\right\} ,
+\]
+% for any $M \in \mathbb N$,
+and the hitting time as
+\[
+\tau^g_k(s,a) := \inf \! \big\{ k' \in \{k+1, \dots, k+N(k) \} : q_{k'}(s,\pi_{t_n}(s)) - q_{k'}(s,a) \ge \delta \big\} .
+\]
+We now show that, on $\mathcal E^g_k(s,a)$, 
+perturbations cannot prevent ``bad'' gaps from reaching $\delta$ in $N(k)$ steps.
+% significantly offset the mean-field drift.
+% the gap $d_k(s,a)$ stays strictly positive until $\min\{\tau^g_k(s,a), t_{n+1}\}$, and reaches $\delta$ within $N(k)$ steps, meaning
+
+\begin{lemma}[Growth event]
+\label{thm: from a_k margin to delta}
+Consider the setting of \autoref{thm: fixed prob that bad actions dont become greedy}
+and let $K_\xi$ and $K_N$ be the finite times obtained in \autoref{thm: properties noise gap} and \autoref{thm: growth window}, respectively.
+For every index $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K_N$,
+every pair $(s,a) \in \mathcal B_{\pi_{t_n}}$
+and every time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+the joint event
+\begin{align}
+\label{eq: joint growth event}
+\mathcal E^g_k(s,a) \cap \big\{ c_s \rho_\alpha M \alpha_k \leq d_k(s,a) < \delta \big\}
+% \mathcal E^g_k(s,a) \cap \big\{ c_s \rho_\alpha M \alpha_k \leq q_{k}(s,\pi_{t_n}(s)) - q_{k}(s,a) < \delta \big\}
+\end{align}
+guarantees that 
+% the gap $d_k(s,a)$ stays strictly positive until $\min\{\tau^g_k(s,a), t_{n+1}\}$, and reaches $\delta$ within $N(k)$ steps, meaning
+% for every $k'$ satisfying
+% $k \le k' \le \min \{ \tau^g_k(s,a), t_{n+1} \}$,
+\begin{align}
+\label{eq: growth event gap remains positive}
+    d_{k'}(s,a) > 0
+    % q_{k'}(s,\pi_{t_n}(s)) - q_{k'}(s,a) > 0,
+    \qquad \forall \, k \le k' \le \min \{ \tau^g_k(s,a), t_{n+1} \} , 
+\end{align}
+and
+\begin{align}
+\label{eq: hit time event a_k to delta}
+    \min \{ \tau^g_k(s,a) , t_{n+1} \} \le k + N(k) .
+\end{align}
+Moreover, if $t_n \ge K_\xi$,
+\begin{align}
+\label{eq: prob from a_k reach delta}
+    \mathbb P (\mathcal E^g_k(s,a) \mid \mathcal F_k, \pi_{t_n})
+    \ge 1 - \frac{8 c_\xi}{c^2 \rho_\alpha^2} \sum_{j = 0}^{\infty} \frac{2^j}{(M + 2^j)^2} .
+\end{align}
+\end{lemma}
+\begin{proof}
+Fix an $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K_N$,
+and let $\pi := \pi_{t_n}$.
+Fix a pair $(s,a) \in \mathcal B_\pi$,
+define the sequence $\big( d_k(s,a) \big)_{k=t_n}^{t_{n+1}}$ as in \autoref{def: gap variables}, and write $d_k := d_k(s,a)$, $d_\pi := d_\pi(s,a)$ and $\xi_k := \xi_k(s,a)$ for brevity.
+Fix a time $k \in \{t_n, \dots, t_{n+1}-1\}$ and write $\tau^g_k := \tau^g_k(s,a)$.
+
+For every $k' \in \{k, \dots, \tau^g_k\}$ we have $d_{k'} \le \delta$, and hence
+\[
+\sigma_{k'}(s) (d_\pi - d_{k'}) \ge \sigma_{\min}(d_{\min} - \delta)
+>
+\sigma_{\min}(d_{\min} - 2 \delta)
+= c_g .
+\]
+Thus summing \eqref{eq: def gap evolution} from $k$ to any $k'$ satisfying $k < k' \le \min\{\tau^g_k, t_{n+1}\}$ yields
+\[
+d_{k'}
+>
+d_{k} + c_g A(k,k') + \Xi(k,k' \mid s,a) .
+\]
+% $k' \in \{k, \dots, t_{n+1}-1\}$
+% the gap satisfies
+% \[
+% d_{k'+1}
+% =
+% d_{k'} + \alpha_{k'} \big( \mu_{k'}(s) (d_\pi - d_{k'}) + \xi_{k'} \big) ,
+% \]
+% where the definition of $\delta$ guarantees that $d_\pi \ge d_{\min} > 2 \delta$,
+% and the strict exploring starts ensure that $\mu_{k'}(s) \ge \sigma_{\min}$. 
+% Since $d_{k'} < \delta$ before the hitting time $\tau^g_k$,
+% we can bound the update for all $k \le k' < ( \tau^g_k \wedge t_{n+1} )$ as
+% \begin{align*}
+% d_{k'+1}
+% >
+% d_{k'} + \alpha_{k'} \left( \sigma_{\min}(d_{\min} - \delta) + \xi_{k'} \right)
+% % \\
+% % &>
+% % d_{k'} + \alpha_{k'} \left( \sigma_{\min}(d_{\min} - 2 \delta) + \xi_{k'} \right)
+% % \\
+% >
+% d_{k'} + \alpha_{k'} \left( c_g + \xi_{k'} \right) ,
+% \end{align*}
+% using $c_g := \sigma_{\min} ( d_{\min} - 2 \delta)$.
+% Summing from $k$ to $k'$ then yields
+% \[
+% d_{k'}
+% >
+% d_{k} + c_g A(k,k') + \Xi(k,k' \mid s,a) .
+% \]
+As a result, the joint event in \eqref{eq: joint growth event} implies that as long as $k < k' \le \min\{ \tau^g_k , t_{n+1}, k+N(k) \}$,
+\begin{align}
+d_{k'}
+&>
+c_s \rho_\alpha M \alpha_k + c_g A(k,k') - \frac{c_s}{2} \rho_\alpha M \alpha_k - \frac{c_g}{2} A(k,k')
+\nonumber
+\\
+\label{eq: gap remains positive up to tau'_k}
+&=
+\frac{c_s}{2} \rho_\alpha M \alpha_k + \frac{c_g}{2} A(k,k') > 0 .
+\end{align}
+% which proves \eqref{eq: growth event gap remains positive}.
+% 
+Now assume that $t_{n+1} > k+N(k)$, otherwise $\min\{ \tau^g_k, t_{n+1} \} \le k+N(k)$ is immediate.
+Suppose for contradiction that $\tau^g_k = \infty$ because $d_k$ does not reach $\delta$ within $N(k)$ steps. 
+Since $k \ge t_n \ge K_N$, \autoref{thm: growth window} and equation \eqref{eq: gap remains positive up to tau'_k} yield
+\[
+d_{k+N(k)}
+>
+\frac{c_s}{2} \rho_\alpha M \alpha_k + \frac{c_g}{2} A(k,k+N(k)) 
+>
+% \frac{c_g}{2} A(k,k+N(k)) 
+% \ge
+\frac{c_g}{2} \frac{4 \delta}{c_g} 
+> 
+\delta .
+\]
+This contradicts $\tau^g_k = \infty$. Hence $\tau^g_k \le k+N(k)$, which proves \eqref{eq: hit time event a_k to delta}; and with \eqref{eq: gap remains positive up to tau'_k} also gives \eqref{eq: growth event gap remains positive}.
+
+% This contradiction implies that $\tau^g_k \le k+N(k)$, which proves \eqref{eq: hit time event a_k to delta} and, together with \eqref{eq: gap remains positive up to tau'_k}, proves \eqref{eq: growth event gap remains positive}.
+
+% Then \eqref{eq: gap remains positive up to tau'_k} yields
+% \[
+% d_{k+N(k)}
+% >
+% \frac{c_s}{2} \rho_\alpha M \alpha_k + \frac{c_g}{2} A(k,k+N(k)) 
+% >
+% \frac{c_g}{2} A(k,k+N(k)) .
+% \]
+% However,
+
+% since the definition of $N(k)$ guarantees that $A(k,k+N(k)) \ge 4 \delta/c_g$, we obtain a contradiction: $d_{k+N(k)}
+% >
+% \frac{c_s}{2} \rho_\alpha M \alpha_k + 2 \delta
+% > \delta .$
+% % \[
+% % d_{k+N(k)}
+% % >
+% % \frac{c_s}{2} \rho_\alpha M \alpha_k + 2 \delta
+% % > \delta .
+% % \]
+% Thus, $\tau^g_k \le k+N(k)$, which proves \eqref{eq: hit time event a_k to delta}.
+
+Finally,
+% we lower-bound the probability of $\mathcal E^g_k(s,a)$.
+the complement event $\overline{\mathcal E^g_k(s,a)}$ implies that for some $i \in \{1, \dots , N(k) \}$,
+\begin{align*}
+\bigl| \Xi(k,k+i \mid s,a) \bigr|
+\ge \frac{c_s}{2} \rho_\alpha M \alpha_k + \frac{c_g}{2} A(k,k+i)
+% \]
+% Using $c := \min\{c_s,c_g\}$ and the comparability property (since $i \le N(k) \le 1/\alpha_k$ for $k \ge t_n \ge K_N$), this simplifies to
+% \[
+% \bigl| \Xi(k,k+i \mid s,a) \bigr|
+\ge \frac{c}{2} \big( \rho_\alpha M \alpha_k + A(k,k+i) \big) .
+% \ge \frac{c}{2} \rho_\alpha \alpha_k ( M + i ).
+\end{align*}
+Choosing $j \in \mathbb N$ such that $2^j \le i \le 2^{j+1}$ 
+and using the comparability of the learning rates from \autoref{asp: additional conditions on learning rate}
+yields the bound
+\begin{align}
+    \max_{1 \le \ell \le \min \{ 2^{j+1} , N(k) \}}
+    |\Xi(k,k + \ell \mid s,a)|
+    \ge \frac{c}{2} \big( \rho_\alpha M \alpha_k + A(k,k + 2^j) \big)
+    \ge \frac{c}{2} \rho_\alpha \alpha_k (M + 2^j) .
+\end{align}
+So if $t_n \ge K_\xi$,
+% By \autoref{thm: properties noise gap}, there exists an almost surely finite $K_\xi$ such that 
+the sequence $\big(\Xi(k, k+\ell \mid s,a)\big)_{\ell \ge 1}$ is a square-integrable martingale adapted to the filtration $(\mathcal F_{k+\ell})_{\ell \ge 1}$. So, by Doob's martingale inequality,
+\begin{align}
+\label{eq: prob of not E^g_k}
+    \mathbb P
+    \left( 
+    \overline{\mathcal E^g_k(s,a)} \mid \mathcal F_{k}, \pi_{t_n}
+    \right)
+    % \\
+    % \nonumber
+    \le
+    \sum_{j = 0}^{\infty} \frac{\mathbb E \left[ \big( \Xi(k, \min\{ k+2^{j+1}, k+N(k) \} \mid s,a) \big)^2 \mid \mathcal F_{k}, \pi_{t_n} \right]}{\left( \dfrac{c}{2} \rho_\alpha \alpha_k ( M + 2^j) \right)^2} .
+\end{align}
+\autoref{thm: properties noise gap} and the non-increasing sequence $(\alpha_k)_{k \ge 0}$ imply that
+\begin{align*}
+\mathbb E \left[ \big( \Xi(k, \min\{ k+2^{j+1}, k+N(k)\} \mid s,a) \big)^2 \mid \mathcal F_{k}, \pi_{t_n} \right]
+\le
+c_\xi \sum_{\ell=0}^{2^{j+1}-1} \alpha^2_{k+\ell}
+\le
+c_\xi 2^{j+1} \alpha^2_k .
+\end{align*}
+Substituting this back into \eqref{eq: prob of not E^g_k} proves \eqref{eq: prob from a_k reach delta} because
+\begin{align}
+    \mathbb P
+    \left( 
+    \overline{\mathcal E^g_k(s,a)} \mid \mathcal F_{k}, \pi_{t_n}
+    \right)
+    \le
+    \frac{8 c_\xi}{c^2 \rho_\alpha^2} \sum_{j = 0}^{\infty} \frac{2^j}{(M+ 2^j)^2}.
+\end{align}
+Since $n$, $(s,a)$ and $k$ were chosen arbitrarily from their respective sets, the result holds uniformly.
+\end{proof}
+
+% \autoref{thm: from a_k margin to delta} confirms that on the event $\mathcal E^g_k \cap \{c \rho_\alpha M \alpha_k \leq q_k(s,\pi_{t_n}(s))-q_k(s,a) < \delta \}$, the gap safely hits $\delta$ in at most $N(k)$ steps while remaining strictly positive throughout the ascent.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Lock-in event keeps gap positive after reaching $\bm{\delta}$}
+
+Define the lock-in event as
+\begin{align}
+\label{eq: definition lock in event single gap}
+    \mathcal E^l_{t_n}(s,a) := \left\{ \sup_{k \ge t_n} 
+    % \bigl| \Xi(t_n, k \mid s,a) \bigr| 
+    \Bigg| \sum_{i=t_n}^{k-1} \alpha_{i} \big( w_i(s, \pi_{t_n}(s))-w_i(s,a) \big) \Bigg|
+    < \frac{\delta}{8} \right\} .
+\end{align}
+We now show that, on $\mathcal E^l_{t_n}(s,a)$,
+once a ``bad'' gap reaches $\delta$, 
+it remains strictly positive indefinitely.
+% perturbations can never drive it below zero anymore.
+% For any $n \in \mathbb Z_{\ge 0}$,
+% any state $s \in \mathcal S$
+% and any action $a \in \mathcal A(s)$,
+
+% \textcolor{red}{need extension of definition so that $\xi_k$ is defined to $\infty$}
+
+\begin{lemma}[Lock-in event]
+\label{thm: event noise remains small}
+Consider the setting of \autoref{thm: fixed prob that bad actions dont become greedy} and let $K_\xi$ be the finite time obtained in \autoref{thm: properties noise gap}.
+For every index $n \in \mathbb Z_{\ge 0}$,
+every pair $(s,a) \in \mathcal B_{\pi_{t_n}}$
+and every time $k \in \{t_n, \dots, t_{n+1}-1\}$,
+the joint event
+\[
+\mathcal E^l_{t_n}(s,a) \cap 
+% \big\{ q_{k}(s,\pi_{t_n}(s)) - q_{k}(s,a) \ge \delta \big\}
+\big\{ d_k(s,a) \ge \delta \big\}
+\]
+guarantees that
+% the gap remains strictly positive until the next transition time, meaning
+% for every $k' \in \{k, \dots, t_{n+1}\}$,
+\begin{align}
+\label{eq: gap remains strictly positive}
+% q_{k'}(s,\pi_{t_n}(s)) > q_{k'}(s,a) 
+d_{k'}(s,a) > 0
+\qquad 
+\forall \, k' \in \{k, \dots, t_{n+1}\} .
+\end{align}
+Moreover, if $t_n \ge K_\xi$,
+% there exists an almost surely finite time $K_\xi$ such that for every $t_n \ge K_\xi$,
+\begin{equation}
+\label{eq:probability-small-remaining-noise}
+\mathbb P\!\left(\mathcal E^l_{t_n}(s,a)\mid \mathcal F_{t_n}, \pi_{t_n} \right)
+\ge
+1-\frac{64 c_\xi}{\delta^2}\sum_{i=t_n}^\infty \alpha_i^2 .
+\end{equation}
+\end{lemma}
+\begin{proof}
+Fix an $n \in \mathbb Z_{\ge 0}$
+and let $\pi := \pi_{t_n}$.
+Fix a pair $(s,a) \in \mathcal B_\pi$,
+define the sequence $\big( d_k(s,a) \big)_{k=t_n}^{t_{n+1}}$ as in \autoref{def: gap variables}, and write $d_k := d_k(s,a)$, $d_\pi := d_\pi(s,a)$ and $\xi_k := \xi_k(s,a)$ for brevity.
+Fix a time $k \in \{t_n, \dots, t_{n+1}-1\}$.
+
+% For every time $k \in \{t_n, \dots, t_{n+1}-1\}$, the gap is updated as
+% \begin{align*}
+% d_{k+1}
+% =
+% \big( 1 - \alpha_{k} \mu_{k}(s) \big) d_{k} + \alpha_{k} \mu_{k}(s) d_\pi + \alpha_{k} \xi_{k} .
+% \end{align*}
+% To unroll this recursion, define the contraction factor between steps $k$ and $k'>k$ as
+% \[
+% \Gamma(k,k') := \prod_{i=k}^{k'-1} \big( 1 - \alpha_{i} \mu_{i}(s) \big) \in(0,1].
+% \]
+% with the convention that $\Gamma(k,k) = 1$.
+
+
+Define the contraction factor between times $k$ and $k'>k$ as
+\[
+\Gamma(k,k') := \prod_{i=k}^{k'-1} \big( 1 - \alpha_{i} \mu_{i}(s) \big) \in(0,1] 
+\]
+with the convention that $\Gamma(k,k) = 1$.
+Unrolling \eqref{eq: def gap evolution} from $k$ to any $k' \in \{k,\dots,t_{n+1}\}$ yields
+\begin{align}
+\nonumber
+d_{k'}
+&=
+\Gamma(k,k') d_{k}
++
+\bigl(1-\Gamma(k,k') \bigr) d_\pi
++ \sum_{i=k}^{k'-1} \Gamma(i+1,k') \alpha_i \xi_i
+\\
+\label{eq: induction for abel proof}  
+&\ge
+\delta + \sum_{i=k}^{k'-1} \Gamma(i+1,k') \alpha_i \xi_i
+\end{align}
+because $\Gamma(k,k') \in(0,1]$,
+$d_\pi \ge d_{\min} > \delta$
+% $\Gamma(k,k') \in (0,1]$,
+and, by assumption, $d_{k} \ge \delta$.
+% we have
+% \begin{align}
+% \label{eq: lower obund for abel proof}
+% \Gamma(k,k') d_{k} + \big(1-\Gamma(k,k')\big) d_\pi \ge \delta.
+% \end{align}
+% To bound the stochastic part, we note that for a fixed terminal index $k'$, 
+Since the map $i \mapsto \Gamma(i+1,k')$ is non-decreasing with values in $(0,1]$, 
+using summation by parts, the triangle inequality and equation \eqref{eq: definition lock in event single gap} yield
+\begin{align}
+\nonumber
+\left|
+\sum_{i=k}^{k'-1} \Gamma(i+1,k') \alpha_i \xi_i
+\right|
+&\le
+\big| \Gamma(k',k') \big| \big| \Xi(k,k') \big| + \sum_{i=k}^{k'-2} \big| \Gamma(i+2,k') - \Gamma(i+1,k') \big| \big| \Xi(k, i+1) \big|
+\\
+\nonumber
+&\le
+\left( \Gamma(k',k') + \sum_{i=k}^{k'-2} \big( \Gamma(i+2,k') - \Gamma(i+1,k') \big) \! \right)
+\sup_{k \le m \le k'} \bigl| \Xi(k,m\mid s,a) \bigr|
+% \\
+% \nonumber
+% &=
+% \big( \Gamma(k',k') + \Gamma(k',k') - \Gamma(k+1,k') \big)
+% \sup_{k \le m \le k'} \bigl| \Xi(k,m\mid s,a) \bigr|
+\\
+\nonumber
+&\le
+2 \sup_{k \le m \le k'} \bigl| \Xi(k,m\mid s,a) \bigr|
+\\
+\label{eq:abel equation on noise}
+&\le
+2 \left( \bigl|\Xi(t_n,k \mid s,a)\bigr|
++
+\sup_{k \le m \le k'} \bigl|\Xi(t_n, m \mid s,a)\bigr| \right)
+<
+\frac{\delta}{2}.
+\end{align}
+% On $\mathcal E^l_{t_n}(s,a)$, the triangle inequality also implies that for every $m > k$,
+% \begin{align}
+% \label{thm: triangle on Xi}
+% \bigl|\Xi(k,m\mid s,a)\bigr|
+% % &=
+% % \bigl|
+% % \Xi(t_n , m \mid s,a) - \Xi(t_n, k \mid s,a)
+% % \bigr|
+% \le
+% \bigl|\Xi(t_n,k\mid s,a)\bigr|
+% +
+% \bigl|\Xi(t_n,m\mid s,a)\bigr|
+% <
+% \frac{\delta}{4}.
+% \end{align}
+Hence, \eqref{eq: induction for abel proof} and
+\eqref{eq:abel equation on noise}
+show that $d_{k'} \ge \delta - \delta/2 > 0$ for every $k' \in \{k,\dots,t_{n+1}\}$,
+proving \eqref{eq: gap remains strictly positive}.
+% This strictly limits the noise term in \eqref{eq: induction for abel proof} by
+% \begin{equation}
+% \label{eq:shifted-noise-bound}
+% \left|
+% \sum_{i=k}^{k'-1} \Gamma(i+1,k') \alpha_i \xi_{i}
+% \right|
+% < \frac{\delta}{2}.
+% \end{equation}
+% Plugging \eqref{eq: lower obund for abel proof} and \eqref{eq:shifted-noise-bound} into \eqref{eq: induction for abel proof}  
+% yields
+% \[
+% d_{k'}
+% >
+% \delta - \frac{\delta}{2}
+% >
+% 0
+% \qquad
+% \forall \, k' \in \{k,\dots,t_{n+1}\} .
+% \]
+% for every $k' \in \{k,\dots,t_{n+1}\}$, which proves \eqref{eq: gap remains strictly positive}.
+
+
+Finally, 
+% we lower-bound the probability of $\mathcal E^l_{t_n}(s,a)$.
+% We observe that 
+the complement event $\overline{\mathcal E^l_{t_n}(s,a)}$
+% implies that for some time $k \ge t_{n}$,
+% \[
+% \bigl| \Xi(t_n, k \mid s,a)\bigr|
+% \ge \frac{\delta}{8} ,
+% \]
+% or equivalently
+satisfies
+\[
+% \left\{\sup_{k\ge t_n}|\Xi(t_n,k\mid s,a)|\ge \frac{\delta}{8}\right\}
+\overline{\mathcal E^l_{t_n}(s,a)}
+\equiv
+\bigcup_{t = t_n}^\infty
+\left\{
+\max_{t_n\le k\le t}|\Xi(t_n,k\mid s,a)|
+\ge \frac{\delta}{8}
+\right\} \! .
+\]
+If $t_n \ge K_\xi$,
+% \autoref{thm: properties noise gap} indicates that there exists an almost surely finite time $K_\xi$ such that
+the sequence $\big( \Xi(t_n, k \mid s,a)\big)_{t_n\le k \le t}$ is a square-integrable martingale adapted to the filtration $(\mathcal F_{k})_{t_n \le k\le t}$.
+Hence, Doob's martingale inequality and the monotone convergence of conditional probabilities yield
+\begin{align}
+\nonumber
+\mathbb P\!\left(
+\overline{\mathcal E^l_{t_n}(s,a)}
+\,\middle|\,
+\mathcal F_{t_n},\pi_{t_n}
+\right)
+&=
+\lim_{t \to \infty}
+\mathbb P\!\left(
+\max_{t_n \le k \le t}| \Xi(t_n, k\mid s,a) |
+\ge \frac{\delta}{8}
+\,\middle|\,
+\mathcal F_{t_n},\pi_{t_n}
+\right) \! .
+% \\
+% \label{eq:hold-doob-trunc}
+% &\le
+% \frac{64}{\delta^2}
+% \limsup_{m\to\infty}
+% \mathbb E\!\left[M_m^2\mid \mathcal F_{t_n},\pi_{t_n}\right].
+\\
+\label{eq: prob of lock in in proof}
+&\le
+\lim_{t \to \infty}
+\frac{64}{\delta^2}
+\mathbb E\!\left[\Xi(t_n,t\mid s,a)^2 \mid \mathcal F_{t_n}, \pi_{t_n} \right] \! .
+\end{align}
+% So if $t_n \ge K_\xi$,
+% % \autoref{thm: properties noise gap} indicates that there exists an almost surely finite time $K_\xi$ such that
+% the sequence $\big\{\Xi(t_n, k \mid s,a)\big\}_{t_n\le k \le t}$ is a square-integrable martingale adapted to the filtration $\{\mathcal F_{k}\}_{t_n \le k\le t}$.
+% Hence, Doob's martingale inequality yields
+% \begin{align}
+% \label{eq: prob of lock in in proof}
+% \mathbb P\!\left(
+% \max_{t_n \le k \le t} \bigl| \Xi(t_n, k \mid s,a)\bigr|
+% \ge \frac{\delta}{8}
+% \,\middle|\,
+% \mathcal F_{t_n}, \pi_{t_n}
+% \right)
+% \le
+% \frac{64}{\delta^2}
+% \mathbb E\!\left[\Xi(t_n,t\mid s,a)^2\mid \mathcal F_{t_n}, \pi_{t_n} \right] \! .
+% \end{align}
+% Using the orthogonality of martingale increments and the variance bound from \eqref{eq:xi-var}, we obtain
+Using the tower property and \autoref{thm: properties noise gap}, we obtain
+\begin{align*}
+\mathbb E\!\left[\Xi(t_n, t \mid s,a)^2\mid \mathcal F_{t_n}, \pi_{t_n} \right]
+&=
+\sum_{i=t_n}^{t-1} \alpha_{i}^2\,
+\mathbb E\!\left[\xi_{i}^2\mid \mathcal F_{t_n}, \pi_{t_n} \right]
+\\
+&=
+\sum_{i=t_n}^{t-1} \alpha_{i}^2\,
+\mathbb E\!\left[
+\mathbb E\!\left[\xi_{i}^2\mid \mathcal F_{i}, \pi_{t_n}\right]
+\middle|\mathcal F_{t_n} , \pi_{t_n}
+\right]
+\\
+&\le
+c_\xi \sum_{i=t_n}^{t-1} \alpha_{i}^2
+% \\
+% &\le
+% c_\xi \sum_{i=t_n}^{\infty} \alpha_{i}^2 .
+\end{align*}
+Substituting this back in \eqref{eq: prob of lock in in proof} proves \eqref{eq:probability-small-remaining-noise} because
+\[
+\mathbb P\!\left(
+\overline{\mathcal E^l_{t_n}(s,a)}
+\,\middle|\,
+\mathcal F_{t_n}, \pi_{t_n}
+\right)
+\le
+\frac{64 c_\xi}{\delta^2}\sum_{i=t_n}^{\infty} \alpha_{i}^2 .
+\]
+Since $n$, $(s,a)$, and $k$ were chosen arbitrarily from their respective sets, the result holds uniformly.
+\end{proof}
+
+% In other words, for sufficiently large $k$, whenever a gap $d^b_k$ reaches a fixed $\delta > 0$, it remains positive with large probability. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Global event for all gaps to remain strictly positive}
+% so that none of them become greedy up to and including the transition time $t_{n+1}$.
+Fix an $n \in \mathbb Z_{\ge 0}$,
+let $L := |\mathcal B_{\pi_{t_n}}|$,
+and assume that $L>0$, otherwise \autoref{thm: fixed prob that bad actions dont become greedy} is immediate.
+% We now apply the three sequential events to every pair in $\mathcal B_{\pi_{t_n}}$.
+Conditioned on $\{\mathcal F_{t_n}, \pi_{t_n}\}$, enumerate
+\[
+\mathcal B_{\pi_{t_n}} = \big\{ (s_1,a_1), \dots, (s_L,a_L) \big\} .
+\]
+We first apply the $M$-step seed block of \autoref{thm: event to reach a_k margin} to $(s_\ell,a_\ell)$ at time $b_\ell := t_n + (\ell-1)M$ for each $\ell \in \{1,\dots,L\}$.
+At the end of this seed phase, at time $T_n := t_n + LM$, we apply the growth event of \autoref{thm: from a_k margin to delta} simultaneously to all pairs. The lock-in event of \autoref{thm: event noise remains small} is enforced throughout.
+This yields the global events
+\begin{align}
+\label{eq: def global events}
+\mathcal E^s_{t_n} &:= \bigcap_{\ell=1}^{L} \mathcal E^s_{b_\ell}(s_\ell, a_\ell),
+\qquad
+\mathcal E^g_{t_n} := \bigcap_{\ell=1}^{L} \mathcal E^g_{T_n}(s_\ell, a_\ell),
+\qquad
+\mathcal E^l_{t_n} := \bigcap_{\ell=1}^{L} \mathcal E^l_{t_n}(s_\ell, a_\ell).
+\end{align}
+
+% We first apply the $M$-step seed block from \autoref{thm: event to reach a_k margin} to pair $(s_\ell,a_\ell)$
+% at time $b_\ell := t_n + (\ell-1) M$ for $\ell \in \{1, \dots, L\}$.
+
+% At the end of the seed phase, i.e. at time $T_n := t_n + L M$,
+% we apply the $N(T_n)$-step growth block of \autoref{thm: from a_k margin to delta} to each pair.
+
+% Finally, the global lock-in event of \autoref{thm: event noise remains small} ensures
+
+% % to keep them strictly positive until time $t_{n+1}$.
+
+% Altogether, we obtain the global seed, growth and lock-in events
+% \begin{align}
+% \label{eq: def global events}
+% % \label{eq: def global seed event}
+% \mathcal E^s_{t_n} &:= \bigcap_{\ell=1}^{L} \mathcal E^s_{b_\ell}(s_\ell, a_\ell) ,
+% % \\
+% \qquad
+% % \label{eq: def global grow event}
+% \mathcal E^g_{t_n} &:= \bigcap_{\ell=1}^{L} \mathcal E^g_{T_n}(s_\ell, a_\ell) ,
+% % \\
+% \qquad
+% % \label{eq: def global hold event}
+% \mathcal E^l_{t_n} &:= \bigcap_{\ell=1}^{L} \mathcal E^l_{t_n}(s_\ell, a_\ell) .
+% \end{align}
+
+
+The gap of a pair $(s_\ell, a_\ell)$ may remain zero while $k \le b_\ell$.
+During this period, the policy $\pi_k$ may be resampled among greedy actions, and the tie can be broken in favour of $(s_\ell, a_\ell)$.
+To exclude this behaviour, we introduce a global tie-breaking event that prevents any ``bad'' action from being selected while its gap is zero:
+\begin{align}
+\label{eq: def global tie event}
+\mathcal E^t_{t_n} :=
+\bigcap_{k=t_n}^{\min \{ T_n-1 , t_{n+1} \}}
+\left\{
+\forall \, s \in \mathcal S : 
+(s, \pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+\right\} .
+\end{align}
+
+% We now show that, on $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^l_{t_n}$
+% no pair in $\mathcal B_{\pi_{t_n}}$ is selected up to and including time $t_{n+1}$.
+% the greedy policy at time $t_{n+1}$ does not correspond to any pair in $\mathcal B_{\pi_{t_n}}$.
+
+
+\begin{lemma}
+\label{thm: event that yields positive gaps}
+Consider the setting of \autoref{thm: fixed prob that bad actions dont become greedy} and let $K_N$ be the finite time obtained in \autoref{thm: growth window}.
+For every index $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K_N$,
+the joint event $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^l_{t_n}$ guarantees that
+% the greedy policy $\pi_k$ never coincides with a bad action, 
+% meaning
+% for every time $k \in \{t_n, \dots, t_{n+1}\}$
+% and every state $s \in \mathcal S$,
+\begin{align}
+\label{eq: proof combined event}
+(s,\pi_{k}(s)) \notin \mathcal B_{\pi_{t_n}}
+\qquad
+\forall \, s \in \sset, \
+\forall \, k \in \{t_n, \dots, t_{n+1}\} .
+\end{align}
+\end{lemma}
+
+\begin{proof}
+Fix an $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K_N$, and let $\pi := \pi_{t_n}$.
+For each pair $(s,a) \in \mathcal B_\pi$, define the sequence $\big( d_k(s,a) \big)_{k=t_n}^{t_{n+1}}$ as in \autoref{def: gap variables}.
+% We track the evolution of a specific gap $d_k(s_\ell, a_\ell)$ across three phases.
+We show that, on the joint event, no pair in $\mathcal B_{\pi}$ is selected up to and including time $t_{n+1}$.
+
+Fix a pair $(s_\ell,a_\ell) \in \mathcal B_\pi$.
+At time $t_n$, all gaps are non-negative as $\pi_{t_n}$ is greedy
+with respect to $q_{t_n}$.
+Before the seed block of $(s_\ell,a_\ell)$ starts, earlier seed blocks
+cannot decrease its gap.
+Indeed, if the seed block of a pair $(s_j,a_j)$ with $j<\ell$ updates
+the pair $(s_j,a)$, then the case distinction in
+\eqref{eq: def good prefix} gives
+$(s_j,a) \neq (s_\ell,a_\ell)$.
+Thus, if $s_j \neq s_\ell$, the gap $d_k(s_\ell,a_\ell)$ is unchanged;
+if $s_j = s_\ell$ and $a \neq \pi(s_\ell)$, it is also unchanged; 
+and if $s_j=s_\ell$ and $a=\pi(s_\ell)$, it increases, as in
+\eqref{eq: final lower bound case 1} and \eqref{eq: increase in d^b case B}.
+Hence, by time $b_\ell$, either the gap has already reached $\delta$,
+or
+\[
+0 \le d_{b_\ell}(s_\ell,a_\ell) < \delta .
+\]
+
+If the gap has already reached $\delta$, then
+$\mathcal E^l_{t_n}(s_\ell,a_\ell)$ keeps it strictly positive up to
+time $t_{n+1}$ by \autoref{thm: event noise remains small}.
+Otherwise, applying \autoref{thm: event to reach a_k margin} at time
+$b_\ell$ on $\mathcal E^s_{b_\ell}(s_\ell,a_\ell)$ yields
+\[
+d_k(s_\ell,a_\ell) > c_s A(b_\ell,k) > 0
+\qquad
+\forall \, b_\ell < k \le \min\{ \tau^s_{b_\ell}(s_\ell,a_\ell), b_\ell+M, t_{n+1} \}.
+\]
+Thus during its seed block, the gap either reaches $\delta$, or, at the end of the block,
+\[
+d_{b_\ell+M}(s_\ell,a_\ell)
+> c_s A(b_\ell,b_\ell+M)
+\ge c_s M \alpha_{b_\ell+M}
+\ge c_s M \alpha_{T_n}
+\ge c_s \rho_\alpha M \alpha_{T_n}.
+\]
+Here we used that $(\alpha_k)_{k\ge0}$ is non-increasing and that
+$\rho_\alpha \in (0,1]$.
+
+Later seed blocks cannot decrease this gap by the same argument as above. Therefore, at time $T_n$, either the gap has already reached $\delta$, in which case the lock-in event keeps it strictly positive up to $t_{n+1}$, or else
+\[
+d_{T_n}(s_\ell,a_\ell)
+> c_s \rho_\alpha M \alpha_{T_n}.
+\]
+In the latter case. Since $T_n \ge t_n \ge K_N$,
+applying \autoref{thm: from a_k margin to delta} on $\mathcal E^g_{T_n}(s_\ell,a_\ell)$
+ensures that the gap remains strictly positive until it reaches $\delta$,
+or until $t_{n+1}$ if the transition occurs first.
+If the gap reaches $\delta$ before $t_{n+1}$, the lock-in event again keeps it strictly positive up to $t_{n+1}$.
+
+Consequently, for every $(s,a) \in \mathcal B_\pi$ and every
+$k \in \{t_n,\dots,t_{n+1}\}$, either the gap $d_k(s,a)$ is zero during the seed phase, in which case $\mathcal E^t_{t_n}$ prevents the policy from selecting $(s,a)$, 
+or the gap is strictly positive,
+in which case $(s,a)$ cannot be greedy because
+\[
+q_k(s,\pi_k(s))
+\ge q_k(s,\pi(s))
+> q_k(s,a) .
+\]
+% If $t_{n+1}<T_n$, this conclusion follows from
+% $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^l_{t_n}$.
+% If $t_{n+1}\ge T_n$, it follows from $\mathcal E^g_{t_n} \cap \mathcal E^l_{t_n}$.
+% Therefore, combining the events yields
+% \[
+% (s,\pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+% \qquad
+% \forall\, s \in \mathcal S , \
+% \forall\, k \in \{t_n,\dots,t_{n+1}\} .
+% \]
+% This proves the claim.
+Either way, the joint event $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^l_{t_n}$ guarantees that
+\[
+(s,\pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+\qquad
+\forall\, s \in \mathcal S , \
+\forall\, k \in \{t_n,\dots,t_{n+1}\} .
+\]
+which proves \eqref{eq: proof combined event}.
+\end{proof}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Proof of \autoref{thm: fixed prob that bad actions dont become greedy}}
+
+% \begin{proof}[\autoref{thm: fixed prob that bad actions dont become greedy}]
+Define the constants
+\begin{align}
+p_t &:= \beta^{|\mathcal S| } \in (0,1) ,
+\\
+p_s &:= \sigma_{\min} \frac{d_{\min}^2}{d_{\min}^2 + 16 c_v} \in (0,1) ,
+\\
+p_g
+&:=
+1-|\mathcal S\times\mathcal A|\,
+\frac{8 c_\xi}{c^2\rho_\alpha^2}
+\sum_{j=0}^{\infty}\frac{2^j}{(M+2^j)^2} ,
+\\
+p_{\overline l} &:= 
+|\mathcal S\times\mathcal A|
+\frac{64 c_\xi}{\delta^2}\sum_{i=t_n}^\infty \alpha_i^2 .
+\end{align}
+Since $\lim_{M \to \infty} \sum_{j \ge 0} 2^j/(M+2^j)^2 = 0$, we can choose $M \in \mathbb N$ sufficiently large such that $p_g \ge 1/2$.
+The Robbins--Monro conditions in \autoref{asp: standing}.(1) also ensure that there exists a \(K_l<\infty\) such that $p_{\overline l} \le \frac14 ( p_t p_s ) ^{|\mathcal S\times\mathcal A| M}$ for all \(t_n \ge K_l\).
+
+
+Fix an index $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge \max\{K_\xi, K_N, K_l\}$
+where $K_\xi$ and $K_N$ be the finite times obtained in \autoref{thm: properties noise gap} and \autoref{thm: growth window}, respectively.
+Let $L := |\mathcal B_{\pi_{t_n}}|$ and assume that $L>0$, otherwise \autoref{thm: fixed prob that bad actions dont become greedy} is immediate.
+
+
+From \autoref{thm: event that yields positive gaps} and $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \in \mathcal F_{T_n}$, it follows that
+\begin{align}
+\nonumber
+&\mathbb P \big(
+\forall \, s \in \sset, \
+\forall \, k \in \{t_n, \dots, t_{n+1}\}
+:
+(s,\pi_{k}(s)) \notin \mathcal B_{\pi_{t_n}}
+\mid \mathcal F_{t_n}, \pi_{t_n}
+\big)
+\\
+\nonumber
+&\qquad\ge
+\mathbb P ( \mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^l_{t_n} \mid \mathcal F_{t_n}, \pi_{t_n} )
+\\
+\nonumber
+&\qquad\ge
+\mathbb P \bigl(\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \mid \mathcal F_{t_n} , \pi_{t_n} \bigr) 
+- \mathbb  P\bigl(\overline{\mathcal E^l_{t_n}} \mid \mathcal F_{t_n} , \pi_{t_n} \bigr)
+\\
+\label{eq: partial decomposition of the joint probabilities}
+&\qquad= \mathbb E \left[ \mathbf 1_{\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n}} \mathbb P(\mathcal E^g_{t_n} \mid \mathcal F_{T_n}) \mid \mathcal F_{t_n}, \pi_{t_n} \right] - \mathbb P\bigl(\overline{\mathcal E^l_{t_n}} \mid \mathcal F_{t_n} , \pi_{t_n} \bigr)
+\end{align}
+Given that $T_n > t_n \ge \max \{K_\xi, K_N\}$, we obtain from \autoref{thm: from a_k margin to delta} and our specific choice of $M$ that
+\begin{align*}
+\mathbb P(\mathcal E^g_{t_n} \mid \mathcal F_{T_n}) 
+&\ge 1 - \sum_{(s,a) \in \mathcal B_{\pi_{t_n}}} \mathbb P \bigl( \overline{\mathcal E^g_{T_n}(s,a)} \mid \mathcal F_{T_n} \bigr)
+\\
+&\ge 1 - |\sset \times \aset| \frac{8 c_\xi}{c^2 \rho_\alpha^2} \sum_{j = 0}^{\infty} \frac{2^j}{(M+ 2^j)^2}
+= p_g \ge \frac12 .
+\end{align*}
+Further, given that $t_n \ge \max \{K_\xi, K_l\}$, we obtain from \autoref{thm: event noise remains small} that
+\begin{align*}
+\mathbb P \bigl( \overline{\mathcal E^l_{t_n}} \mid \mathcal F_{t_n} , \pi_{t_n} \bigr)
+&\le
+\sum_{(s,a) \in \mathcal B_{\pi_{t_n}}} \mathbb P \bigl(\overline{\mathcal E^l_{t_n}(s,a)} \mid \mathcal F_{t_n}, \pi_{t_n} \bigr)
+\\
+&\le
+|\mathcal S\times\mathcal A|
+\frac{64 c_\xi}{\delta^2}\sum_{i={t_n}}^\infty \alpha_i^2
+=
+p_{\overline l}
+\le
+\frac14 ( p_t p_s)^{|\mathcal S \times \mathcal A| M} .
+\end{align*}
+Thus we can further bound \eqref{eq: partial decomposition of the joint probabilities} by
+\begin{multline}
+\label{eq: probability lower bound intermediary}
+\mathbb P \big(
+\forall \, s \in \sset, \
+\forall \, k \in \{t_n, \dots, t_{n+1}\}
+:
+(s,\pi_{k}(s)) \notin \mathcal B_{\pi_{t_n}}
+\mid \mathcal F_{t_n}, \pi_{t_n}
+\big)
+\\
+\ge
+p_g \, \mathbb P(\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \mid \mathcal F_{t_n}, \pi_{t_n}) - p_{\overline l} .
+\end{multline}
+We now lower-bound $\mathbb P(\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \mid \mathcal F_{t_n}, \pi_{t_n})$ by sequentially conditioning over $\{t_n, \dots, T_n-1\}$.
+For this, define
+\[
+\ell(k) := 1 + \left\lfloor \frac{k-t_n}{M} \right\rfloor \in \{1,\dots,L\} ,
+\]
+so that \(k\) lies in the \(M\)-step seed block of pair \((s_{\ell(k)},a_{\ell(k)})\).
+We decompose events \(\mathcal E^s_{t_n}\) and \(\mathcal E^t_{t_n}\) into one-step events as follows. For $k \in \{t_n,\dots,T_n-1\}$, let
+\[
+\mathcal E^s_{t_n}(k)
+:=
+\left\{
+u_{k}(s_{\ell(k)},\pi_{t_n}(s_{\ell(k)}))=1,\ 
+v_{k}(s_{\ell(k)},\pi_{t_n}(s_{\ell(k)})) \ge -\dfrac{d_{\min}}{4}
+\right\}
+\]
+if $q_{\pi_{t_n}} \big(s_{\ell(k)},\pi_{t_n}(s_{\ell(k)}) \big) - q_{b_{\ell(k)}} \big(s_{\ell(k)},\pi_{t_n}(s_{\ell(k)}) \big) \ge d_{\min}/2$, 
+and
+\[
+\mathcal E^s_{t_n}(k)
+:=
+\left\{
+u_{k}(s_{\ell(k)},a_{\ell(k)})=1,\ 
+v_{k}(s_{\ell(k)},a_{\ell(k)}) \le \dfrac{d_{\min}}{4}
+\right\}
+\]
+otherwise.
+Similarly, define
+\[
+\mathcal E^t_{t_n}(k)
+:=
+\left\{
+\forall \, s \in \mathcal S : 
+(s,\pi_k(s)) \notin \mathcal B_{\pi_{t_n}}
+\right\}
+\]
+if $k \le t_{n+1}$, and
+\[
+\mathcal E^t_{t_n}(k)
+:= \Omega
+\]
+otherwise,
+where $\Omega$ is the certain event.
+These one-step events yield the decompositions
+\begin{align*}  
+\mathcal E^s_{t_n} = \bigcap_{k=t_n}^{T_n-1}\mathcal E^s_{t_n}(k),
+\qquad
+\mathcal E^t_{t_n} = \bigcap_{k=t_n}^{T_n-1}\mathcal E^t_{t_n}(k).
+\end{align*}
+
+
+Fix a time $k \in \{t_n, \dots, T_n\}$ and consider the joint event
+\begin{align}
+\label{eq: joint intermediate event}
+\bigcap_{i=t_n}^{k-1} \bigl( \mathcal E^t_{t_n}(i)\cap \mathcal E^s_{t_n}(i) \bigr).
+\end{align}
+We first bound the tie-breaking event. If $k \le t_{n+1}$, then all gaps remain non-negative up to time $k$. A pair $(s,a) \in \mathcal B_{\pi_{t_n}}$ can thus be greedy only if its gap is zero. In that case, $\pi_{t_n}(s)$ is also greedy. So, on \eqref{eq: joint intermediate event}, $\mathcal E^t_{t_n}(k)$ holds whenever the policy $\pi_k$ selects $\pi_{t_n}(s)$ in each such state. By condition \eqref{eq:greedy-pol-tie-breaking} and independence across states,
+\[
+\mathbb P\!\left(\mathcal E^t_{t_n}(k)\mid \mathcal F_k,\pi_{t_n}\right)
+\ge \beta^{|\mathcal S|} .
+\]
+If $k>t_{n+1}$, then $\mathcal E^t_{t_n}(k)=\Omega$, so the same bound holds. Thus,
+\[
+\mathbb P\!\left(\mathcal E^t_{t_n}(k)\mid \mathcal F_k,\pi_{t_n}\right) \ge p_t.
+\]
+For the seed event, the strict exploring starts condition in \autoref{asp: standing}.(3), together with
+\eqref{eq:noise-lower}--\eqref{eq:noise-upper}, yields
+\[
+\mathbb P\!\left(\mathcal E^s_{t_n}(k)\mid \mathcal F_k, \pi_{t_n}\right)
+\ge \sigma_{\min}\frac{d_{\min}^2}{d_{\min}^2+16c_v}
+= p_s.
+\]
+Combining both bounds and using the tower property, we obtain
+\begin{align*}
+\mathbb P\!\left(\mathcal E^t_{t_n}(k) \cap \mathcal E^s_{t_n}(k)\mid \mathcal F_k, \pi_{t_n}\right)
+\ge
+p_s\,\mathbb P\!\left(\mathcal E^t_{t_n}(k) \mid \mathcal F_k,\pi_{t_n}\right)
+\ge p_t p_s.
+\end{align*}
+Applying this recursively yields
+\begin{align*}
+&\mathbb P \! \left(
+\bigcap_{i=t_n}^{k} \bigl( \mathcal E^t_{t_n}(i) \cap \mathcal E^s_{t_n}(i) \bigr)
+\ \middle| \ \mathcal F_{t_n}, \pi_{t_n}
+\right)
+% \\
+% &\qquad\ge
+\ge
+p_t p_s\,
+\mathbb P\!\left(
+\bigcap_{i=t_n}^{k-1} \bigl( \mathcal E^t_{t_n}(i)\cap \mathcal E^s_{t_n}(i) \bigr)
+\ \middle|\ \mathcal F_{t_n}, \pi_{t_n}
+\right) \!.
+\end{align*}
+Iterating from $t_n$ to $T_n-1=t_n+LM-1$ gives
+\[
+\mathbb P(\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \mid \mathcal F_{t_n}, \pi_{t_n})
+\ge (p_t p_s)^{LM}
+\ge (p_t p_s)^{|\mathcal S\times\mathcal A|\,M}.
+\]
+
+Altogether, define
+\begin{align*}
+% \label{eq: def lower bound probability} 
+p
+:=
+\frac14
+(p_t \, p_s)^{|\mathcal S \times \mathcal A| \, M}
+% \\
+% \nonumber
+=
+\frac14
+\left(
+\beta^{|\mathcal S|}
+\sigma_{\min}\frac{d_{\min}^2}{d_{\min}^2+16 c_v}
+\right)^{|\mathcal S\times\mathcal A| \, M}
+>0  .
+\end{align*}
+Then for every MC-O-PI solution there exists an almost surely finite $K \ge \max\{K_\xi, K_N, K_l\}$ such that for every transition time $t_n$ satisfying $K \le t_n < \infty$,
+\begin{align*}
+\mathbb P \big(
+\forall \, s \in \sset, \
+\forall \, k \in \{t_n, \dots, t_{n+1}\}
+:
+(s,\pi_{k}(s)) \notin \mathcal B_{\pi_{t_n}}
+\mid \mathcal F_{t_n}, \pi_{t_n}
+\big)
+\ge
+p_g (p_t p_s)^{|\mathcal S\times\mathcal A|\,M} - p_{\overline l}
+\ge
+p .
+\end{align*}
+Since this bound is uniform in $\pi_{t_n}$, \eqref{eq: porb better action value} follows.
+% \end{proof}
+\hfill\BlackBox
+% \end{proof}
+
+% \autoref{thm: fixed prob that bad actions dont become greedy} established that, under uniform updates over all actions in each state, the probability of a policy improvement is eventually bounded below by a fixed constant. Since this lower bound is uniform over all realisations of the greedy policy, it remains valid when the current policy is optimal. In that case, however, no improvement is possible. Instead, the same joint event guarantees that no further transition occurs.
+
+% \begin{proposition}
+% \label{thm: prob policy remains optimal}
+% Consider the setting of \autoref{thm: fixed prob that bad actions dont become greedy}.
+% The constant $p>0$ and random time $K<\infty$ of \autoref{thm: fixed prob that bad actions dont become greedy} ensure that
+% for every index $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K$,
+% \[
+% \mathbb P (t_{n+1} = \infty \mid \mathcal F_{t_n}, \pi_{t_n} \in \mathcal P_* ) \ge p .
+% \]
+% \end{proposition}
+% \begin{proof}
+% Fix an $n \in \mathbb Z_{\ge 0}$ such that $t_n \ge K$,
+% and assume that $\pi_{t_n}$ is optimal.
+% By definition of optimality, 
+% $q_{\pi_{t_n}}(s, \pi_{t_n}(s) ) = \max_a q_{\pi_{t_n}}(s,a)$
+% for every state $s \in \mathcal S$.
+% As a result, for every pair
+% $(s,a) \notin \mathcal B_{\pi_{t_n}}$,
+% \begin{align}
+% \label{eq: implication of reached otpimal policy}
+% q_{\pi_{t_n}}(s,a) = q_{\pi_{t_n}}(s, \pi_{t_n}(s)) .
+% \end{align}
+% Now suppose for contradiction that $t_{n+1} < \infty$
+% on the joint event $\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^h_{t_n}$, as defined in \eqref{eq: def global seed event}--\eqref{eq: def global tie event}.
+% \autoref{thm: event that yields positive gaps} establishes that $(s,\pi_{t_{n+1}}(s)) \notin \mathcal B_{\pi_{t_n}}$ for every $s \in \mathcal S$. Hence, as in \eqref{eq: implication of reached otpimal policy},
+% \[
+% q_{\pi_{t_n}}(s,\pi_{t_{n+1}}(s)) = q_{\pi_{t_n}}(s,\pi_{t_n}(s)) .
+% \]
+% By \autoref{def: transition times}, $q_{\pi_{t_{n+1}}} \neq q_{\pi_{t_n}}$. Thus \autoref{thm: strict PIT} implies that policy $\pi_{t_{n+1}}$ is strictly better than $\pi_{t_{n}}$, which was already optimal. Given this is impossible, $t_{n+1}$ must be almost surely infinite on the joint event.
+% Consequently, as in the proof of \autoref{thm: fixed prob that bad actions dont become greedy},
+% \[
+% \mathbb P (t_{n+1} = \infty \mid \mathcal F_{t_n}, \pi_{t_n} \in \mathcal P_* )
+% \ge
+% \mathbb P(\mathcal E^t_{t_n} \cap \mathcal E^s_{t_n} \cap \mathcal E^g_{t_n} \cap \mathcal E^h_{t_n} \mid \mathcal F_{t_n}, \pi_{t_n} \in \mathcal P_* )
+% \ge p
+% \]
+% with $p$ defined in \eqref{eq: def lower bound probability}.
+% \end{proof}
+
+
+% \[
+% \mathbb P\!\left(
+% \bigcap_{i=t_n}^{T_n-1 \wedge t_{n+1}-1} \bigl( \mathcal E^t_{t_n}(i) \cap \mathcal E^s_{t_n}(i) \bigr)
+% \ \middle|\ \mathcal F_{t_n}, \pi_{t_n}
+% \right)
+% \]
+% If the transition occurs any time before $T_n$, meaning $t_{n+1} < T_n$, then $\mathcal E^t_{t_n}(t_{n+1})$ guarantees that $(s, \pi_{t_{n+1}}(s)) \notin \mathcal B_{\pi_{t_n}}$ for every state $s \in \mathcal S$.
+
+
+Altogether, the proof of \autoref{thm: fixed prob that bad actions dont become greedy} relies on three successive events.
+These events ensure that stochastic perturbations cannot consistently
+undermine the policy improvement driven by the mean-field dynamics
+by forcing ``bad'' actions to become greedy.
+
+% use advantage instead of gap?
+
+The lock-in phenomenon is a direct application of Theorem~2.1 in \citep{Borkar2002OnApproximation}:
+if the gap variable for a ``bad'' pair reaches a fixed positive margin infinitely often, 
+it must eventually remain strictly positive.
+However, since decreasing learning rates cause these gaps to be increasingly smaller at initialization,
+we introduced a growth event to ensure they still reach this fixed margin.
+This event extends the lock-in phenomenon to hold under a milder condition: gaps only need to reach a decreasing margin of size $O(\alpha_k)$ infinitely often.
+Still, it requires an additional comparability condition on the learning rates so that, with a fixed probability, once a gap hits the $O(\alpha_k)$ margin, the remaining learning rates are sufficiently large to bring it up to the original fixed margin.
+Finally, to guarantee gaps reach the decreasing $O(\alpha_k)$ margin within a fixed horizon, we used a seed event.
+The length of this horizon determines the probability of the growth event.
+By fixing a sufficiently long horizon, we can drive the probability of the growth event arbitrarily close to one, regardless of the unknown parameters in \eqref{eq: prob from a_k reach delta}.
+The only trade-off for this extended horizon is a reduced probability of the seed event.
+Yet, since that probability is fixed once the horizon is fixed, the overall probability of improvement remains fixed.
+
+% \textcolor{red}{this extends the lock-in strategy of mcopi}
+
+It is crucial for the seed event that updates use the initial-visit method to guarantee that all gaps initially increase.
+% only one action be updated in any state at every step so 
+% and that potential correlation in the episode noise does not break \eqref{eq: increase in d^b case B}.
+% The structure of the stochastic perturbations $w_k$ is crucial for the seed event.
+% Since the stochastic perturbations caused by episode simulations can be adversarially correlated, meaning they could 
+% (which is not really an issue because uniform updates require initial-visit anyway in practice)
+% to exactly cancel out the update in all but one state-action pair at every step (initial-visit).
+However, uniform update distributions are irrelevant for this part of the proof because the strict exploring starts guarantee that we can always construct the seed event.
+On the contrary, the growth and lock-in events essentially enforce that the MC-O-PI solution behaves well because it remains close to the mean-field solution.
+Thus they rely strongly on the uniformity of the update distributions that ensures the mean-field solution behaves well in the first place.
+The update function is, however, irrelevant.
+All that is necessary is that the stochastic perturbation $w_k$ is unbiased and that its variance is eventually bounded.
+
+
+% Ultimately, the proof thus goes through the same
+% under 
+% initial-visit updates (allowing us to define the seed event),
+% Robbins--Monro learning rates $(\alpha_k)$ that satisfy the comparability property,
+% lower- and upper-bounded functions $(\mu_k)$ that are uniform over the actions in each state but do not necessarily integrate to one,
+% and unbiased perturbations $(w_k)$ with eventually bounded variance.

@@ -1,0 +1,55 @@
+\begin{figure}[hb!]
+    \centering
+
+    \hrule
+    \vspace{0.9cm}
+
+    % \pgfmathsetmacro{\mpolx}{\mstrong}
+    % \pgfmathsetmacro{\mpoly}{1}
+    % \pgfmathsetmacro{\qhat}{(\mpolx*\qpoly-\mpoly*\qpolx)/(\mpolx-\mpoly)}
+    \pgfmathsetmacro{\xmin}{0}
+    \pgfmathsetmacro{\xmax}{3}
+    \pgfmathsetmacro{\delx}{0.6}
+    
+    \begin{tikzpicture}[scale=1.5]
+
+        \begin{axis}[
+            hide axis,
+            xmin=\xmin, xmax=\xmax,
+            ymin=\xmin, ymax=\xmax,
+            width=3 cm,
+            height=3 cm,
+            at={(0,0)},
+            scale only axis,
+            clip=true,
+            anchor=south west,
+        ]
+            \addplot[mygrey, no marks] 
+            table [ x expr=\thisrowno{0}, 
+                    y expr=\thisrowno{1}, 
+                    col sep=comma,
+                    unbounded coords=jump] 
+            {figures/33/streamlines_greedy_expl.csv};
+
+        \end{axis}
+
+        \fill[CambridgeCoreBlue, opacity=0.1] (\xmax/2+\delx-0.5,\xmax/2+\delx-0.5) -- (\xmax,\xmax/2+\delx-0.5) -- (\xmax,\xmax) -- cycle ;
+        \fill[CambridgeCoreBlue, opacity=0.1] (\xmax/2+\delx-0.5,\xmax/2+\delx-0.5) -- (\xmax/2+\delx-0.5, \xmax) -- (\xmax,\xmax) -- cycle ;
+        \draw[CambridgeCoreBlue, thick] (\xmax/2+\delx-0.5,\xmax/2+\delx-0.5) rectangle (\xmax,\xmax);
+        \draw[->] (\xmin, \xmin) -- (\xmax, \xmin) node[right, font=\small] {$q(s,\pol)$};
+        \draw[->] (\xmin, \xmin) -- (\xmin, \xmax) node[left, font=\small] {$q(s,\pol_+)$};
+        
+        \draw[dotted] (\xmin, \xmin) -- (\xmax, \xmax);
+        \draw[CambridgeCoreBlue, thick] (\xmax/2+\delx-0.5, \xmax/2+\delx-0.5) -- (\xmax, \xmax);
+
+        \filldraw[fill=black, draw=black] (\xmax/2+\delx-0.5,\xmax/2+\delx/2-0.5) circle (1pt) node[below right, text=black] {$q_\pol$};
+        \filldraw[fill=black, draw=black] (\xmax/2-\delx/2-0.5,\xmax/2-\delx-0.5) circle (1pt) node[below right, text=black] {$q_{\pol_+}$};
+
+        \node at (2.53, 2.06) [color=CambridgeCoreBlue] {$q$};
+        \node at (2.06, 2.53) [color=CambridgeCoreBlue] {$q_+$};
+
+    \end{tikzpicture}
+    \vspace{0.4cm}
+    \caption{If the update distributions of mean-field MC-O-PI have a greedy bias and the solution transitions in state $s$ from a policy $\pol$ to another policy $\pol_+$ that satisfies the conditions in \eqref{eq: switch to worse}, the solution approaches $\qpol$ and $q_{\pol_+}$ from above. After the transition, the solution immediately moves back towards the boundary, introducing a sliding mode between the policies $\pol$ and $\pol_+$.}
+    \label{fig: effect of greedy bias}
+\end{figure}%

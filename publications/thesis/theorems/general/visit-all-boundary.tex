@@ -1,0 +1,19 @@
+\begin{lemma}
+\label{thm: visit all policies around boundary}
+\textcolor{red}{this has not been proven}
+
+    if transition infinitely often from $\pol$ to $\pol_+$, then also visit infinitely often all the other policies on the boundary between $\pol$ and $\pol_+$, namely the policies that satisfy
+    \begin{align}
+        \pol'(s) \in \{\pol(s), \pol_+(s)\}
+    \end{align}
+\end{lemma}
+\begin{proof}
+    Since transition infinitely often from $\pol$ to $\pol_+$
+    
+    need to take into account $\lrate \to 0$ so that $q(s, \pol(s)) - q(s, \pol_+(s)) \to 0$
+    
+    does this work for both bounded and unbounded noise? (always asusme bounded variance)
+    
+    say that probability to change in several states simultaneously is close to zero
+    need to compare the transitions inequalities for several states at the same time.
+\end{proof}

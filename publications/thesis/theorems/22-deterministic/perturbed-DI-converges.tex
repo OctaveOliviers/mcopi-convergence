@@ -1,0 +1,96 @@
+\begin{lemma}
+\label{thm: perturbed di converges}
+    If the action values $q_{\best{\pol}}$ are globally asymptotically stable for 
+    % the difference inclusion \eqref{eq: mcopi determ},
+    the difference inclusion \eqref{eq: mcopi determ time inv} with respect to $\omega(q, k) = \|\qopt - q\|$,
+    % with every sequence $(\lrate_k \update_k)$ that satisfies \autoref{asp: stochastic conditions on effective learning rate},
+    % 
+    there exists a continuous function $d : \qset \to \real_{\geq 0}$ satisfying $d(q) > 0$ for all $q \neq q_{\best{\pol}}$,
+    such that the action values $q_{\best{\pol}}$ are globally asymptotically stable for the perturbed difference inclusion \eqref{eq: perturbed inclusion} with respect to $\omega$.
+\end{lemma}
+
+\begin{proof}
+
+% need convergence according to metric in \eqref{eq: metric for time invariant system}
+
+% need upper semicontinuity only for lemma 1, not for proof of theorem 1
+% % https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=f834660c1ae7695052cfaa0f046157f85b017ed7
+
+% Since the difference inclusion \eqref{eq: mcopi determ} is globally stable, its time-invariant equivalent \eqref{eq: mcopi determ time inv} is also globally stable with respect to the measure
+% \begin{align*}
+%     \omega(q, k) = \|\qopt - q\| .
+% \end{align*}
+% \mytodo{true? \eqref{eq: mcopi determ time inv} needs to be stable for any initial $k_0$}
+
+The difference inclusion \eqref{eq: mcopi determ time inv} and the measure $\omega(q, k) = \|\qopt-q\|$ satisfy the conditions of Proposition 1 in \citep{Kellett2007SufficientInclusions}. Namely, for every sequence $(q_k)_{k \geq 0}$ where $\lim_{k \to \infty} \|q_k\| = \infty$, we have
+\begin{align*}
+    \lim_{k \to \infty} \inf_{k' \geq 0} \omega( q_k, k' ) = \infty ,
+\end{align*}
+and for all $k \geq 0$ it holds that
+\begin{align*}
+    |k_+ - k| = |k+1 - k| = 1 \leq k+1 ,
+\end{align*}
+which is a locally bounded function of $k_+$.
+Therefore, since system \eqref{eq: mcopi determ time inv} is also nonempty, compact and outer semicontinuous for every $q \in \qset$ and $k \geq 0$,
+% (\autoref{thm: mcopi outer semicontinuous}),
+all assumptions of Theorem 4 in \citep{Kellett2007SufficientInclusions} are satisfied.
+This theorem establishes that
+% if the action values $q_{\best{\pol}}$ are globally asymptotically stable for the difference inclusion \eqref{eq: mcopi determ time inv},
+there exists a continuous function $d : \qset \to \real_{\geq 0}$ satisfying $d(q) > 0$ for all $q \neq q_{\best{\pol}}$ such that the action values $q_{\best{\pol}}$ are globally asymptotically stable for the perturbed difference inclusion \eqref{eq: perturbed inclusion} with respect to the measure $\omega$.
+\end{proof}
+
+% Let us incorporate a counter $i \in \integers_{\geq 0}$ to the state of system \eqref{eq: deterministic mces in stochastic section}. 
+% Then the time-invariant difference inclusion 
+% % By incorporating a counter $i \in \integers_{\geq 0}$ in the state, we obtain the time-invariant difference inclusion
+% \begin{align}
+% \label{eq: difference inclusion to show robustness noisy}
+%     \begin{bmatrix}
+%         q_\kpo \\
+%         i_\kpo
+%     \end{bmatrix}
+%     \in
+%     \Bigg\{ 
+%     \begin{bmatrix}
+%         \qval_k + \lrate_{i_k} \update ( q_{\pol} - \qval_k )
+%         \\
+%         i_k +1
+%     \end{bmatrix}
+%     :
+%     \update \in \updateset_{i_k}(q_k),
+%     q_{\pol} \in Q(q_k)
+%     \Bigg \}
+% \end{align}
+% % where $p : \mathcal{Z}_\epsilon \to \integers_{\geq 0}$ projects each element of $\ball_{\epsilon}(i)$ to $i$ for all $i \in \integers_{\geq 0}$.
+% generates solutions of system \eqref{eq: deterministic mces in stochastic section} with learning rates $(\lrate_k)_{k \geq i_0}$ and update maps $(\updateset_k)_{k \geq i_0}$.
+% Note that, since the sequences $(\lrate_k)_{k \geq 0}$ and $(\updateset_k)_{k \geq 0}$ satisfy \autoref{asp: stochastic conditions on effective learning rate}, the sequences $(\lrate_k)_{k \geq i_0}$ and $(\updateset_k)_{k \geq i_0}$ do as well.
+% As a result,
+% if system \eqref{eq: deterministic mces in stochastic section} is globally asymptotically stable with any sequence $(\lrate_k)$ and $(\updateset_k)$ that satisfy \autoref{asp: stochastic conditions on effective learning rate}, 
+% the time-invariant difference inclusion \eqref{eq: difference inclusion to show robustness noisy} is globally asymptotically stable as well. % for the measurement function $$
+
+% the function space $\qset$ is closed
+
+% Further, system \eqref{eq: difference inclusion to show robustness noisy} also satisfies
+% Assumption~13.4 in \citep{Teel2017RecentInclusions}, being outer semicontinuous, compact and nonempty for every $q \in \qset$.
+% Thus Theorem~13.1 in \citep{Teel2017RecentInclusions} indicates that
+% \textcolor{red}{there exists a $\sigma$}
+%  with $\sigma : \qset \to \real_{\geq 0}$ satisfying $\sigma(q) > 0$ for all $q \neq q_{\best{\pol}}$.
+% such that the perturbed difference inclusion
+% \begin{align*}
+%     \begin{bmatrix}
+%         q_\kpo \\
+%         i_\kpo
+%     \end{bmatrix}
+%     \in
+%     \Bigg\{ 
+%     \begin{bmatrix}
+%         q_k + \lrate_{i_k} \update ( q_{\pol} - q_k ) + \sigma(q_k) \overline{\ball}
+%         \\
+%         i_k +1
+%     \end{bmatrix}
+%     :
+%     \update \in \updateset_{i_k}(q_k),
+%     q_{\pol} \in Q(q_k)
+%     \Bigg \} 
+% \end{align*}
+% is globally asymptotically stable.
+% As a result, the equivalent time-varying perturbed difference inclusion \eqref{eq: perturbed inclusion} is globally asymptotically stable as well.

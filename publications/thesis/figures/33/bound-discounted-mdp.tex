@@ -1,0 +1,64 @@
+\begin{figure}[b!]
+
+    \hrule
+    \vspace{0.4cm}
+    
+    \pgfmathsetmacro{\gam}{0.88}
+    \pgfmathsetmacro{\lab}{0.5}
+    
+    \centering
+    
+    \small{State $s_1$}
+    
+    \begin{tikzpicture}[scale=1.4]
+        % Draw the grid and axes
+        % \draw[step=0.5cm,very thin,mylightgrey] (0,0) grid (3,3);
+        \draw[thin,->] (0,0) -- (3.,0) node[right] {$q(s_1,\best{a})$};
+        \draw[thin,->] (0,0) -- (0,2.2) node[above] {$q(s_1,\worst{a})$};
+
+        % Add labels to the axes
+        % \draw (0,0.1) -- (0,-0.1) node[left, font=\small, xshift=-4.5pt, yshift=-6.5pt] {0};
+            \draw (0,0.1) -- (0,-0.1) node[below, font=\small] {0};
+        %
+        \draw (-0.1,0) -- (0.1,0);
+        \draw (1,0.1) -- (1,-0.1);
+        \draw (1+\gam,0.1) -- (1+\gam,-0.1);
+        \draw (1+\gam+\gam^2,0.1) -- (1+\gam+\gam^2,-0.1);
+        % 
+        \node[above, font=\small] at ($(0,-\lab)!0.5!(1,-\lab)$) {1};
+        \node[above, font=\small] at ($(1,-\lab)!0.5!(1+\gam,-\lab)$) {$\gamma$};
+        \node[above, font=\small] at ($(1+\gam,-\lab)!0.5!(1+\gam+\gam^2,-\lab)$) {$\gamma^2$};
+        % 
+        \draw (0.1,\gam) -- (-0.1,\gam);
+        \draw (0.1,\gam+\gam^2) -- (-0.1,\gam+\gam^2);
+        % 
+        \node[right, font=\small] at ($(-\lab,0)!0.5!(-\lab,\gam)$) {$\gamma$};
+        \node[right, font=\small] at ($(-\lab,\gam)!0.5!(-\lab,\gam+\gam^2)$) {$\gamma^2$};
+        
+        % Draw the grey square from (1,1) to (2,2)
+        \filldraw[fill=mylightgrey, draw=none] (1,1) rectangle (1+\gam,\gam+\gam^2);
+
+        % Draw the line y = x
+        \draw[dotted, black] (0,0) -- (2.2,2.2);
+
+        % Draw the blue triangle
+        % \filldraw[fill=CambridgeSuperLightBlue, draw=CambridgeCoreBlue, opacity=1] (1,1) -- (\gam+\gam^2,\gam+\gam^2) -- (1+\gam,\gam+\gam^2) -- (1+\gam,1) -- cycle;
+        
+        % Add the points with associated text
+        \filldraw (1+\gam+\gam^2,0) circle (1pt) node[above] {$q_{\pol_1}$};
+        \filldraw (1,\gam) circle (1pt) node[above left] {$q_{\pol_5}$};
+        \filldraw (1,\gam) circle (1pt) node[below right] {$q_{\pol_4}$};
+        \filldraw (1+\gam,\gam+\gam^2) circle (1pt) node[right] {$q_{\pol_3}$};
+        \filldraw (1+\gam,0) circle (1pt) node[above] {$q_{\pol_2}$};
+        \filldraw (1,0) circle (1pt) node[above right] {$q_{\pol_6}$};
+        \filldraw (1,0) circle (1pt) node[above left] {$q_{\worst{\pol}}$};
+
+        \node at (1+\gam/2, 1/2+\gam/2+\gam^2/2) [font=\small, color=black] {$\qset_0$};
+    \end{tikzpicture} 
+    \vspace{-0.2cm}
+    \caption{The region $\qset_0$ 
+    % shrinks when the discount factor $\discount < 1$. It 
+    is not empty as long as $\discount + \discount^2 > 1$.}
+    % Every solution in $\qset_0$ remains inside $\qset_0$, provided the learning rate is small enough. The same conclusion holds in states $s_2$ and $s_3$.}
+    \label{fig: explain stay in box for loop discounted}
+\end{figure}

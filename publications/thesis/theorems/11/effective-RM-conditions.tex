@@ -1,0 +1,17 @@
+\begin{definition}[Modified Robbins-Monro conditions]
+\label{asp: stochastic conditions on effective learning rate}
+    For every state $s \in \sset$ and action $a \in \aset(s)$,
+    the sequences of learning rates $(\lrate_k)_{k \geq 0}$ and update distributions $(\update_k)_{k \geq 0}$ satisfy
+        \begin{align}
+            % \label{eq: xtn robbins-monro first}
+            % \sum_{k\geq0} \lrate_k \update_k(s,a) &= \infty , 
+            % \\
+            % \label{eq: xtn robbins-monro second}
+            % \sum_{k\geq0} \lrate_k^2 \update_k^2(s,a) &< \infty .
+            \label{eq: xtn robbins-monro first}
+            &\sum_{k = 0}^{\infty} \lrate_k \update_k(s,a) = \infty , 
+            \\
+            \label{eq: xtn robbins-monro second}
+            &\sum_{k = 0}^{\infty} \lrate_k^2 < \infty .
+        \end{align}
+\end{definition}

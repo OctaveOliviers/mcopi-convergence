@@ -1,0 +1,385 @@
+\begin{figure}[h]
+\hrule
+\vspace{2cm}
+    \centering
+
+    \pgfmathsetmacro{\xmin}{0}
+    \pgfmathsetmacro{\xmax}{2.6}
+    % \pgfmathsetmacro{\xmin}{0}
+    % \pgfmathsetmacro{\xmax}{2.2}
+    \pgfmathsetmacro{\width}{\xmax-\xmin}
+    \pgfmathsetmacro{\height}{\xmax-\xmin}
+
+    \pgfmathsetmacro{\arrowsize}{0.13}
+
+    \pgfmathsetmacro{\qpolbx}{0.8*\xmax}
+    \pgfmathsetmacro{\qpolby}{0.8*\xmax-0.4}
+    \pgfmathsetmacro{\qpolwx}{0.2*\xmax+0.4}
+    \pgfmathsetmacro{\qpolwy}{0.2*\xmax}
+    \pgfmathsetmacro{\mstrong}{10}
+    % \pgfmathsetmacro{\mweak}{3}
+
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1.5]
+
+    %         \pgfmathsetmacro{\mpolbx}{1}
+    %         \pgfmathsetmacro{\mpolby}{1}
+    %         \pgfmathsetmacro{\mpolwx}{1}
+    %         \pgfmathsetmacro{\mpolwy}{1}
+    %         \pgfmathsetmacro{\Lb}{\qpolby - \mpolbx/\mpolby *(\qpolbx-\xmax)}
+    %         \pgfmathsetmacro{\Lw}{\qpolwy - \mpolwx/\mpolwy *(\qpolwx-\xmax)}
+            
+    %         \draw[->] (\xmin,\xmin) -- (\xmax,\xmin) node[right, font=\small] {$(s,\pol)$};
+    %         \draw[->] (\xmin,\xmin) -- (\xmin,\xmax) node[above, font=\small] {$(s,\pol')$};
+            
+    %         \draw[black, dotted] (\xmin,\xmin) -- (\xmax,\xmax);
+
+    %         \begin{axis}[
+    %             hide axis,
+    %             xmin=\xmin, xmax=\xmax,
+    %             ymin=\xmin, ymax=\xmax,
+    %             width=\width cm,
+    %             height=\height cm,
+    %             at={(0,0)},
+    %             scale only axis,
+    %             % clip=false,
+    %             anchor=south west,
+    %         ]
+
+    %             % \addplot[CambridgeLightBlue, no marks] 
+    %             % table [ x expr=\thisrowno{0}, 
+    %             %         y expr=\thisrowno{1}, 
+    %             %         col sep=comma, 
+    %             %         unbounded coords=jump] 
+    %             % {figures/23/streamlines-bias-uniform.csv};
+                
+    %             \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+    %             \qpolby - \mpolbx/\mpolby *(\qpolbx-x)
+    %             };
+    %             \addplot[thick, CambridgeCoreGreen, domain=\xmin:\xmax, samples=3] {
+    %             \qpolwy - \mpolwx/\mpolwy *(\qpolwx-x)
+    %             };
+    %         \end{axis}
+            
+    %         \filldraw[fill=black, draw=black] (\qpolbx, \qpolby) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+    %         \filldraw[fill=black, draw=black] (\qpolwx, \qpolwy) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol'}$};
+            
+    %         \node at (\xmax,\Lb) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+    %         \node at (\xmax,\Lw) [right, text=CambridgeCoreGreen, font=\small] {$L_{\pol'}$};
+
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (\xmax/4, \xmax/4) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (\xmax/2, \xmax/2) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (3*\xmax/4, 3*\xmax/4) -- ++(\arrowsize,-\arrowsize);
+
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (\xmax/4, \xmax/4) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (\xmax/2, \xmax/2) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (3*\xmax/4, 3*\xmax/4) -- ++(-\arrowsize,+\arrowsize);
+
+    %     \end{tikzpicture}
+    %     % \caption{$\update(s, \pol) = \update(s, \pol')$ and $\update'(s, \pol) = \update'(s, \pol')$}
+    %     \caption{$\bias_{\pol}(s, \pol') = 0$ and $\bias'_{\pol'}(s, \pol) = 0$}
+    % \end{subfigure}%
+    
+    % \vfill
+    % \vspace{0.5cm}
+    
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1.5]
+
+    %         \pgfmathsetmacro{\mpolbx}{1}
+    %         \pgfmathsetmacro{\mpolby}{\mstrong}
+    %         \pgfmathsetmacro{\mpolwx}{1}
+    %         \pgfmathsetmacro{\mpolwy}{\mstrong}
+    %         \pgfmathsetmacro{\Lb}{\qpolby - \mpolbx/\mpolby *(\qpolbx-\xmax)}
+    %         \pgfmathsetmacro{\Lw}{\qpolwy - \mpolwx/\mpolwy *(\qpolwx-\xmax)}
+    %         \pgfmathsetmacro{\qhatb}{(\mpolbx*\qpolbx-\mpolby*\qpolby)/(\mpolbx-\mpolby)}
+    %         \pgfmathsetmacro{\qhatw}{(\mpolwx*\qpolwx-\mpolwy*\qpolwy)/(\mpolwx-\mpolwy)}
+            
+    %         \draw[->] (\xmin,\xmin) -- (\xmax,\xmin) node[right, font=\small] {$(s,\pol)$};
+    %         \draw[->] (\xmin,\xmin) -- (\xmin,\xmax) node[above, font=\small] {$(s,\pol')$};
+            
+    %         \draw[black, dotted] (\xmin,\xmin) -- (\xmax,\xmax);
+
+    %         \begin{axis}[
+    %             hide axis,
+    %             xmin=\xmin, xmax=\xmax,
+    %             ymin=\xmin, ymax=\xmax,
+    %             width=\width cm,
+    %             height=\height cm,
+    %             at={(0,0)},
+    %             scale only axis,
+    %             % clip=false,
+    %             anchor=south west,
+    %         ]
+    %             \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+    %             \qpolby - \mpolbx/\mpolby *(\qpolbx-x)
+    %             };
+    %             \addplot[thick, CambridgeCoreGreen, domain=\xmin:\xmax, samples=3] {
+    %             \qpolwy - \mpolwx/\mpolwy *(\qpolwx-x)
+    %             };
+    %         \end{axis}
+            
+    %         \filldraw[black] (\qpolbx, \qpolby) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+    %         \filldraw[black] (\qpolwx, \qpolwy) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol'}$};
+            
+    %         \node at (\xmax,\Lb) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+    %         \node at (\xmax,\Lw) [right, text=CambridgeCoreGreen, font=\small] {$L_{\pol'}$};
+
+    %         \filldraw[CambridgeCoreBlue] (\qhatb, \qhatb) circle (1pt) ;
+    %         \filldraw[CambridgeCoreGreen] (\qhatw, \qhatw) circle (1pt) ;
+
+    %         \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (\qhatw/2, \qhatw/2) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+
+    %         \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (\qhatw/2, \qhatw/2) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+    
+    %     \end{tikzpicture}
+    %     % \caption{$\update(s, \pol) < \update(s, \pol')$ and $\update'(s, \pol) < \update'(s, \pol')$}
+    %     \caption{$\bias_{\pol}(s, \pol') > 0$ and $\bias'_{\pol'}(s, \pol) < 0$}
+    % \end{subfigure}%
+    % \hfill
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1.5]
+
+    %         \pgfmathsetmacro{\mpolbx}{\mstrong}
+    %         \pgfmathsetmacro{\mpolby}{1}
+    %         \pgfmathsetmacro{\mpolwx}{\mstrong}
+    %         \pgfmathsetmacro{\mpolwy}{1}
+    %         \pgfmathsetmacro{\Lb}{\qpolbx - \mpolby/\mpolbx *(\qpolbx-\xmax)}
+    %         \pgfmathsetmacro{\Lw}{\qpolwx - \mpolwy/\mpolwx *(\qpolwy-\xmax)}
+    %         \pgfmathsetmacro{\qhatb}{(\mpolbx*\qpolbx-\mpolby*\qpolby)/(\mpolbx-\mpolby)}
+    %         \pgfmathsetmacro{\qhatw}{(\mpolwx*\qpolwx-\mpolwy*\qpolwy)/(\mpolwx-\mpolwy)}
+            
+    %         \draw[->] (\xmin,\xmin) -- (\xmax,\xmin) node[right, font=\small] {$(s,\pol)$};
+    %         \draw[->] (\xmin,\xmin) -- (\xmin,\xmax) node[above, font=\small] {$(s,\pol')$};
+            
+    %         \draw[black, dotted] (\xmin,\xmin) -- (\xmax,\xmax);
+
+    %         \begin{axis}[
+    %             hide axis,
+    %             xmin=\xmin, xmax=\xmax,
+    %             ymin=\xmin, ymax=\xmax,
+    %             width=\width cm,
+    %             height=\height cm,
+    %             at={(0,0)},
+    %             scale only axis,
+    %             % clip=false,
+    %             anchor=south west,
+    %         ]
+    %             \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+    %             \qpolby - \mpolbx/\mpolby *(\qpolbx-x)
+    %             };
+    %             \addplot[thick, CambridgeCoreGreen, domain=\xmin:\xmax, samples=3] {
+    %             \qpolwy - \mpolwx/\mpolwy *(\qpolwx-x)
+    %             };
+    %         \end{axis}
+            
+    %         \filldraw[fill=black, draw=black] (\qpolbx, \qpolby) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+    %         \filldraw[fill=black, draw=black] (\qpolwx, \qpolwy) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol'}$};
+            
+    %         \node at (\Lb,\xmax) [above, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+    %         \node at (\Lw,\xmax) [above, text=CambridgeCoreGreen, font=\small] {$L_{\pol'}$};
+
+    %         \filldraw[CambridgeCoreBlue] (\qhatb, \qhatb) circle (1pt) ;
+    %         \filldraw[CambridgeCoreGreen] (\qhatw, \qhatw) circle (1pt) ;
+
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (\qhatw/2, \qhatw/2) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,->, thick, line width=0.4mm] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+    %         \draw[CambridgeCoreBlue,<-, thick, line width=0.4mm] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+
+    %         \draw[CambridgeCoreGreen,<-, thick, line width=0.4mm] (\qhatw/2, \qhatw/2) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+    %         \draw[CambridgeCoreGreen,->, thick, line width=0.4mm] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+
+    %     \end{tikzpicture}
+    %     % \caption{$\update(s, \pol) > \update(s, \pol')$ and $\update'(s, \pol) > \update'(s, \pol')$}
+    %     \caption{$\bias_{\pol}(s, \pol') < 0$ and $\bias'_{\pol'}(s, \pol) > 0$}
+    % \end{subfigure}%
+   
+    % \vfill
+    % \vspace{0.5cm}
+
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+            \pgfmathsetmacro{\mpolbx}{1}
+            \pgfmathsetmacro{\mpolby}{\mstrong}
+            \pgfmathsetmacro{\mpolwx}{\mstrong}
+            \pgfmathsetmacro{\mpolwy}{1}
+            \pgfmathsetmacro{\Lb}{\qpolby - \mpolbx/\mpolby *(\qpolbx-\xmax)}
+            \pgfmathsetmacro{\Lw}{\qpolwx - \mpolwy/\mpolwx *(\qpolwy-\xmax)}
+            \pgfmathsetmacro{\qhatb}{(\mpolbx*\qpolbx-\mpolby*\qpolby)/(\mpolbx-\mpolby)}
+            \pgfmathsetmacro{\qhatw}{(\mpolwx*\qpolwx-\mpolwy*\qpolwy)/(\mpolwx-\mpolwy)}
+            
+            \draw[->] (\xmin,\xmin) -- (\xmax,\xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin,\xmin) -- (\xmin,\xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[black, dotted] (\xmin,\xmin) -- (\xmax,\xmax);
+
+            % \begin{axis}[
+            %     hide axis,
+            %     xmin=\xmin, xmax=\xmax,
+            %     ymin=\xmin, ymax=\xmax,
+            %     width=\width cm,
+            %     height=\height cm,
+            %     at={(0,0)},
+            %     scale only axis,
+            %     % clip=false,
+            %     anchor=south west,
+            % ]
+            %     % \addplot[CambridgeLightBlue, no marks] 
+            %     % table [ x expr=\thisrowno{0}, 
+            %     %         y expr=\thisrowno{1}, 
+            %     %         col sep=comma, 
+            %     %         unbounded coords=jump] 
+            %     % {figures/23/streamlines-bias-off-pol.csv};
+                
+            %     \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+            %     \qpolby - \mpolbx/\mpolby *(\qpolbx-x)
+            %     };
+            %     \addplot[thick, CambridgeCoreGreen, domain=\xmin:\xmax, samples=3] {
+            %     \qpolwy - \mpolwx/\mpolwy *(\qpolwx-x)
+            %     };
+            % \end{axis}
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream-double-non-greedy.csv};
+            \end{axis}
+            
+            \filldraw[fill=black, draw=black] (\qpolbx, \qpolby) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+            \filldraw[fill=black, draw=black] (\qpolwx, \qpolwy) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol'}$};
+
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+            
+            % \node at (\xmax,\Lb) [right, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+            % \node at (\Lw,\xmax) [above, text=CambridgeCoreGreen, font=\small] {$L_{\pol'}$};
+
+            \filldraw[CambridgeCoreBlue] (\qhatb, \qhatb) circle (1pt) ;
+            % node[above left, text=CambridgeCoreBlue, font=\small] {$q$} ;
+            
+            \filldraw[CambridgeCoreBlue] (\qhatw, \qhatw) circle (1pt) ;
+            % node[above left, text=CambridgeCoreBlue, font=\small] {$q'$} ;
+
+            \draw[CambridgeCoreBlue,<-, thick] (\qhatw/2, \qhatw/2) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,<-, thick] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+
+            \draw[CambridgeCoreBlue,<-, thick] (\qhatw/2, \qhatw/2) -- ++(-\arrowsize,+\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+
+        \end{tikzpicture}
+        \caption{\centering $\update(s, \pol) < \update(s, \pol')$ \\ and $\update'(s, \pol) > \update'(s, \pol')$}
+        \label{fig: explain effect of bias both sides boundary a}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[scale=1.5]
+
+            \pgfmathsetmacro{\mpolbx}{\mstrong}
+            \pgfmathsetmacro{\mpolby}{1}
+            \pgfmathsetmacro{\mpolwx}{1}
+            \pgfmathsetmacro{\mpolwy}{\mstrong}
+            \pgfmathsetmacro{\Lb}{\qpolbx - \mpolby/\mpolbx *(\qpolbx-\xmax)}
+            \pgfmathsetmacro{\Lw}{\qpolwy - \mpolwx/\mpolwy *(\qpolwx-\xmax)}
+            \pgfmathsetmacro{\qhatb}{(\mpolbx*\qpolbx-\mpolby*\qpolby)/(\mpolbx-\mpolby)}
+            \pgfmathsetmacro{\qhatw}{(\mpolwx*\qpolwx-\mpolwy*\qpolwy)/(\mpolwx-\mpolwy)}
+            
+            \draw[->] (\xmin,\xmin) -- (\xmax,\xmin) node[right, font=\small] {$q(s,\pol)$};
+            \draw[->] (\xmin,\xmin) -- (\xmin,\xmax) node[above, font=\small] {$q(s,\pol')$};
+            
+            \draw[black, dotted] (\xmin,\xmin) -- (\xmax,\xmax);
+
+            % \begin{axis}[
+            %     hide axis,
+            %     xmin=\xmin, xmax=\xmax,
+            %     ymin=\xmin, ymax=\xmax,
+            %     width=\width cm,
+            %     height=\height cm,
+            %     at={(0,0)},
+            %     scale only axis,
+            %     % clip=false,
+            %     anchor=south west,
+            % ]
+            %     \addplot[thick, CambridgeCoreBlue, domain=\xmin:\xmax, samples=3] {
+            %     \qpolby - \mpolbx/\mpolby *(\qpolbx-x)
+            %     };
+            %     \addplot[thick, CambridgeCoreGreen, domain=\xmin:\xmax, samples=3] {
+            %     \qpolwy - \mpolwx/\mpolwy *(\qpolwx-x)
+            %     };
+            % \end{axis}
+
+            \begin{axis}[
+                hide axis,
+                xmin=\xmin, xmax=\xmax,
+                ymin=\xmin, ymax=\xmax,
+                width=\width cm,
+                height=\height cm,
+                at={(0,0)},
+                scale only axis,
+                clip=true,
+                anchor=south west,
+            ]
+                \addplot[mygrey, no marks] 
+                table [ x expr=\thisrowno{0}, 
+                        y expr=\thisrowno{1}, 
+                        col sep=comma, 
+                        unbounded coords=jump] 
+                {figures/23/stream-double-greedy.csv};
+            \end{axis}
+            
+            \filldraw[fill=black, draw=black] (\qpolbx, \qpolby) circle (1pt) node[below right, text=black, font=\small] {$q_\pol$};
+            \filldraw[fill=black, draw=black] (\qpolwx, \qpolwy) circle (1pt) node[below right, text=black, font=\small] {$q_{\pol'}$};
+
+            \draw[CambridgeCoreBlue, thick] (\xmin, \xmin) -- (\xmax, \xmax);
+            
+            % \node at (\Lb,\xmax) [above, text=CambridgeCoreBlue, font=\small] {$L_\pol$};
+            % \node at (\xmax,\Lw) [right, text=CambridgeCoreGreen, font=\small] {$L_{\pol'}$};
+
+            \filldraw[CambridgeCoreBlue] (\qhatb, \qhatb) circle (1pt) ;
+            % node[above left, text=CambridgeCoreBlue, font=\small] {$q$} ;
+            
+            \filldraw[CambridgeCoreBlue] (\qhatw, \qhatw) circle (1pt) ;
+            % node[above left, text=CambridgeCoreBlue, font=\small] {$q'$} ;
+
+            \draw[CambridgeCoreBlue,->, thick] (\qhatw/2, \qhatw/2) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,->, thick] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+            \draw[CambridgeCoreBlue,<-, thick] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(\arrowsize,-\arrowsize);
+
+            \draw[CambridgeCoreBlue,->, thick] (\qhatw/2, \qhatw/2) -- ++(-\arrowsize,+\arrowsize);
+            \draw[CambridgeCoreBlue,<-, thick] (\qhatw/2+\qhatb/2, \qhatw/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+            \draw[CambridgeCoreBlue,<-, thick] (\xmax/2+\qhatb/2, \xmax/2+\qhatb/2) -- ++(-\arrowsize,+\arrowsize);
+
+        \end{tikzpicture}
+        \caption{\centering $\update(s, \pol) > \update(s, \pol')$ \\ and $\update'(s, \pol) < \update'(s, \pol')$}
+        \label{fig: explain effect of bias both sides boundary b}
+    \end{subfigure}%
+\vspace{1.5cm}
+    \caption{The bias in the update distributions controls the switching dynamics of the mean-field.
+    \textbf{\sffamily (a)} When updates are biased towards non-greedy actions, solutions that switch from region $\region(\pi)$ (below the boundary) to $\region(\pi')$ (above the boundary) eventually converge to a point on the boundary.
+    \textbf{\sffamily (b)} When updates are biased towards greedy actions, all solutions converge to $q_\pi$.}
+    \label{fig: explain effect of bias both sides boundary}
+\end{figure}

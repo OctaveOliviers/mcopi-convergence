@@ -1,0 +1,57 @@
+\begin{lemma}
+\label{thm: c(q) goes to zero}
+If the update distributions $(\update_k)_{k \geq 0}$ are uniform over all state-action pairs (\autoref{asp: unbiased tsitsiklis}),
+and together with the learning rates $(\lrate_k)_{k \geq 0}$ they satisfy the modified Robbins-Monro conditions (\autoref{asp: stochastic conditions on effective learning rate}),
+an MC-O-PI solution $(q_k)_{k \geq 0}$ (\autoref{def: mcopi}) satisfies almost surely
+\begin{align}
+\label{eq: condition tsitsiklis eventual contract}
+    \limsup_{k \to \infty} \ q_k - \B q_k \leq \zerofun .
+\end{align}
+\end{lemma}
+\begin{proof}
+    Let $(q_k)_{k \ge 0}$ and $(\pol_k)_{k \ge 0}$ be solutions of \eqref{eq: complete difference inclusion} with 
+    % initial condition $q_0$, 
+    learning rates $(\lrate_k)_{k \ge 0}$, update distributions $(\update_k)_{k \ge 0}$ and perturbations $(w_k)_{k \ge 0}$.
+    The affine properties of the Bellman operators yield
+    \begin{align}
+        \nonumber
+        \B q_\kpo &= \B_{\pol_\kpo} q_\kpo
+        \\
+        \nonumber
+        &\geq \B_{\pol_k} q_\kpo
+        \\
+        \nonumber
+        &= \B_{\pol_k} \big( (\I- \lrate_k \update_k) q_k + \lrate_k \update_k (q_{\pol_k}+w_k) \big)
+        \\
+        \label{eq: tsitsiklis commutation}
+        &= r + (\I-\lrate_k \update_k) \discount \T_{\pol_k} q_k + \lrate_k \update_k \discount \T_{\pol_k} ( q_{\pol_k} + w_k)
+        \\
+        \nonumber
+        &= (\I-\lrate_k \update_k) \B_{\pol_k} q_k + \lrate_k \update_k \B_{\pol_k} q_{\pol_k} + \lrate_k \discount \T_{\pol_k} \update_k w_k
+        \\
+        \nonumber
+        &= (\I-\lrate_k \update_k) \B q_k + \lrate_k \update_k q_{\pol_k} + \lrate_k \discount \T_{\pol_k} \update_k w_k
+        % \\
+        % \nonumber
+        % &= (\I-\lrate_k \update_k) (\B q_k - q_k + q_k) + \lrate_k \update_k ( q_{\pol_k} + w_k - w_k) + \lrate_k \discount \T_{\pol_k} \update_k w_k
+        \\
+        \nonumber
+        &= (\I-\lrate_k \update_k) (\B q_k - q_k) + q_\kpo + \lrate_k (\discount \T_{\pol_k} \update_k w_k -  \update_k w_k) 
+    \end{align}
+    As a result, we obtain
+    \begin{align}
+    \label{eq: q-Bq decreases}
+        q_\kpo - \B q_\kpo \leq (\I - \lrate_k \update_k)(q_k - \B q_k) - \lrate_k (\discount \T_{\pol_k} \update_k w_k -  \update_k w_k) .
+    \end{align}
+    % where
+    % \begin{align*}
+    %     &\E \big[ \discount \T_{\pol_k} \update_k w_k - \update_k w_k \big] = \zerofun 
+    %     \\
+    %     &\E \big[ \| \discount \T_{\pol_k} \update_k w_k - \update_k w_k \|^2 \big] \leq c_1 + c_2 \| q_k \|^2
+    % \end{align*}
+    % for some constants $c_1, c_2 \in \real_{\geq 0}$ independent of $k$.
+    Sections 4.2 and 4.3 in \citep{Bertsekas1996Neuro-DynamicProgramming} show that since the sequence $(q_k - \B q_k)_{k \geq 0}$ satisfies \eqref{eq: q-Bq decreases}, it is upper-bounded by a sequence that converges to zero with probability one. As a result, we obtain almost surely expression \eqref{eq: condition tsitsiklis eventual contract}.
+    % \begin{align*}
+    %     \limsup_{k \to \infty} q_k - \B q_k \leq 0 .
+    % \end{align*}
+\end{proof}

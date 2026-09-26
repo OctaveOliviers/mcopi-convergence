@@ -1,0 +1,234 @@
+\begin{figure}[b!]
+\hrule 
+\vspace{0.8cm}
+
+\centering
+    \pgfmathsetmacro{\xmin}{0.5}
+    \pgfmathsetmacro{\xmax}{8.5}
+    \pgfmathsetmacro{\ymin}{.5}
+    \pgfmathsetmacro{\ymax}{6.5}
+    
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \vspace{0pt}
+        \begin{tikzpicture}[scale=1]
+            \begin{axis}[
+                xlabel={$q(s_1, \best{a})$},
+                ylabel={$q(s_1, \worst{a})$},
+                xmin=\xmin, xmax=\xmax,
+                ymin=\ymin, ymax=\ymax,
+                xtick={1,2,...,8},
+                ytick={1,2,...,6},
+                grid=none,
+                tick label style={font=\small},
+                label style={font=\small},
+                width=6cm,
+                height=5cm,
+            ]
+                \pgfplotstableread[col sep=tab]{figures/33/3s_phase_st_s1.txt}\datatable
+            
+                \foreach \n in {1,...,9} {
+                    \pgfmathsetmacro\yindex{10+\n}
+                    \addplot [mygrey, opacity=0.7] table [x index=\n, y index=\yindex] {\datatable};
+                }
+                \addplot [CambridgeCoreBlue, line width=0.8pt] table [x index=0, y index=10] {\datatable};
+
+                \addplot[color=black, mark=*, mark size=2pt] coordinates {(2, 1)};
+                \node[text=black, right] at (axis cs:2, 1) {$q_0$};
+                
+                \addplot[color=black, dotted, domain=\xmin:\xmax] {x};
+    
+            \end{axis}
+        \end{tikzpicture}
+        % \caption{State $s_1$}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \vspace{0pt}
+        % \normalsize{State $s_2$}
+        \begin{tikzpicture}[scale=1]
+            \begin{axis}[
+                ylabel={$q_k(s_1, \best{a})$},
+                xlabel={$k$},
+                xmin=0, xmax=100000,
+                ymin=1.4, ymax=2,
+                % xtick={1.45, 1.5, 1.5, 1.55},
+                ytick={1.5, 1.6, 1.7, 1.8, 1.9},
+                grid=none,
+                tick label style={font=\small},
+                label style={font=\small},
+                width=6cm,
+                height=5cm,
+            ]
+                \pgfplotstableread[col sep=tab]{figures/33/3s_time_st_s1.txt}\datatable
+
+                % \addplot [name path=upper, draw=none] table [x index=0, y index=13] {\datatable};
+                % \addplot [name path=lower, draw=none] table [x index=0, y index=12] {\datatable};
+                % \addplot [fill=mygrey, opacity=0.4] fill between [of=upper and lower];
+            
+                \foreach \n in {2,...,10} {
+                    \addplot [mygrey, opacity=0.7] table [x index=0, y index=\n] {\datatable};
+                }
+                \addplot [CambridgeCoreBlue, line width=0.8pt] table [x index=0, y index=1] {\datatable};
+            
+                % \addplot [CambridgeCoreOrange, thick] table [x index=0, y index=11] {\datatable};
+            
+            \end{axis}
+        \end{tikzpicture}
+        % \caption{State $s_2$}
+    \end{subfigure}%
+
+    % \vspace{0.5cm}
+
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1]
+    %         \begin{axis}[
+    %             xlabel={$q_k(s_2, \best{a})$},
+    %             ylabel={$q_k(s_2, \worst{a})$},
+    %             xmin=\xmin, xmax=\xmax,
+    %             ymin=\ymin, ymax=\ymax,
+    %             % xtick={1.45, 1.5, 1.5, 1.55},
+    %             % ytick={1.4, 1.45, 1.5},
+    %             grid=none,
+    %             % xlabel style={at={(1,0)}, anchor=north},
+    %             % ylabel style={at={(0,1)}, anchor=east, rotate=-90},
+    %             tick label style={font=\small},
+    %             label style={font=\small},
+    %             width=6.5cm,
+    %             height=5.5cm,
+    %         ]
+    %             \pgfplotstableread[col sep=tab]{figures/33/3s_phase_st_s2.txt}\datatable
+            
+    %             \foreach \n in {1,...,9} {
+    %                 \pgfmathsetmacro\yindex{10+\n}
+    %                 \addplot [mygrey, opacity=0.7] table [x index=\n, y index=\yindex] {\datatable};
+    %             }
+    %             \addplot [CambridgeCoreBlue] table [x index=0, y index=10] {\datatable};
+
+    %             \addplot[color=CambridgeCoreBlue, mark=*, mark size=2pt] coordinates {(2, 1)};
+    %             \node[text=CambridgeCoreBlue, below] at (axis cs:2, 1) {$q_0$};
+                
+    %             \addplot[color=black, dotted, domain=\xmin:\xmax] {x};
+    
+    %         \end{axis}
+    %     \end{tikzpicture}
+    %     % \caption{State $s_1$}
+    % \end{subfigure}%
+    % \hfill
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     % \normalsize{State $s_2$}
+    %     \begin{tikzpicture}[scale=1]
+    %         \begin{axis}[
+    %             xlabel={$k$},
+    %             ylabel={$q_k(s_2, \best{a})$},
+    %             xmin=0, xmax=100000,
+    %             ymin=1.4, ymax=2,
+    %             % xtick={1.45, 1.5, 1.5, 1.55},
+    %             % ytick={1.4, 1.45, 1.5},
+    %             grid=none,
+    %             % xlabel style={at={(1,0)}, anchor=north},
+    %             % ylabel style={at={(0,1)}, anchor=east, rotate=-90},
+    %             tick label style={font=\small},
+    %             label style={font=\small},
+    %             width=6.5cm,
+    %             height=5.5cm,
+    %         ]
+    %             \pgfplotstableread[col sep=tab]{figures/33/3s_time_st_s2.txt}\datatable
+            
+    %             \foreach \n in {1,...,10} {
+    %                 \addplot [mygrey, opacity=0.7] table [x index=0, y index=\n] {\datatable};
+    %             }
+            
+    %             \addplot [CambridgeCoreOrange, thick] table [x index=0, y index=11] {\datatable};
+            
+    %             \addplot [name path=upper, draw=none] table [x index=0, y index=13] {\datatable};
+    %             \addplot [name path=lower, draw=none] table [x index=0, y index=12] {\datatable};
+    %             \addplot [fill=CambridgeCoreOrange, opacity=0.3] fill between [of=upper and lower];
+    
+    %         \end{axis}
+    %     \end{tikzpicture}
+    %     % \caption{State $s_2$}
+    % \end{subfigure}%
+
+    % \vspace{0.5cm}
+
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     \begin{tikzpicture}[scale=1]
+    %         \begin{axis}[
+    %             xlabel={$q_k(s_3, \best{a})$},
+    %             ylabel={$q_k(s_3, \worst{a})$},
+    %             xmin=\xmin, xmax=\xmax,
+    %             ymin=\ymin, ymax=\ymax,
+    %             % xtick={1.45, 1.5, 1.5, 1.55},
+    %             % ytick={1.4, 1.45, 1.5},
+    %             grid=none,
+    %             % xlabel style={at={(1,0)}, anchor=north},
+    %             % ylabel style={at={(0,1)}, anchor=east, rotate=-90},
+    %             tick label style={font=\small},
+    %             label style={font=\small},
+    %             width=6.5cm,
+    %             height=5.5cm,
+    %         ]
+    %             \pgfplotstableread[col sep=tab]{figures/33/3s_phase_st_s3.txt}\datatable
+            
+    %             \foreach \n in {1,...,9} {
+    %                 \pgfmathsetmacro\yindex{10+\n}
+    %                 \addplot [mygrey, opacity=0.7] table [x index=\n, y index=\yindex] {\datatable};
+    %             }
+    %             \addplot [CambridgeCoreBlue] table [x index=0, y index=10] {\datatable};
+
+    %             \addplot[color=CambridgeCoreBlue, mark=*, mark size=2pt] coordinates {(1,2)};
+    %             \node[text=CambridgeCoreBlue, left] at (axis cs:1,2) {$q_0$};
+                
+    %             \addplot[color=black, dotted, domain=\xmin:\xmax] {x};
+    
+    %         \end{axis}
+    %     \end{tikzpicture}
+    %     % \caption{State $s_1$}
+    % \end{subfigure}%
+    % \hfill
+    % \begin{subfigure}[b]{0.48\textwidth}
+    %     \centering
+    %     % \normalsize{State $s_2$}
+    %     \begin{tikzpicture}[scale=1]
+    %         \begin{axis}[
+    %             xlabel={$k$},
+    %             ylabel={$q_k(s_3, \best{a})$},
+    %             xmin=0, xmax=100000,
+    %             ymin=1.4, ymax=2,
+    %             % xtick={1.45, 1.5, 1.5, 1.55},
+    %             % ytick={1.4, 1.45, 1.5},
+    %             grid=none,
+    %             % xlabel style={at={(1,0)}, anchor=north},
+    %             % ylabel style={at={(0,1)}, anchor=east, rotate=-90},
+    %             tick label style={font=\small},
+    %             label style={font=\small},
+    %             width=6.5cm,
+    %             height=5.5cm,
+    %         ]
+    %             \pgfplotstableread[col sep=tab]{figures/33/3s_time_st_s3.txt}\datatable
+            
+    %             \foreach \n in {1,...,10} {
+    %                 \addplot [mygrey, opacity=0.7] table [x index=0, y index=\n] {\datatable};
+    %             }
+            
+    %             \addplot [CambridgeCoreOrange, thick] table [x index=0, y index=11] {\datatable};
+            
+    %             \addplot [name path=upper, draw=none] table [x index=0, y index=13] {\datatable};
+    %             \addplot [name path=lower, draw=none] table [x index=0, y index=12] {\datatable};
+    %             \addplot [fill=CambridgeCoreOrange, opacity=0.3] fill between [of=upper and lower];
+    
+    %         \end{axis}
+    %     \end{tikzpicture}
+    %     % \caption{State $s_2$}
+    % \end{subfigure}%
+    \caption{Solutions starting in $q_0$ defined in \eqref{eq: init condition for 3s counter} converge to a suboptimal fixed point on the boundary around 1.61, even when the sampling strategy satisfies exploring starts and the discounted MDP has stochastic transitions.
+    The blue lines highlight one of the ten solutions.
+    % whereas the grey region depicts the 95\% confidence interval for the mean of all solutions. 
+    We obtain similar behaviours in states $s_2$ and $s_3$.}
+    \label{fig: 3s IV ES ST}
+\end{figure}
