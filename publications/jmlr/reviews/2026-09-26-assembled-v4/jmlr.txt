@@ -1,0 +1,1283 @@
+    Convergence of Monte Carlo Optimistic Policy Iteration:
+            Beyond Uniform State-Action Updates
+
+Octave Oliviers                                                                    ofao2@cam.ac.uk
+Department of Engineering
+University of Cambridge
+Cambridge, UK
+Glenn Vinnicombe                                                                   gv103@cam.ac.uk
+Department of Engineering
+University of Cambridge
+Cambridge, UK
+
+
+                                              Abstract
+    The asymptotic behaviour of Monte Carlo optimistic policy iteration (MC-O-PI) is a long-
+    standing open question. Classical convergence guarantees for general finite MDPs impose
+    a restrictive sampling condition. In its canonical form, this condition requires that the
+    episodes used for policy evaluation be initialised uniformly over the entire state-action space.
+    This paper strictly relaxes that requirement. Specifically, we prove that initial-visit MC-
+    O-PI converges to optimality even when updates are uniform only over the actions within
+    each state. Different states may be sampled at unequal, adaptive frequencies, provided
+    each accumulates infinite learning weight. With inertial policy ties and mild learning-rate
+    regularity, this gives a realistic implementation when the state space is large or unknown but
+    the action space in each state is manageable. The proof departs from the classical analysis of
+    Tsitsiklis whose central commutativity argument no longer applies when states are updated
+    at different frequencies. Instead, we first show that the mean-field dynamics of MC-O-PI
+    generate monotonically improving policies when updates are uniform over the actions in
+    each state, and then prove that noise cannot consistently prevent this improvement by
+    extending the lock-in argument of the combined stability-ODE method. This approach
+    suggests a new way to study optimistic policy-iteration algorithms in general.
+    Keywords: reinforcement learning, optimistic policy iteration, Monte Carlo control,
+    convergence analysis, stability-ODE method
+
+
+1 Introduction
+Many reinforcement-learning algorithms follow the policy-iteration paradigm, which alter-
+nates between estimating the action values of a policy and improving the policy using
+those estimates. This framework is fundamental because it can learn an optimal policy for
+an unknown Markov decision process (MDP) using only sampled rewards and transitions.
+Classical policy iteration improves the policy once the action-value estimates have converged.
+In contrast, optimistic variants improve the policy after partial evaluation. This reduces
+computation as it requires fewer evaluation steps between each improvement step. However,
+it complicates the analysis because small perturbations to the value estimates can drastically
+affect the policy and alter the subsequent dynamics.
+    Convergence guarantees for optimistic policy-iteration algorithms remain limited, even in
+the tabular setting. Algorithms that use one-step bootstrapped estimates for evaluation, such
+
+©2026 Octave Oliviers and Glenn Vinnicombe.
+License: CC-BY 4.0, see https://creativecommons.org/licenses/by/4.0/.
+                                 Oliviers and Vinnicombe
+
+
+
+
+as Q-learning, converge to optimality under standard asynchronous stochastic-approximation
+conditions. When using multi-step bootstrapped estimates, convergence to optimality
+requires additional structure, such as combining several multi-step approximations (Haru-
+tyunyan et al., 2016; Munos et al., 2016) or using a look-ahead mechanism (Winnicki and
+Srikant, 2023). Monte Carlo Optimistic Policy Iteration (MC-O-PI), which uses full-episode
+returns for evaluation, remains poorly understood. Despite its simplicity, the asymptotic
+behaviour of this foundational algorithm has been an open question for three decades (Sut-
+ton, 1999). Convergence to optimality is guaranteed when the MDP exhibits a feedforward
+structure (Wang et al., 2022; Lubars et al., 2021) or when the discount factor is smaller
+than 1/2 (Delattre and Fournier, 2025). The classical guarantees for general finite MDPs
+without a small-discount restriction require that all state-action pairs are updated at the
+same frequency (Tsitsiklis, 2002; Chen, 2018; Liu, 2021).
+    Updating all pairs as frequently requires that episodes are initialised uniformly over the
+entire state-action space. This condition is unrealistic in practice, especially when the state
+space is large. However, once the initial state of an episode is selected, uniformly sampling
+the initial action is usually straightforward. This paper proves that this weaker condition is
+sufficient. Specifically, initial-visit MC-O-PI converges almost surely to the optimal action
+values when updates are uniform over the actions within each state. Different states may be
+updated at unequal, history-dependent frequencies, provided every state accumulates infinite
+learning weight. We use full inertia for policy ties and a mild bound on future increases
+of the learning rates. This result extends the allowable state-sampling distributions in the
+previous convergence guarantees and applies in settings where uniform state sampling is not
+feasible but uniform action sampling is easy.
+    The proof of this new theorem, stated as Theorem 12 below, requires new tools. Previous
+work demonstrates convergence by studying the evolution of the value estimates. The
+arguments rely centrally on a commutativity property of the Bellman operator that fails
+when updates are not uniform over all state-action pairs. Instead, we track the evolution
+of the policy and find that the mean-field dynamics of MC-O-PI generate monotonically
+improving policies when updates are uniform over the actions within each state. We then
+prove a positive lower bound on the probability of progress during each sufficiently late
+interval with a fixed action-value target, stopping the estimate if it leaves a fixed bounded
+set. Progress means a strictly improved target or persistence of the current target. There
+are only finitely many targets, so repeated opportunities and stability imply that the target
+changes only finitely many times. The value estimate consequently converges to the optimal
+action values, and every sufficiently late greedy policy is optimal.
+    The argument develops the combined stability–ODE strategy of Kushner and Yin (2003,
+Section 5.4) for policy-region entries whose margins may approach zero. Favorable updates
+create small positive gaps, and learning-rate regularity controls subsequent noise relative to
+those gaps. This removes the need to assume repeated entry into a fixed interior subset of a
+policy region. The precise local comparison with lock-in estimates is discussed before the
+stochastic proof.
+    This paper is organised as follows. Section 2 introduces finite Markov decision processes
+and formulates MC-O-PI as a stochastic recursion. Section 3 proves the main convergence
+theorem, first for the mean-field dynamics and then for the stochastic algorithm. Section 4
+discusses the practical implications of action-wise uniform updates and possible extensions
+
+
+                                              2
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+to related optimistic methods. Unless stated otherwise, operations and relations between
+functions are elementwise. For instance, given functions f, g : X → Y we write
+                            (f + g)(x) = f (x) + g(x),       ∀x ∈ X,
+                            f ≤ g ⇐⇒ f (x) ≤ g(x),          ∀x ∈ X.
+Moreover, we compute norms as ∥f ∥ := supx∈X |f (x)| and adopt the convention inf ∅ = ∞.
+
+2 Preliminaries
+2.1 Finite Markov decision processes
+Throughout, S is a finite nonempty set of nonterminal states, with finite nonempty action
+sets A(s). Write
+                        I = {(s, a) : s ∈ S, a ∈ A(s)},   J = |I|.
+One-step rewards have finite expected absolute value. After termination the state remains
+terminal and all subsequent rewards and values are zero; terminal states are omitted from I.
+    A Markov decision process evolves over discrete steps. At time t, the agent observes a
+state st ∈ S and selects an action at ∈ A(st ) according to a policy π(at |st ). The environment
+then produces a reward rt and transitions to a new state st+1 according to its dynamics
+p(st+1 , rt |st , at ). If a policy π is deterministic in state s, then π(s) directly refers to the
+action a where π(a|s) = 1. We denote the finite set of deterministic stationary policies by P.
+    For a deterministic stationary policy π ∈ P, the state-value function vπ : S → R measures
+the expected discounted return when following policy π starting in state s:
+                                                   "∞               #
+                                                    X
+                                                        t
+                                    vπ (s) := Ep,π    γ rt s0 = s .
+                                               t=0
+
+The action-value function qπ : I → R measures the expected discounted return when taking
+action a in state s and then following policy π:
+                                          "∞                      #
+                                           X
+                        qπ (s, a) := Ep,π    γ t rt s0 = s, a0 = a .
+                                            t=0
+
+   Let p(s′ | s, a) be the transition probability and r(s, a) the expected immediate reward.
+Then                                 X
+             qπ (s, a) = r(s, a) + γ    p(s′ | s, a)vπ (s′ ), vπ (s) = qπ (s, π(s)).     (1)
+                                    s′ ∈S
+All vector inequalities are coordinatewise and ∥·∥∞ denotes the maximum absolute coordinate.
+Policy order π ′ ⪰ π means vπ′ ≥ vπ , which implies qπ′ ≥ qπ by (1). The converse need not
+hold: taking a prescribed initial action can bypass the only decision at which the policies
+differ.
+    This paper considers discounted or proper episodic MDPs: either γ ∈ [0, 1), or γ = 1
+and every deterministic stationary policy reaches a terminal state almost surely from every
+state. We use the following form of policy improvement (Howard, 1960).
+    We record why the episodic assumption suffices even when comparing a stationary policy
+with arbitrary control laws.
+
+                                                  3
+                                   Oliviers and Vinnicombe
+
+
+
+
+Lemma 1 (Uniform termination) If every deterministic stationary policy is proper,
+there exist an integer m ≥ 1 and ρ < 1 such that the termination time T satisfies
+P(T > jm) ≤ ρj for every j ≥ 0, uniformly over initial states, prescribed initial actions and
+history-dependent control laws. In particular, sup E[T 2 ] < ∞.
+
+Proof. Let wn (s) be the largest probability of remaining nonterminal after n transitions.
+Conditioning on the first transition gives
+                                                  X
+                  w0 (s) = 1,      wn+1 (s) = max    p(s′ | s, a)wn (s′ ).
+                                                    a∈A(s)
+                                                              s′
+
+These probabilities decrease to a vector w. Since the sets are finite, the limit satisfies the
+same equation. Choose a stationary maximizing policy π in this equation, and    P denote    its
+nonterminal transition matrix by Pπ . Then w = Pπ w = Pπ w. The row sum s′ Pπ (s, s′ )
+                                                           n                           n
+
+is the probability of remaining nonterminal after n transitions starting at s. Properness
+makes each such probability tend to zero. Hence every entry of Pπn tends to zero, and w = 0.
+Choose m with maxs wm (s) ≤ ρ < 1. Conditioning after each block of m transitions proves
+the bound. Prescribing the
+                         PTfirst action cannot increase
+                                                      Pthe maximum. For an integer-valued
+                     2       −1                  2
+T ≥ 0, the identity T = n=0 (2n+1) gives E[T ] = n≥0 (2n+1)P(T > n). The geometric
+bound makes this sum finite uniformly over the control law.
+   Values are finite under either discounting or properness. Since P is finite, so is
+
+                                          B = max ∥qπ ∥∞ .                                 (2)
+                                                  π∈P
+
+Lemma 2 (Policy improvement) If π, π ′ ∈ P satisfy
+
+                             qπ (s, π ′ (s)) ≥ qπ (s, π(s))        (s ∈ S),                (3)
+
+then vπ′ ≥ vπ and qπ′ ≥ qπ . If qπ′ ̸= qπ , both vector comparisons are strict in at least
+one coordinate. A policy greedy for its own action values is optimal, including among
+history-dependent control laws. An optimal deterministic stationary policy π∗ exists.
+
+Proof.   Write rπ′ (s) = r(s, π ′ (s)) and Pπ′ (s, s′ ) = p(s′ | s, π ′ (s)). Set
+
+                                    h = rπ′ + γPπ′ vπ − vπ ≥ 0.
+
+Subtracting the value equations gives vπ′ − vπ = h + γPπ′ (vπ′ − vπ ). Substituting this
+identity n times yields the first n terms below plus the remainder (γPπ′ )n (vπ′ − vπ ). The
+remainder tends to zero: discounting bounds the row sums by γ n , while properness makes
+the nonterminal transition probabilities tend to zero. Thus
+                                                  ∞
+                                                  X
+                                   vπ ′ − v π =     (γPπ′ )j h ≥ 0.                        (4)
+                                                  j=0
+
+Equation (1) gives the action-value comparison. If the state values were equal, that equation
+would make the action values equal as well, proving the strictness assertion.
+
+
+                                                    4
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+   If π is greedy for qπ , then for every action a,
+                                                 X
+                            vπ (s) ≥ r(s, a) + γ    p(s′ | s, a)vπ (s′ ).
+                                                   s′
+
+For any control law, condition on its history before each action and apply the inequality
+to that chosen action. Induction, multiplying the step-t inequality by γ t and cancelling
+successive continuation terms, gives
+                           "n−1                           #
+                            X
+                                 t      n
+                         E      γ rt + γ vπ (sn ) | s0 = s ≤ vπ (s),
+                               t=0
+
+where the value at a terminal state is zero. The final continuation term has absolute
+expectation at most ∥vπ ∥∞ γ n in the discounted case, or ∥vπ ∥∞ P(T > n) in the undiscounted
+case. The remainder tends to zero, using Lemma 1 in the latter case. Finite expected
+absolute rewards and the same tail bounds justify passing to the full return. Policy π attains
+vπ , so it is optimal.              P
+     Finally choose π maximizing s vπ (s) over the finite set P. If it were not greedy for
+qπ , a greedy policy π ′ would make h ≥ 0 with a positive coordinate. The j = 0 term in
+(4) would strictly increase the sum, a contradiction. All optimal policies share the values
+denoted by vπ∗ and qπ∗ .
+
+
+2.2 Monte Carlo optimistic policy iteration
+In many real-world applications, the transition dynamics and reward functions of the
+underlying MDP are unknown. Learning the optimal policy therefore requires interacting
+with the system to estimate expected returns from accumulated experience. One fundamental
+framework for this is policy iteration. This approach tracks an action-value estimate q and
+a policy π and refines them by alternately evaluating the current policy and improving it.
+This cycle is intended to converge to a policy that is greedy with respect to its own action
+values, and therefore optimal.
+    Monte Carlo optimistic policy iteration implements the policy-iteration framework by
+using Monte Carlo policy evaluation, which simulates complete episodes of the MDP to
+update q towards the action values of π, and optimistic policy improvement, which updates
+π to obtain higher returns as anticipated by q.
+
+2.2.1 Greedy policies and initial-visit updates
+Let Q = RI . For q ∈ Q, define
+  P (q) = {π ∈ P : q(s, π(s)) = max q(s, a) for every s},           Q(π) = {q ∈ Q : π ∈ P (q)}.
+                                     a
+
+The set Q(π) is the convex region of estimates for which π is greedy; equivalently, q ∈ Q(π)
+if and only if π ∈ P (q). Boundaries can belong to several policy regions.
+    MC-O-PI starts from a finite deterministic table q0 . At iteration k it selects πk ∈ P (qk ),
+draws the initial pair Ik+1 according to σk , obtains a return Gk+1 by following πk after that
+pair, and updates only this pair:
+                                                                        
+                 qk+1 (i) = qk (i) + αk uk (i) qπk (i) + vk (i) − qk (i) , i ∈ I,            (5)
+
+                                                  5
+                                   Oliviers and Vinnicombe
+
+
+
+
+where uk (i) = 1{Ik+1 =i} . On the sampled pair, vk (i) = Gk+1 − qπk (i); set vk (i) = 0 otherwise.
+For ordinary episodic returns the policy remains fixed until termination.
+   Use full inertia: choose π0 greedily, and thereafter
+
+                   πk+1 (s) = πk (s)    whenever πk (s) ∈ arg max qk+1 (s, a).                   (6)
+                                                                   a
+
+If the preceding action is no longer greedy, any maximizing action may be selected. The
+first-visit variant also updates each pair at its first occurrence within the episode; the
+every-visit variant uses all its occurrences. Our theorem concerns initial visits only, for which
+the update probabilities equal the initial-pair probabilities.
+    The history Fk contains the information available after qk is computed but before
+selecting πk and σk . Write Fk′ = σ(Fk , πk , σk ) for the post-selection history. Thus
+
+                                 Fk ⊆ Fk′ ⊆ σ(Fk′ , Ik+1 ) ⊆ Fk+1 .
+
+A history is represented mathematically by a sigma-algebra, and conditional expectation
+averages over the remaining randomness given that information. An increasing sequence of
+histories is a filtration. A process or construction is adapted when its value or choice at each
+time is determined by the history then available. All stopping times below refer to (Fk′ ):
+whether such a time has occurred by k can be decided from Fk′ . For example, the first index
+at which ∥qk ∥∞ > K is a stopping time, since the tables already observed determine whether
+a crossing has occurred. More formally, for an integrable random variable Y and a history
+G, the conditional expectation H = E[Y | G] is determined by G (that is, G-measurable) and
+satisfies
+                                 E[1A H] = E[1A Y ]      (A ∈ G).
+Thus it reproduces the average of Y on every event whose occurrence is known from that
+history. A factor determined by the conditioning history can be taken outside the conditional
+expectation. We also use the tower property: averaging a conditional expectation again over
+a smaller history gives the conditional expectation for that smaller history.
+
+Assumption
+P 2            3 (Standing assumptions) The deterministic steps satisfy 0 < αk ≤ 1 and
+  k αk < ∞. The sampling law may depend on the entire available history and the selected
+policy, but every pair receives infinite conditional learning weight:
+                       ∞
+                       X
+                             αk σk (i) = ∞    almost surely for every i ∈ I.                     (7)
+                       k=0
+
+For a deterministic constant cv < ∞, almost surely on {σk (i) > 0},
+
+        E[Gk+1 | Fk′ , Ik+1 = i] = qπk (i),       E[(Gk+1 − qπk (i))2 | Fk′ , Ik+1 = i] ≤ cv .   (8)
+
+No restriction is imposed on a conditional version where σk (i) = 0.
+                       P
+Condition (7) implies k αk = ∞, giving the usual Robbins–Monro conditions. Infinite
+visitation alone would not suffice: infinitely many updates can still have finite total learning
+weight. Bounded one-step rewards ensure (8) for ordinary episode returns, by discounting
+or Lemma 1; otherwise we explicitly assume these return moments.
+
+                                                  6
+                     Convergence of MC-O-PI with uniform updates
+
+
+
+
+    For initial visits, the update distribution is µk (i) = E[uk (i) | Fk′ ] = σk (i). The combined
+noise and mean-field representation are
+
+                     wk (i) = uk (i)vk (i) + (uk (i) − µk (i))(qπk (i) − qk (i)),               (9)
+                                                             
+                      qk+1 = qk + αk µk (qπk − qk ) + wk ,                                    (10)
+
+with coordinatewise products. The moments in (8) imply
+
+             E[wk (i) | Fk′ ] = 0,       E[wk (i)2 | Fk′ ] ≤ σk (i){cv + (B + ∥qk ∥∞ )2 }.    (11)
+
+Indeed, wk (i) is the centered version of uk (i)(Gk+1 − qk (i)), and variance is bounded by its
+second moment. Fixed-time tables have finite second moments, by induction in (5).
+
+2.2.2 Accumulated noise and persistent targets
+A martingale difference is a random increment whose conditional mean given the previous
+history is zero. We use the
+                         P following elementary consequence of square summability: if such
+increments ek+1 satisfy k E[e2k+1 ] < ∞, their partial sums converge almost surely. To see
+the tail control behind this fact, orthogonality of distinct increments and the martingale
+maximal inequality give
+                                  n−1                    ∞
+                                               !
+                                  X                     X
+                         P sup        ek+1 > ε ≤ ε−2        E[e2k+1 ].
+                               n≥r
+                                     k=r                       k=r
+                                                            Pn−1
+Here is a direct finite-horizon justification. Put Sn = k=r ek+1 and fix a terminal index N .
+Distinct increments have zero expected product: for j < k, conditioning ej+1 ek+1 on the
+                                              2 ]=
+                                                   PN −1    2
+history at k gives zero. Consequently E[SN           k=r E[ek+1 ]. Let θ be the first index with
+|Sθ | > ε. On each event {θ = j}, which is known at j, the later sum SN − Sj has conditional
+mean zero. Expanding the square therefore gives
+                                     2
+                           E[1{θ=j} SN ] ≥ E[1{θ=j} Sj2 ] ≥ ε2 P(θ = j).
+
+Sum over j ≤ N and then let N → ∞ to obtain the displayed maximal inequality. Choose
+rj making the variance tail at most 2−3j and take ε = 2−j ; the probabilities then sum to
+a finite number. The elementary Borel–Cantelli implication (events whose probabilities
+sum to a finite number occur only finitely often) shows that these tails are uniformly small
+eventually. Hence the partial sums are Cauchy almost surely.
+
+Lemma 4 (Actual learning weight) Under the standing assumptions, almost surely
+                         X
+                            αk uk (i) = ∞   (i ∈ I).
+                                     k
+
+Proof. The increments αk (uk (i) − σk (i)) have conditional mean zero given Fk′ and second
+moment at most αk2 . Their series converges by the preceding fact. Thus the partial sums of
+actual and conditional learning weights differ by a convergent sequence. Equation (7) proves
+the claim. Intersect the probability-one events over the finitely many pairs.
+
+
+                                                    7
+                                       Oliviers and Vinnicombe
+
+
+
+
+Lemma 5 (Filtering accumulated errors) Consider a scalar recursion xk+1 = (1 −
+bk )xk + bk yk + ek+1 with 0 ≤ bk ≤ 1. For n > r,
+                          n−1
+                          X            n−1
+                                       Y                            m−1
+                                                                    X
+                                ek+1           (1 − bj ) ≤ 2 max          ek+1 .           (12)
+                                                           r≤m≤n
+                          k=r          j=k+1                        k=r
+   P               P
+If k bk = ∞ and k ek+1 converges, eventual bounds ℓ ≤ yk ≤ h imply ℓ ≤ lim inf k xk ≤
+lim supk xk ≤ h. In particular, an eventually constant target y gives xk → y. These are
+pathwise statements, with no independence assumption.
+
+Proof. Unrolling the recursion assigns the initial value weight n−1
+                                                                 Q
+                                                                   k=r (1 − bk ), the targets
+nonnegativePweights summing to Q one minus this product, and the errors the weights in (12).
+Put Em = m−1     e
+             k=r k+1  and  a k =   n−1
+                                   j=k+1 (1 − bj ). Summation by parts gives
+
+                    n−1
+                    X                                       n−1
+                                                            X
+                          (Ek+1 − Ek )ak = En an−1 −               Ek (ak − ak−1 ).
+                    k=r                                    k=r+1
+                                                    P
+Here 0 ≤ ar ≤ · · · ≤ an−1 = 1, proving (12). Since k bk = ∞, the initial weight tends to
+zero for fixed r. Convergence of the error series makes its tail partial sums uniformly small.
+Take r after the target bounds begin, let n → ∞, and then let r → ∞.
+
+Lemma 6 (Stability and persistent targets) Under the standing assumptions, on one
+probability-one event,
+                              lim sup ∥qk ∥∞ ≤ B.
+                                                k
+On the same event, if qπk = q̄ for all sufficiently large k, then qk → q̄ = qπ∗ .
+
+Proof. For a pair i, use bk = αk uk (i), yk = qπk (i) and ek+1 = αk uk (i)vk (i) in Lemma 5.
+The weights sum to infinity by Lemma 4. The error increments have conditional mean zero
+and second moment at most cv αk2 , so their series converges almost surely. Intersect these
+events over all pairs. The targets lie in [−B, B], giving the asserted bound, and an eventual
+target q̄ gives qk → q̄.
+    Choose a policy π  b occurring infinitely often after the target has become constant. It
+satisfies qπb = q̄. Along that subsequence its greedy inequalities pass to the limit, so it is
+greedy for its own action values. Policy improvement and verification therefore give q̄ = qπ∗ .
+This argument is pathwise; it does not condition on the event that the target eventually
+becomes constant.
+   A transition time records a change of the target, not merely a change of policy label.
+Starting at t0 = 0, define
+                           tn+1 = inf{k > tn : qπk ̸= qπtn }       (tn < ∞),               (13)
+with inf ∅ = ∞ and tn+1 = ∞ when tn = ∞. These are stopping times for (Fk′ ). On
+[tn , tn+1 ) the target is constant even if the selected policy changes. To prove convergence it
+therefore suffices to prove that only finitely many transitions occur. A nonoptimal policy
+can share the optimal action-value table, so its selection alone does not imply a future target
+change.
+
+                                                      8
+                     Convergence of MC-O-PI with uniform updates
+
+
+
+
+3 Results
+Experiments show that initial-visit MC-O-PI can converge to suboptimal solutions under
+arbitrary update distributions, even when the Robbins–Monro and strict exploring-starts
+conditions hold, meaning that every σk (s, a) has a common positive lower bound. For
+instance, if at every step the actions associated with the current greedy policy are updated
+significantly less frequently than non-greedy actions, stable suboptimal equilibria can emerge
+even on the boundary of the optimal policy region. This section shows that uniform
+update distributions prevent such issues because the mean-field dynamics then generate
+monotonically improving policies. As a result, MC-O-PI converges to the optimal action
+values qπ∗ .
+    This result extends the guarantees of Tsitsiklis (2002), Chen (2018) and Liu (2021) to
+a broader and more practical class of update distributions. Specifically, while they prove
+convergence to optimality when updates are uniform over all state-action pairs, we show
+that it remains true when updates are only uniform over all actions in each state.
+
+Definition 7 (Uniform updates over all state-action pairs) The update distribution
+µ is uniform over all state-action pairs if for all states s, s′ ∈ S and actions a ∈ A(s) and
+a′ ∈ A(s′ ), we have
+
+                                         µ(s, a) = µ(s′ , a′ ).
+
+Definition 8 (Uniform updates over actions in each state) The update distribution
+µ is uniform over all actions in each state, if for every state s ∈ S and all actions a, a′ ∈ A(s)
+
+                                          µ(s, a) = µ(s, a′ ).
+
+    Definition 8 generalises Definition 7 because it allows updating different states at different
+frequencies. For instance, under initial-visit updates, the initial state of each episode may
+follow an adaptive distribution, provided every state accumulates infinite learning weight
+and the initial action in that state is sampled uniformly. This additional flexibility disrupts
+Tsitsiklis’ proof as the essential commutation step fails (Tsitsiklis, 2002, p. 64).
+    This weaker condition is more practical for real-world applications, in particular when
+the state-space is large. For instance, chess has O(1045 ) different board layouts but only
+O(101 ) legal moves per layout. Uniformly sampling over the joint state-action space is
+thus not feasible, but sampling an action uniformly from a chosen state is straightforward.
+Henceforth, uniform updates refers to Definition 8 rather than Definition 7.
+    We first demonstrate that the mean-field dynamics under uniform updates generate
+monotonically improving policies. We then show that the stochastic perturbations in MC-O-
+PI cannot consistently prevent this improvement, and hence that MC-O-PI converges to the
+optimal action values. Since the non-contracting, discontinuous and non-convex MC-O-PI
+dynamics preclude using classical methods, we derive convergence from first principles.
+
+3.1 Mean-field generates monotonically improving policies
+Averaging the sampled update over its pair and return gives
+
+           qk+1 (s, a) = qk (s, a) + αk µk (s, a)(qπk (s, a) − qk (s, a)),   πk ∈ P (qk ).   (14)
+
+                                                   9
+                                   Oliviers and Vinnicombe
+
+
+
+
+For this deterministic recursion, impose 0 < αk ≤ 1, 0 ≤ µk (s, a) ≤ 1 and uniform updates
+within each state:
+                                                 X
+               µk (s, a) = µk (s) (a ∈ A(s)),        αk µk (s) = ∞ (s ∈ S).           (15)
+                                                      k
+
+The scalar µk (s) is the common coefficient for actions at s. When derived from a sampling
+law, it is a per-pair probability, not the state marginal. Use full inertia as in (6).
+
+Proposition 9 Under these conditions vπk+1 ≥ vπk and qπk+1 ≥ qπk for every k. At every
+finite target transition the state values improve strictly in at least one state.
+
+Proof.   Fix s and put c = αk µk (s). If c > 0, greediness before and after the update gives
+                                            1−c                                     
+         qπk (s, πk+1 (s)) − qπk (s, πk (s)) ≥     qk (s, πk (s)) − qk (s, πk+1 (s)) ≥ 0.
+                                              c
+If c = 0, the table at s is unchanged and full inertia retains the action, giving equal-
+ity. Lemma 2 proves both comparisons. Across a target transition they remain valid by
+transitivity, and distinct action-value targets force a strict state-value comparison.
+
+Proposition 10 Under the same conditions, qk → qπ∗ . This conclusion needs neither
+square summability nor step-size regularity.
+
+Proof. The target sequence (qπk ) is nondecreasing and takes values in the finite set
+{qπ : π ∈ P}, so it is eventually a single target q̄. Apply Lemma 5 to each coordinate, with
+bk = αk µk (s) and zero errors, to obtain qk → q̄. A policy occurring infinitely often is greedy
+for q̄ = qπ , and hence optimal by Lemma 2.
+    The common coefficient c is the reason for requiring equal action rates within each state.
+Different states may have different rates and may pause arbitrarily long, provided their
+cumulative learning diverges. Fixed-priority ties give the same deterministic result: an
+unchanged table retains the same priority maximizer, which is the only tie property used
+above.
+
+3.2 Initial-visit MC-O-PI converges with uniform updates
+In the sampled algorithm, a single update can worsen the policy even though the mean field
+improves it. We show instead that each sufficiently late interval with a fixed target has a
+uniformly positive chance of ending in an improvement or of continuing forever. Boundedness
+lets us prove this statement before leaving a fixed ball. Finitely many target values then
+rule out infinitely many unsuccessful transitions.
+    In addition to the standing assumptions, impose full inertia (6), and sample the initial
+action uniformly within its state:
+                                                 X
+                        σk (s, a) = σk (s) ≥ 0,     |A(s)|σk (s) = 1.                  (16)
+                                                      s
+
+Here σk (s) P
+            is the probability of each pair at s; the state marginal is |A(s)|σk (s). Thus (7)
+reduces to k αk σk (s) = ∞ at every state. We also require the following weaker form of
+eventual nonincrease.
+
+                                                 10
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+Assumption 11 (Bounded future increases) There are deterministic Cα ≥ 1 and kα <
+∞ such that
+                        αj ≤ Cα αk   (j ≥ k ≥ kα ).                          (17)
+
+Eventual nonincrease is the case Cα = 1. The condition also permits infinitely many increases,
+for example αk = (2 + (−1)k )/(k + 3) with Cα = 3. It imposes no lower bound on future
+steps relative to the current one.
+
+Theorem 12 Under the standing assumptions, initial-visit updates, uniform initial actions
+(16), full inertia (6) and bounded future step increases (17), almost surely (qπk ) changes
+only finitely many times and
+                                        qk −→ qπ∗ .
+Every sufficiently late selected policy is optimal. If every state has a unique optimal action,
+πk is eventually constant.
+
+3.2.1 Relation to the combined stability–ODE method
+Our proof follows the combined stability–ODE strategy of Kushner and Yin (2003, Sec-
+tion 5.4): establish stability, then use repeated opportunities to follow improving mean-field
+behaviour. A difficulty here is that entries into a policy region Q(π) may have arbitrarily
+small margins from its boundary. Recurrence to the region alone therefore does not supply
+the fixed positive distance used in a usual lock-in estimate; see, for example, the setup in
+Borkar (2002, Section 3).
+    We address this difficulty by constructing favorable updates that create positive gaps
+against policy-worsening actions, then bounding the probability that subsequent noise closes
+those gaps. States complete this construction separately, and each gap is protected on its
+own accumulated-learning clock. Condition (17) compares earlier favorable steps with the
+completion-time margin and bounds future noise relative to that margin. It is sufficient for
+this argument; we do not claim it is necessary for convergence. An exit that improves the
+policy counts as progress, so the proof does not require permanent confinement to a single
+policy region.
+    The proof occupies the remainder of this section. The following probability estimate
+controls an estimated gap between two actions. Its dependence on a state’s own accumulated
+learning, rather than elapsed iteration count, allows arbitrarily long waits between updates
+of that state.
+
+3.2.2 A barrier on a state’s learning clock
+The same scalar weight appears in a gap’s drift and variance. Keeping this weight allows
+arbitrarily long pauses. When it is zero, the noise vanishes and the drift cannot decrease the
+gap. No divergence of the accumulated weight is needed for the following local estimate.
+
+Lemma 13 (State-clock barrier) Let Dk be real and Fk′ -measurable, with integrable in-
+crements. Let r ≤ τ be stopping times, and let σk (s) ∈ [0, 1] be an Fk′ -measurable scalar
+weight for a fixed state s. In the application it will be the probability of each initial pair at
+
+
+
+                                               11
+                                   Oliviers and Vinnicombe
+
+
+
+
+s. The deterministic steps are in (0, 1], square summable, and satisfy αj ≤ Cα αk for all
+j ≥ k ≥ kα , with deterministic Cα ≥ 1 and kα . Assume r ≥ kα . Write
+
+                  mk = E[Dk+1 − Dk | Fk′ ],               Zk+1 = Dk+1 − Dk − mk .
+
+Suppose deterministic δ, V > 0 satisfy, on {r ≤ k < τ, Dk ≥ 0},
+
+                   mk ≥ αk σk (s)(4δ − Dk ),                 2
+                                                          E[Zk+1 | Fk′ ] ≤ V αk2 σk (s).          (18)
+
+Then, on {r < ∞, Dr > 0},
+                                                                                       ∞
+                                                                 Cα αr      C1 X 2
+              P ∃ finite n ∈ [r, τ ] : Dn ≤ 0 | Fr′
+                                                      
+                                                          ≤ C0             + 2  αk ,              (19)
+                                                               min{Dr , δ}  δ
+                                                                                      k=r
+
+where C0 = max{1, 20V (1 + (3δ)−1 )} and C1 = 16V . The crossing event includes the update
+ending at τ .
+
+Proof. Before reaching δ. Put ar = Cα αr , so every future step is at most ar . Suppose
+0 < Dr < δ. If Dr < ar , the first term in (19) is already at least one. Otherwise define
+                                                                            n−1
+                                                                            X
+             ν = τ ∧ inf{n ≥ r : Dn ≤ 0 or Dn ≥ δ},                 Mn =          1{k<ν} Zk+1 ,
+                                                                            k=r
+
+and the state clock
+                                                   n−1
+                                                   X
+                                     As (r, n) =           αk σk (s).                             (20)
+                                                   k=r
+A first crossing at n ≤ τ before reaching δ forces
+
+                                    Mn ≤ −Dr − 3δAs (r, n).                                       (21)
+
+For b > 0 known at r, set T (b) = inf{n ≥ r : As (r, n) ≥ b}, possibly infinite. The bound
+αk ≤ ar controls the clock overshoot and future variance, at every finite horizon n ≥ r, by
+                                                   T (b)∧n−1
+                                                          X
+                 As (r, T (b) ∧ n) ≤ b + ar ,                    αk2 σk (s) ≤ ar (b + ar ).
+                                                          k=r
+
+To justify the conditional estimate, first fix a deterministic restart r and stop at T (b) ∧ N for
+a finite horizon N . Stopping preserves zero conditional means because whether an increment
+is retained is known before that increment is drawn. Orthogonality and the variance bound
+give
+                                E[MT2 (b)∧N | Fr′ ] ≤ V ar (b + ar ).
+The threshold-crossing proof given in Section 2.2.2 works conditionally too: multiply its
+expectations by the indicator of any event known at r. The tower property then gives the
+same inequality conditional on Fr′ . Quantities b, z known at r remain fixed in this calculation.
+In particular, the following bound holds (even the constant 1 in place of 4 suffices):
+                                              !
+                                            ′       4V ar (b + ar )
+                   P     sup |Mn | ≥ z Fr ≤                         , z > 0.                (22)
+                       r≤n≤T (b)                          z2
+
+                                                   12
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+The supremum is over finite indices. First stop at a finite horizon, then increase the horizon;
+an unattained supremum is handled by increasing thresholds to z from below. For possibly
+unbounded Fr′ -measurable b, z, perform the calculation on {b ≤ m, 1/m ≤ z ≤ m} and
+increase m; these events are known at r and exhaust {b, z > 0}. Random r is treated on
+{r = j} and then combined over integers j. Thus no finite bound on T (b) or the waiting
+time has been assumed.
+    Partition possible crossing times into As (r, n) < Dr /(3δ) and, for j ≥ 1,
+
+                             2j−1 Dr /(3δ) ≤ As (r, n) < 2j Dr /(3δ).
+
+Apply (22) with (b, z) = (Dr /(3δ), Dr ) for the first range and (b, z) = (2j Dr /(3δ), 2j−1 Dr )
+for the others. Because Dr ≥ ar , the respective bounds are at most
+                                          ar                                ar −j
+                       4V (1 + (3δ)−1 )      ,          16V (1 + (3δ)−1 )      2 .
+                                          Dr                                Dr
+Summing and using ar = Cα αr gives the first term in (19).
+    After reaching δ. Let ρ = inf{n ≥ r : Dn ≥ δ}, using ρ = r if Dr ≥ δ. On {ρ < ∞, ρ ≤ τ },
+restart at ρ and stop at η = τ ∧ inf{n ≥ ρ : Dn ≤ 0}:
+                                                 n−1
+                                                 X
+                                      M
+                                      fn =             1{k<η} Zk+1 .
+                                                 k=ρ
+
+For Dk ≥ δ, (18) and 0 ≤ αk σk (s) ≤ 1 imply Dk + mk ≥ δ. If a first subsequent crossing is
+at n, let ℓ < n be the last index with Dℓ ≥ δ. All subsequent gaps before n are in (0, δ) and
+have nonnegative mean increments, so
+
+                                       Dn ≥ δ + M
+                                                fn − M
+                                                     fℓ .
+
+A crossing
+         P forces  supn≥ρ |M
+                           fn | ≥ δ/2. Doob’s inequality at ρ bounds this probability by
+16V δ −2       2                     ′
+          k≥ρ αk . Multiply by the Fρ -measurable event {ρ < ∞, ρ ≤ τ }, average back to
+  ′
+Fr , and use ρ ≥ r. This proves the second term. The last-visit index ℓ is used only in a
+pathwise inequality; we never condition at it. Both parts retain the increment k = τ − 1
+and therefore protect the gap through the endpoint itself.
+
+3.2.3 Reference gaps and separately completed seeds
+For a reference policy π, define
+
+              dπ (s, a) = qπ (s, π(s)) − qπ (s, a),         Bπ = {(s, a) : dπ (s, a) > 0},
+                                                                                             (23)
+                                 dk (s, a) = qk (s, π(s)) − qk (s, a).
+
+An action in Bπ would worsen the reference action according to qπ . If these estimated gaps
+are all positive, no greedy policy can select a bad action, so policy improvement applies. If
+every Bπ is empty, improvement applies between every pair of policies in both directions.
+Their state values are equal; choosing a policy taking any prescribed action shows that every
+
+
+
+                                                       13
+                                      Oliviers and Vinnicombe
+
+
+
+
+action attains that same value. All policies are optimal with the same target, and Lemma 6
+completes the theorem. Otherwise set
+
+                d∗ =      min        dπ (s, a) > 0,        δ = d∗ /4,       h = g = δ/2.        (24)
+                       π, (s,a)∈Bπ
+
+   Fix deterministic K > B and restart r, and let ζr = inf{k ≥ r : ∥qk ∥∞ > K}. For a
+stopping time t ≥ r, work on {t < ∞, t < ζr }, fix π = πt , and define
+
+                           τ = inf{k > t : qπk ̸= qπ },           χ = τ ∧ ζr .                  (25)
+
+These are stopping times. Return moments give finite second moments for every fixed-time
+table by induction in (5). For t ≤ k < χ, the action-value target is exactly qπ , even if the
+selected policy label is different. Equal initial action probabilities give
+
+            E[dk+1 (s, a) − dk (s, a) | Fk′ ] = αk σk (s)(dπ (s, a) − dk (s, a)),               (26)
+         Var(dk+1 (s, a) − dk (s, a) | Fk′ ) ≤ V αk2 σk (s),                               2
+                                                                        V = 2{cv + (B + K) }.   (27)
+
+Only the two coordinates forming the gap can change, their selection events are disjoint,
+and each contributes at most αk2 σk (s){cv + (B + K)2 } to the raw second moment. For each
+bad pair, dπ (s, a) ≥ 4δ, so the barrier’s drift and variance hypotheses hold through χ. Its
+probability bound will be used once a positive starting gap has been obtained. All such
+moment estimates are used before exit, not conditioned on future containment in the ball.
+A favorable local update. Suppose πk (s) = π(s) and a current bad gap is below δ.
+Request one of the following action/return events:
+
+  1. If qπ (s, π(s)) − qk (s, π(s)) ≥ d∗ /2, select π(s) and require Gk+1 ≥ qπ (s, π(s)) − h. The
+     reference coordinate increases by at least 3δαk /2.
+
+  2. Otherwise select a and require Gk+1 ≤ qπ (s, a) + h. The identity
+
+              qk (s, a) − qπ (s, a) = qk (s, π(s)) − qπ (s, π(s)) + dπ (s, a) − dk (s, a) > δ
+
+     implies that the bad coordinate decreases by more than gαk = δαk /2.
+
+In either case no other gap against the reference action decreases, and the reference action
+remains greedy. For centered X with variance at most cv , the one-sided Chebyshev inequality
+gives
+                                       h2                         h2
+                     P(X ≥ −h) ≥            ,    P(X   ≤  h) ≥         .
+                                    cv + h2                    cv + h2
+For example, apply Markov’s inequality to (X + cv /h)2 to bound P(X ≥ h) and repeat for
+−X; when cv = 0, X = 0 almost surely. Conditional on selecting s, its initial action is
+uniform, so every requested local update has conditional probability at least
+
+                                                 h2
+                                 p0 =                           > 0.                            (28)
+                                         maxs |A(s)| (cv + h2 )
+
+No probability of selecting the state enters this bound.
+
+                                                      14
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+Lemma 14 (Separately completed statewise seeds) For full-inertia ties and any pos-
+itive integer N , there is an adapted construction asking for at most JN favorable local
+updates, starting at t ≥ kα . Along successful requests, every unfinished state retains its
+reference action, including at an endpoint reached by a favorable update. If state s completes
+at time Ts < ∞, then
+
+                      dTs (s, a) ≥ min{δ, gN αTs /Cα }      ((s, a) ∈ Bπ ).                  (29)
+
+Each request, conditional on selecting its unfinished state, has probability at least p0 .
+
+Proof. Order the bad actions at each state. Skip an action immediately if its gap is already
+at least δ; otherwise process it with at most N favorable updates at that state, stopping
+earlier if it reaches δ. Process skips at t and after every favorable update, before the next
+sample. A state completes when its list is exhausted. Write Ts for this time, using Ts = t for
+a state completed initially and Ts = ∞ if the construction stops before completion. These
+are stopping times. Every selection of an unfinished state requests a local update; completed
+states receive ordinary updates. Stop the construction at the first failed requirement or at χ.
+    Under full inertia, raising the reference estimate or lowering a competitor retains the
+reference action, since it remains greedy. At an unupdated state the table is unchanged, so
+the action is also retained. Induction proves the assertion through every unfinished state’s
+wait.
+    The same retention conclusion also holds for fixed priorities: at time t the reference
+action has highest priority among that state’s maximizers. Leaving the table unchanged,
+raising its estimate, or lowering a competitor cannot create a new maximizer ahead of it in
+the priority order. Therefore that same action continues to be selected at every unfinished
+state. Induct over all iterations, including those updating other states and the final favorable
+update at completion. This proves the required retention property directly; a fixed-priority
+rule is not being identified with full inertia on arbitrary updates.
+    Every processed gap either reaches δ or receives N increases of at least gαk . Later seed
+updates at its state cannot lower it. Bounded future increases give αk ≥ αTs /Cα for every
+such update and proves (29). At most J bad actions are processed, so there are at most JN
+requests, irrespective of waiting times. Their conditional probability bound is (28).
+    Completed states can be updated while other states wait. We therefore cannot condition
+indiscriminately on all future successful behavior: the completed-state return laws must stay
+unchanged. The following bounded change of measure conditions only the seed updates.
+    An auxiliary probability law is a way of reweighting possible runs for the proof. If a
+nonnegative random weight L∞ has expectation one, define
+
+                                       P(E) = E[L∞ 1E ]
+                                       b
+
+for every event E. Runs with larger weight become more likely under this law, and an
+event of original probability zero still has probability zero. This last property is denoted by
+b ≪ P. We choose the weights so that requested updates always succeed, while the laws at
+P
+completed states remain unchanged.
+
+Lemma 15 (Conditioning only the seed updates) There is an auxiliary law P       b≪P
+under which all active requirements of Lemma 14 succeed. Conditional state selection is
+
+                                               15
+                                 Oliviers and Vinnicombe
+
+
+
+
+unchanged. At completed states, and after the construction stops, the conditional action and
+return law given the current history and selected state is unchanged. For every future event
+E, on {t < ∞, t < ζr },
+                                 P(E | Ft′ ) ≥ pJN         ′
+                                                0 P(E | Ft ).
+                                                   b                                     (30)
+
+Proof. Let Sk+1 be the state component of Ik+1 . At an active unfinished state s, let
+pk (s) be the conditional probability of its requirement given Fk′ , Sk+1 = s. Then pk (s) ≥ p0 .
+If the state has zero sampling probability, set pk (s) = p0 ; this value is never used on a
+positive-probability draw.
+      Start Lt = 1. At a requested update of s, multiply L by the indicator of success divided
+by pk (s); at other iterations multiply it by one. Every factor has conditional mean one given
+Fk′ , Sk+1 . Hence (Lk ) is a martingale, meaning E[Lk+1 | Fk′ ] = Lk . At most JN factors
+differ from one, even though their times need not be bounded, so 0 ≤ Lk ≤ p−JN     0    . Since
+only finitely many factors differ from one, Lk is eventually constant on each path. Bounded
+convergence says that expectations pass through an almost-sure limit when the variables
+share a deterministic finite bound. Indeed, if Xn → X almost surely and |Xn |, |X| ≤ M ,
+then for every ε > 0,
+
+                        E|Xn − X| ≤ ε + 2M P(|Xn − X| > ε) −→ ε;
+
+letting ε ↓ 0 proves the claim. Apply this fact to 1A Ln for each event A ∈ Ft′ . Since the
+martingale identity gives E[1A Ln ] = P(A) for n ≥ t, we obtain
+
+                               E[1A L∞ ] = P(A)         (A ∈ Ft′ ).
+
+The defining conditional-averaging property therefore yields E[L∞ | Ft′ ] = 1. Define
+P(E)
+b      = E[L∞ 1E ] as above. For random t, use likelihood one before t, on {t = ∞}, and
+off {t < ζr }, and combine the constructions on {t = j} over integers j. Each such event is
+known at j, so the fixed-start conditional calculation applies there. The law agrees with P
+on Ft′ where the construction is active.
+    A failure makes L∞ = 0, so active requirements succeed almost surely under the
+auxiliary law. Here is why later requests do not bias a completed-state update. For any
+bounded random variable Y determined by the next history Fk+1  ′  , the definition of weighted
+probabilities and the tower property give, on {Lk > 0},
+
+                                      E[L∞ Y | Fk ] ′ E[Lk+1 Y | Fk ] ′
+                        E[Y | Fk′ ] =
+                        b                           =                 .
+                                          Lk               Lk
+
+For the first equality, put G = Fk′ and H = E[L∞ Y | G]/Lk , setting H = 0 where Lk = 0.
+Since E[L∞ | G] = Lk , the nonnegative weight L∞ is zero almost surely on {Lk = 0}. For
+every A ∈ G, the tower property therefore gives
+                       b A H] = E[1A Lk H] = E[1A L∞ Y ] = E[1
+                       E[1                                 b A Y ].
+
+This is precisely the conditional-averaging identity introduced in Section 2, now under
+the weighted law. The second equality in the preceding conditional formula uses E[L∞ |
+  ′
+Fk+1 ] = Lk+1 , so future factors have averaged out. Write Rk+1 = Lk+1 /Lk for the current
+
+                                               16
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+factor. Since E[Rk+1 | Fk′ , Sk+1 ] = 1, applying the formula to state indicators preserves the
+state-selection probabilities. Conditioning further on Sk+1 = s gives
+                      b | F ′ , Sk+1 = s] = E[Rk+1 Y | F ′ , Sk+1 = s].
+                      E[Y  k                            k
+
+At a completed state this factor is one, preserving its conditional action and return law. The
+same holds after the construction stops. Histories where Lk = 0 have auxiliary probability
+zero, so no division by zero is needed. Absolute continuity preserves the almost-sure
+algorithmic identities, including the full-inertia tie rule. Finally,
+                        b | F ′ ) = E[L∞ 1E | F ′ ] ≤ p−JN P(E | F ′ ),
+                        P(E  t                 t       0          t
+
+which proves the bound. This auxiliary law is used only in the proof; the algorithm still
+samples its original returns.
+
+3.2.4 A stopped positive probability of progress
+             P
+Let W (π) = i∈I qπ (i). Its possible values form a finite ordered set. A distinct compo-
+nentwise larger target has strictly larger W , although different targets may have equal
+W.
+
+Lemma 16 (Stopped improvement bound) Under the assumptions of Theorem 12, for
+every fixed K > B there are deterministic k0 and p > 0 such that for every deterministic
+restart r and stopping time t ≥ max{r, k0 }, on {t < ∞, t < ζr },
+                                                                   !
+                       {ζr ≤ τ, ζr < ∞} or {τ = ζr = ∞} or
+                    P                                           Ft′ ≥ p.            (31)
+                       {τ < ζr , W (πτ ) > W (πt )}
+
+Here τ is the next target change in (25).
+
+Proof. Fix V from (27) and C0 , C1 from the state-clock barrier. Choose a positive integer
+N with 2JC0 Cα2 /(δN ) ≤ 1/4. Then choose deterministic k0 ≥ kα so that, for every t ≥ k0 ,
+                                                       ∞
+                                               JC1 X 2  1
+                             N αt ≤ 2Cα ,         2
+                                                    αk ≤ .                                 (32)
+                                                δ       4
+                                                     k=t
+
+The radius and variance constants are fixed before choosing N .
+   Use the auxiliary law of Lemma 15. For each bad action whose state completes at
+Ts < χ, apply the barrier at Ts , stopped at χ. At that completed state the original sampling
+and return laws are preserved, so (26)–(27) hold under P. b No such assertion is made for a
+conditioned return at an unfinished state. Bounded future increases and (29)–(32) imply
+that its conditional crossing probability is at most
+                                                   ∞
+                                     2C0 Cα2  C1 X 2
+                                             + 2  αk .                                     (33)
+                                      δN      δ
+                                                   k=t
+
+Indeed the choice of k0 applies to every Ts ≥ t, so gN αTs /Cα ≤ δ and
+                                      Cα αTs          C2
+                                                     ≤ α.
+                                  min{dTs (s, a), δ}  gN
+
+                                              17
+                                 Oliviers and Vinnicombe
+
+
+
+
+Multiply the conditional estimate by the FT′ s -measurable event {Ts < χ} and average back
+to Ft′ . A union bound over at most J pairs gives probability at most 1/2 of any completed
+gap failing through χ. This needs neither independence nor simultaneous completion. If
+Ts = χ < ∞, its final favorable update already retains the reference action, so no subsequent
+barrier is needed.
+    On the complementary event, either exit occurs first, the target persists without exit,
+or τ < ζr is finite. In the third case, states unfinished just before the endpoint retain the
+reference action, including those completed at the endpoint. Previously completed states
+cannot choose a bad action. Thus
+
+                           qπ (s, πτ (s)) ≥ qπ (s, π(s))   for every s.
+
+Policy improvement gives qπτ ≥ qπ with distinct targets, and hence a strict increase of W .
+There is no need to prove that every seed completes: at a finite endpoint unfinished states
+are safe, and an infinite endpoint without exit is already a successful outcome. Transfer
+back by (30), obtaining (31) with p = 12 pJN
+                                          0 .
+    If Bπ is empty, the gap conditions and barrier are vacuous and policy improvement
+holds for every next selected policy. The same lower bound remains valid. An exit after an
+unsuccessful finite target change is not counted as success for that earlier interval.
+
+
+3.3 Finitely many target changes and convergence
+Proof of Theorem 12.            Fix K > B and constants k0 , p from Lemma 16. For a
+deterministic r ≥ k0 , start at t0 = r and absorb immediately if ∥qr ∥∞ > K. Enumerate
+successive target changes
+                               tn+1 = inf{k > tn : qπk ̸= qπtn }
+only while tn < ζr . All finite continuing times are stopping times. Stop counting if exit
+occurs before or at the next target change, or if the target persists forever without exit.
+    At every alive interval, absorption or a strict increase in W has conditional probability
+at least p. By induction and the tower property, absorption within the next m intervals
+or m consecutive strict increases has conditional probability at least pm . On an absorbed
+branch the continuation probability is one; on a finite successful-transition branch condition
+at its stopping time and apply the remaining bound. This uses no independence and never
+conditions at an infinite time on a continuing branch.
+    Let L be the number of distinct values of W . There cannot be L consecutive strict
+increases. Absorption within the next L intervals therefore has conditional probability
+at least pL . Applying the bound at successive surviving blocks gives probability at most
+(1 − pL )j of surviving j such blocks. In particular the probability of infinitely many target
+changes before exit is zero.
+    Intersect these probability-one conclusions over all deterministic integers r ≥ k0 . Lemma 6
+says that almost every path remains inside the ball after some such integer. On that path,
+choose r with ζr = ∞; the original sequence consequently has only finitely many target
+changes. The integer is selected pathwise only after the countable intersection. We do not
+condition on an eventual containment time or claim that it is a stopping time. Nor is an
+unconditional geometric tail for the original process’s total number of changes asserted.
+
+
+                                                18
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+    Lemma 6 now gives qk → qπ∗ . Every nonoptimal action has a strictly positive optimality
+gap. Finiteness of the action sets and convergence exclude all such actions from sufficiently
+late greedy policies. Those policies are greedy for qπ∗ and hence optimal by Bellman
+verification. If every state has a unique optimal action, their labels are eventually constant.
+
+
+
+4 Discussion
+Theorem 12 showed that initial-visit MC-O-PI converges almost surely to qπ∗ when updates
+are uniform over the actions in each state. This section explores the implications of this
+result. We first explain that the uniformity condition effectively requires using initial-visit
+updates, which does not necessarily slow down convergence compared to first-visit updates.
+We then discuss possible extensions to temporal-difference updates and to estimates stored
+approximately at every step. Finally, we discuss the roles of cumulative learning, step-size
+regularity and policy ties.
+
+4.1 Uniform updates effectively force initial-visits
+For first-visit updates, µk (i) = P(i is visited | Fk′ ) is the marginal probability that pair i is
+updated. These probabilities need not sum to one. For every-visit updates, the corresponding
+expected update counts can also exceed one. We call these quantities update rates. When the
+underlying MDP is unknown, both depend on its transition dynamics under πk . Therefore,
+requiring uniform update rates effectively forces the use of initial-visit updates, because by
+updating only the initial state-action pair of each episode, we ensure µk equals σk and thus
+retain control.
+    This control comes at the cost of data efficiency: the initial-visit method discards within-
+episode transitions that the first-visit method would reuse. However, more updates per
+episode do not automatically translate into faster policy convergence. The extra updates
+induce unequal action update rates that can generate sliding modes in the action-value
+estimates (qk )k≥0 and thereby slow down the convergence of the policy sequence (πk )k≥0 .
+Ultimately, it is the convergence speed of this policy sequence that truly matters for
+identifying the optimal behaviour of the MDP.
+    To illustrate this, consider the MDP in Figure 1a with a discount factor γ = 0.5.
+Action left yields a reward of one and right yields a reward of zero. Under a uniform
+sampling distribution σk , the intial-visit method updates exactly one state-action pair per
+episode, whereas the first-visit method updates on average 1.5 pairs. With a learning rate
+αk = 1/(k + 100), the first-visit method also benefits from larger effective steps because it
+updates state-action pairs more frequently.
+    Despite this apparent advantage, the initial-visit method is more stable than first-visit
+when MC-O-PI is initialised above qπ∗ . Namely, initial-visit solutions follow straight lines
+that always point towards better policies. In contrast, first-visit solutions exhibit a sliding
+mode that causes high-frequency oscillations in the policy sequence and traps qk near the
+boundary for longer. As a result, first-visit can take longer to settle on the optimal policy.
+For instance, when averaging over 1000 solutions starting in q ′ , first-visit ones require on
+
+
+
+                                                19
+                                                     Oliviers and Vinnicombe
+
+
+
+
+                                                    ω→ (s) := 1      s                  0 =: ω(s)
+
+                                                                  (a) MDP
+
+
+              4                            q                                            4                               q
+                                               q→                                                                           q→
+
+
+
+ q(s, ω(s))                                                                q(s, ω(s))
+
+              1                  q ω→                                                   1                     q ω→
+
+              0        qω                                                               0           qω
+
+                   1         2                 4                                               1          2                 4
+                            q(s, ω→ (s))                                                                 q(s, ω→ (s))
+
+                  (b) Initial-visit solutions                                                  (c) First-visit solutions
+
+Figure 1: By avoiding sliding modes, initial-visit solutions sometimes converge to the optimal
+policy π∗ faster than first-visit solutions despite fewer updates and smaller effective learning
+rates. The blue lines are MC-O-PI solutions starting in q or q ′ , whereas the grey lines
+indicate the mean-field flow.
+
+
+average 43 updates to settle on π∗ , whereas initial-visit ones always remain in Q(π∗ ). When
+starting in q, the solutions take 68 and 70 updates to settle on π∗ .
+    Overall, this experiment illustrates that the initial-visit method can be practical in
+real-world applications. By avoiding sliding modes, it sometimes converges to the optimal
+policy π∗ as fast as, or faster than, the first-visit method despite fewer updates and smaller
+effective learning rates. Besides, the initial-visit method is more reliable for early stopping.
+Namely, if training stops early, the last greedy policy of an initial-visit solution is typically
+the best policy encountered so far, whereas the first-visit solution may be oscillating across
+a decision boundary, making it unclear which policy is best.
+
+4.2 Mean-field analysis with temporal difference updates
+The gap estimate uses conditional drift and variance bounds, while the favorable-update
+construction uses a bounded number of requests regardless of the waiting time. An analogous
+approach to temporal-difference updates would additionally need a policy-improvement
+mechanism and a favorable-update construction compatible with targets that change with
+the current estimate. The present theorem does not establish those properties. The additional
+difficulty would be to understand how the estimate q and the simulation depth n affect the
+target Tπn q, where π ∈ P (q). Here Tπ is the action-value Bellman operator,
+                                                 X
+                      (Tπ q)(s, a) = r(s, a) + γ   p(s′ | s, a)q(s′ , π(s′ )),
+                                                                      s′
+
+
+                                                                    20
+                    Convergence of MC-O-PI with uniform updates
+
+
+
+
+and the superscript n denotes repeated composition.
+
+4.3 MC-O-PI with function approximation
+Theorem 12 applies specifically to tabular MC-O-PI, where the estimate qk can be stored
+exactly. In practical applications, however, the estimate is approximated, for instance using
+a neural network. In this setting, the error between the observed return and the current
+estimate is then used to update the parameters of the approximation.
+    Extending the theorem would require quantitative control of accumulated approximation
+errors and a replacement for the coordinatewise favorable-update argument. Representational
+richness alone does not provide either property. Perturbation analyses such as Bertsekas and
+Tsitsiklis (1996, Section 4.3.3) and Kushner and Yin (2003, Section 5.2) suggest possible
+tools, but their applicability to this extension remains to be established.
+    Finally, recent breakthroughs in natural language processing and robotics (Schulman et al.,
+2017) rely on policy gradient methods. Wagner (2013) shows that some of these methods
+can be interpreted as optimistic policy iteration algorithms with function approximation.
+Extending our results to this setting might thus improve the efficiency and performance of
+these essential methods.
+
+4.4 Sampling, learning rates and policy ties
+                                                                      P
+The theorem requires infinite accumulated learning at every state, k αk σk (s) = ∞, but no
+positive lower sampling bound and no bound on the waiting time between updates. This
+distinction matters for a global learning-rate sequence: infinitely many visits can carry only
+finite total weight. The deterministic argument needs only the divergent effective weights
+and coefficients in [0, 1]; square summability is used to control stochastic errors.
+    Full inertia is a convenient tie rule for the proof. Fixed action priorities give the same
+convergence conclusion, provided the priorities are used consistently from initialization.
+The only change is the local retention argument: raising the reference estimate, lowering a
+competitor, or leaving a state’s table unchanged cannot introduce a higher-priority maximizer.
+Thus unfinished states retain their reference actions during the favorable-update construction,
+and the rest of the proof is unchanged. Fresh random tie-breaking would require a different
+retention argument and is not included in the theorem as stated.
+    The learning-rate condition bounds future increases by a fixed factor; it allows infinitely
+many increases and imposes no comparability lower bound on future steps. It is used twice:
+earlier favorable updates must be large enough relative to the eventual completion step, and
+future noise must be controlled relative to the gap created at completion. Whether this
+regularity can be removed from the stochastic theorem remains open here. Its role in the
+proof does not establish its necessity for convergence.
+
+5 Conclusion
+We established that the mean-field dynamics of Monte Carlo optimistic policy iteration drive
+trajectories toward monotonically improving policies when updates are uniform over all
+actions in each state. We then proved that the stochastic perturbations cannot systematically
+
+
+
+                                              21
+                                Oliviers and Vinnicombe
+
+
+
+
+counteract this improvement, and consequently that MC-O-PI converges to the optimal
+action values when updates are uniform.
+    This result extends existing convergence guarantees to more practical settings. Unlike
+previous proofs that required uniform updates across all state-action pairs, our analysis
+allows different states to be updated at different frequencies. This relaxation makes the
+algorithm applicable to large-scale problems where uniform sampling over the joint state-
+action space is not feasible. The guarantee allows such state-dependent sampling under the
+stated cumulative-learning, return-moment, tie-breaking and learning-rate conditions.
+    We extended the lock-in strategy of the combined stability-ODE method to accommodate
+the discontinuous dynamics of MC-O-PI. This mean-field approach provided a more intuitive
+explanation for the convergence mechanism than previous proofs that directly tackled the
+stochastic process. More importantly, it opens up new possibilities, beyond contraction-based
+analysis, to study the convergence of optimistic policy iteration algorithms.
+    We see three principal directions for future work: (1) determine whether the remaining
+step-size regularity can be weakened further, (2) apply this new method to study the conver-
+gence of optimistic policy iteration algorithms that rely on temporal difference evaluation,
+and (3) generalise our result when value estimates are stored approximately.
+
+
+
+
+                                             22
+                   Convergence of MC-O-PI with uniform updates
+
+
+
+
+Acknowledgments and Disclosure of Funding
+
+This research was supported by the MathWorks Studentship.
+
+References
+D. P. Bertsekas and J. N. Tsitsiklis. Neuro-Dynamic Programming. Athena Scientific,
+  Belmont, MA, 1996.
+V. S. Borkar. On the lock-in probability of stochastic approximation. Combinatorics,
+  Probability and Computing, 11(1):11–20, 2002. doi: 10.1017/S0963548301004953.
+Y. Chen. On the convergence of optimistic policy iteration for stochastic shortest path
+  problem, 2018.
+S. Delattre and N. Fournier. Markov decision processes: on the convergence of the monte-carlo
+   first visit algorithm, Sept. 2025. Preprint.
+A. Harutyunyan, M. G. Bellemare, T. Stepleton, and R. Munos. Q(λ) with off-policy
+  corrections. In International Conference on Algorithmic Learning Theory, 2016.
+R. A. Howard. Dynamic Programming and Markov Processes. Technology Press of MIT and
+  John Wiley & Sons, 1960.
+H. J. Kushner and G. G. Yin. Stochastic Approximation and Recursive Algorithms and
+  Applications. Springer, 2003. doi: 10.1007/b97441.
+J. Liu. On the convergence of reinforcement learning with monte carlo exploring starts.
+  Automatica, 129:109693, 2021. doi: 10.1016/j.automatica.2021.109693.
+J. Lubars, A. Winnicki, M. Livesay, and R. Srikant. Optimistic policy iteration for MDPs
+  with acyclic transient state structure, 2021.
+R. Munos, T. Stepleton, A. Harutyunyan, and M. G. Bellemare. Safe and efficient off-policy
+  reinforcement learning. In Advances in Neural Information Processing Systems, volume 29,
+  2016.
+J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov. Proximal policy optimiza-
+   tion algorithms, 2017.
+R. S. Sutton. Open theoretical questions in reinforcement learning. In Proceedings of the 4th
+  European Conference on Computational Learning Theory, pages 11–17, Berlin, Heidelberg,
+  1999. Springer. doi: 10.1007/3-540-49097-3 2.
+J. N. Tsitsiklis. On the convergence of optimistic policy iteration. Journal of Machine
+  Learning Research, 3:59–72, 2002.
+P. Wagner. Optimistic policy iteration and natural actor-critic: A unifying view and a
+  non-optimality result. In C. J. Burges, L. Bottou, M. Welling, Z. Ghahramani, and K. Q.
+  Weinberger, editors, Advances in Neural Information Processing Systems, volume 26.
+  Curran Associates, Inc., 2013.
+
+                                             23
+                              Oliviers and Vinnicombe
+
+
+
+
+C. Wang, S. Yuan, K. Shao, and K. Ross. On the convergence of the monte carlo exploring
+  starts algorithm for reinforcement learning. In International Conference on Learning
+  Representations, 2022.
+
+A. Winnicki and R. Srikant. On the convergence of policy iteration-based reinforcement
+  learning with monte carlo policy evaluation. In Proceedings of the 26th International
+ Conference on Artificial Intelligence and Statistics, 2023.
+
+
+
+
+                                          24
+

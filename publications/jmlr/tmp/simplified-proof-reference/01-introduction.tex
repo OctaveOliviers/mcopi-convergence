@@ -1,0 +1,53 @@
+% Original PDF: Section 1, pages 1--2. Citations retain their printed text.
+\section{Introduction}
+Policy iteration alternates between evaluating a policy and improving it using the resulting
+value estimates. In its optimistic form, the policy is improved before evaluation has converged.
+Monte Carlo Exploring Starts (MCES), also called Monte Carlo optimistic policy iteration
+(MC-O-PI), is an example: an episode starts from a sampled state--action pair, follows a
+greedy policy, and supplies a return used to update the action-value estimate. The policy
+is then selected greedily again. A small change in the estimates near a tie can change the
+policy, and therefore the target of the next Monte Carlo update.
+
+The convergence question has a long history (Sutton, 1999). Tsitsiklis (2002) established
+convergence for discounted optimistic policy iteration with uniform updates, and Chen (2018)
+and Liu (2021) studied extensions to stochastic shortest path problems. These works also
+distinguish sampling frequencies from effective update rates: component-dependent step sizes
+can compensate for nonuniform sampling. A different line of work obtains convergence from
+structural assumptions on the MDP, such as an optimal policy feed-forward structure (Wang
+et al., 2022). These results concern different combinations of update rules and assumptions;
+they do not make initial-visit, first-visit, and every-visit versions interchangeable.
+
+This paper studies initial-visit MCES, in which only the initial state--action pair of each
+episode is updated. A common step size suffices when initial action probabilities are equal
+within each state and each state accumulates infinite learning weight:
+\[
+\sigma_k(s,a)=\sigma_k(s)\ge0,\qquad
+\sum_{k=0}^{\infty}\alpha_k\sigma_k(s)=\infty\quad(s\in\mathcal S).
+\]
+The probability $\sigma_k(s)$ is per action. State probabilities may differ, depend on the entire
+history, and be zero for arbitrarily long intervals. The update does not divide by the sampling
+probability. Infinite visits alone are insufficient as a learning condition: the steps attached to
+those visits must have divergent sum.
+
+Theorem~\ref{thm:convergence} covers finite discounted MDPs and proper undiscounted episodic MDPs, with
+the return moments and steps specified in Section~\ref{sec:algorithm}. It permits fixed-priority ties or full
+inertia, which retains a selected action whenever it remains greedy. Almost surely, $q_k\to q^\star$,
+the target $q_{\pi_k}$ changes only finitely often, and all sufficiently late policies are optimal. Policy
+labels need not stabilize when optimal actions are tied.
+
+Proposition~12 gives three sampled counterexamples, each changing one algorithmic
+choice: the Monte Carlo target, the initial-pair-only update, or equality of initial action
+probabilities within a state. Each retains fixed-priority ties, bounded sampled update targets,
+a positive sampling floor, and a common nonincreasing Robbins--Monro step sequence. Thus
+their failures do not exploit weak state exploration. All three have nonvanishing oscillations
+of the optimal-action estimates.
+
+The convergence proof uses the restoring drift of policy-relative gaps. Favorable updates
+create positive gaps, a statewise martingale barrier protects them, and a finite ordering of
+policy targets forces eventual stabilization. For the counterexamples, robust returns between
+separated sets persist on one infinite-horizon noise event.
+
+Section~\ref{sec:preliminaries} specifies the MDP and algorithm, and Section~\ref{sec:results} proves convergence. Section~4
+presents the three constructions and Section~5 states their scope. The nonconvergence proofs
+and quantitative bounds are in Appendices~A--D; Appendix~E describes the certificates and
+finite numerical illustrations.

@@ -1,0 +1,84 @@
+\section{A barrier on a state's learning clock}
+The same sampling factor appears in a gap's drift and variance. Keeping that factor permits
+arbitrarily long pauses: when a state is not sampled, both the restoring force and the noise
+pause. No divergence of the state's clock is needed for the following local estimate.
+
+\begin{lemma}[State-clock barrier]\label{lem:barrier}
+Let $(D_k)$ be a real adapted process with integrable increments, let $r\le\tau$ be stopping times, and let $\sigma_k(s)\in[0,1]$ be $\mathcal F'_k$-measurable. The deterministic steps are in $(0,1]$, square summable, and satisfy $\alpha_j\le C_\alpha\alpha_k$ for all $j\ge k\ge k_\alpha$, with deterministic $C_\alpha\ge1$ and $k_\alpha$. Assume $r\ge k_\alpha$. Write
+\[
+m_k=\mathbb E[D_{k+1}-D_k\mid\mathcal F'_k],\qquad
+Z_{k+1}=D_{k+1}-D_k-m_k.
+\]
+Suppose deterministic $\delta,V>0$ satisfy, on $\{r\le k<\tau,D_k\ge0\}$,
+\begin{equation}\label{eq:barrierhyp}
+m_k\ge\alpha_k\sigma_k(s)(4\delta-D_k),\qquad
+\mathbb E[Z_{k+1}^2\mid\mathcal F'_k]\le V\alpha_k^2\sigma_k(s).
+\end{equation}
+Then, on $\{r<\infty,D_r>0\}$,
+\begin{equation}\label{eq:barrier}
+\mathbb P\bigl(\exists\text{ finite }n\in[r,\tau]:D_n\le0\mid\mathcal F'_r\bigr)
+\le C_0\frac{C_\alpha\alpha_r}{\min\{D_r,\delta\}}+\frac{C_1}{\delta^2}\sum_{k=r}^{\infty}\alpha_k^2,
+\end{equation}
+where $C_0=\max\{1,20V(1+(3\delta)^{-1})\}$ and $C_1=16V$. The crossing event includes the update
+ending at $\tau$.
+\end{lemma}
+\begin{proof}
+\emph{Before reaching $\delta$.} Put $a_r=C_\alpha\alpha_r$, so every future step is at most $a_r$. Suppose $0<D_r<\delta$. If $D_r<a_r$, the first term in \eqref{eq:barrier} is already
+at least one. Otherwise define
+\[
+\nu=\tau\wedge\inf\{n\ge r:D_n\le0\text{ or }D_n\ge\delta\},\qquad
+M_n=\sum_{k=r}^{n-1}\mathbf1_{\{k<\nu\}}Z_{k+1},
+\]
+and the state clock
+\begin{equation}\label{eq:clock}
+A_s(r,n)=\sum_{k=r}^{n-1}\alpha_k\sigma_k(s).
+\end{equation}
+A first crossing at $n\le\tau$ before reaching $\delta$ forces
+\begin{equation}\label{eq:crossing}
+M_n\le-D_r-3\delta A_s(r,n).
+\end{equation}
+For $b>0$ known at $r$, set $T(b)=\inf\{n\ge r:A_s(r,n)\ge b\}$, possibly infinite. The bound $\alpha_k\le a_r$ controls the clock overshoot and future variance, at every finite horizon $n\ge r$, by
+\[
+A_s(r,T(b)\wedge n)\le b+a_r,\qquad
+\sum_{k=r}^{T(b)\wedge n-1}\alpha_k^2\sigma_k(s)\le a_r(b+a_r).
+\]
+The martingale maximal inequality therefore gives (with the harmless factor $4$)
+\begin{equation}\label{eq:doob}
+\mathbb P\!\left(\sup_{r\le n\le T(b)}|M_n|\ge z\ \middle|\ \mathcal F'_r\right)
+\le\frac{4Va_r(b+a_r)}{z^2},\qquad z>0.
+\end{equation}
+The supremum is over finite indices. First stop at a finite horizon, then increase the horizon;
+an unattained supremum is handled by increasing thresholds to $z$ from below. For $\mathcal F'_r$-measurable $b,z$, localize on sets where $b,z,z^{-1}$ are bounded. Random $r$ is treated on $\{r=j\}$
+and then combined over integers $j$. Thus no finite bound on $T(b)$ or the waiting time has
+been assumed.
+
+Partition possible crossing times into $A_s(r,n)<D_r/(3\delta)$ and, for $j\ge1$,
+\[
+2^{j-1}D_r/(3\delta)\le A_s(r,n)<2^jD_r/(3\delta).
+\]
+Apply \eqref{eq:doob} with $(b,z)=(D_r/(3\delta),D_r)$ for the first range and $(b,z)=(2^jD_r/(3\delta),2^{j-1}D_r)$
+for the others. Because $D_r\ge a_r$, the respective bounds are at most
+\[
+4V(1+(3\delta)^{-1})\frac{a_r}{D_r},\qquad
+16V(1+(3\delta)^{-1})\frac{a_r}{D_r}2^{-j}.
+\]
+Summing and using $a_r=C_\alpha\alpha_r$ gives the first term in \eqref{eq:barrier}.
+
+\emph{After reaching $\delta$.} Let $\rho=\inf\{n\ge r:D_n\ge\delta\}$, using $\rho=r$ if $D_r\ge\delta$. On $\{\rho<\infty,\rho\le\tau\}$,
+restart at $\rho$ and stop at $\eta=\tau\wedge\inf\{n\ge\rho:D_n\le0\}$:
+\[
+\widetilde M_n=\sum_{k=\rho}^{n-1}\mathbf1_{\{k<\eta\}}Z_{k+1}.
+\]
+For $D_k\ge\delta$, \eqref{eq:barrierhyp} and $0\le\alpha_k\sigma_k(s)\le1$ imply $D_k+m_k\ge\delta$. If a first subsequent crossing is
+at $n$, let $\ell<n$ be the last index with $D_\ell\ge\delta$. All subsequent gaps before $n$ are in $(0,\delta)$ and
+have nonnegative mean increments, so
+\[
+D_n\ge\delta+\widetilde M_n-\widetilde M_\ell.
+\]
+A crossing forces $\sup_{n\ge\rho}|\widetilde M_n|\ge\delta/2$. Doob's inequality at $\rho$ bounds this probability by
+$16V\delta^{-2}\sum_{k\ge\rho}\alpha_k^2$. Multiply by the $\mathcal F'_\rho$-measurable event $\{\rho<\infty,\rho\le\tau\}$, average back to $\mathcal F'_r$,
+and use $\rho\ge r$. This proves the second term. The last-visit index $\ell$ is used only in a pathwise
+inequality; we never condition at it. Both parts retain the increment $k=\tau-1$ and therefore
+protect the gap through the endpoint itself.
+\end{proof}
+

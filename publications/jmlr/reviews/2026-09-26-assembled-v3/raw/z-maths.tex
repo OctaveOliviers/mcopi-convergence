@@ -1,0 +1,265 @@
+% words
+\newcommand{\rlL}{reinforcement learning}
+% \newcommand{\RlL}{Reinforcement learning}
+\newcommand{\rlS}{RL}
+\newcommand{\mlL}{machine learning}
+% \newcommand{\MlL}{Machine learning}
+\newcommand{\mlS}{ML}
+\newcommand{\aiL}{artificial intelligence}
+% \newcommand{\AiL}{Artificial intelligence}
+\newcommand{\aiS}{AI}
+\newcommand{\mdpL}{Markov decision process}
+\newcommand{\mdpS}{MDP}
+\newcommand{\mcL}{Monte Carlo}
+\newcommand{\mcS}{MC}
+\newcommand{\mcesL}{\mcL~exploring starts}
+\newcommand{\mcesS}{MCES}
+\newcommand{\mctsL}{\mcL~tree search}
+\newcommand{\mctsS}{MCTS}
+
+
+% loops
+\newcommand{\nloopN}[0]{_{n=1}^{N}}
+\newcommand{\nloopInf}[0]{_{n=1}^{\infty}}
+\newcommand{\kloopK}[0]{_{k=1}^{K}}
+\newcommand{\kloopInf}[0]{_{k=1}^{\infty}}
+
+% sets
+\newcommand{\states}{\mathbb{S}}
+\newcommand{\actions}{\mathbb{A}}
+\newcommand{\mdp}{\mathcal{M}}
+\newcommand{\modmdp}{\hat{\mdp}}
+\newcommand{\xset}{\mathcal{X}}
+\newcommand{\kset}{\mathcal{K}}
+\newcommand{\qset}{\mathcal{Q}}
+\newcommand{\vset}{\mathcal{V}}
+\newcommand{\aset}{\mathcal{A}}
+\newcommand{\sset}{\mathcal{S}}
+\newcommand{\ssetA}{\mathcal{S}^\mathsf{A}}
+\newcommand{\ssetT}{\mathcal{S}^\mathsf{T}}
+% \newcommand{\hist}{\mathcal{H}}
+\newcommand{\polset}{\mathcal{P}}
+\newcommand{\updateset}{\mathcal{M}}
+\newcommand{\greedyset}{\mathcal{P}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\integers}{\mathbb{Z}}
+\newcommand{\naturals}{\mathbb{N}}
+\newcommand{\realpos}{\mathbb{R}^+}
+% \newcommand{\simplex}{\mathbb{P}}
+\newcommand{\region}{\graval}
+% \newcommand{\episode}{\mathcal{E}}
+\newcommand{\hist}{\mathcal{F}}
+\newcommand{\ball}{\mathcal{B}}
+% \DeclareMathOperator{\updateset}{\mathsf{M}}
+% \DeclareMathOperator{\avalset}{\mathsf{Q}}
+
+% functions
+\newcommand{\saprior}{\update_0}
+\newcommand{\transit}{\tau}
+% \newcommand{\modtransprob}{{\hat{p}_\T}}
+\newcommand{\pol}{\pi}
+\newcommand{\update}{\mu}
+\newcommand{\start}{\sigma}
+\newcommand{\bias}{b}
+\newcommand{\qval}{q}
+\newcommand{\sval}{v}
+\newcommand{\aval}{a}
+\newcommand{\step}{\delta}
+% \newcommand{\pol}{{\mathsf{\pi}}}
+% \newcommand{\update}{\mathsf{p}}
+% \newcommand{\aval}{\mathsf{q}}
+% \newcommand{\pol}{{\bm{\pi}}}
+% \newcommand{\update}{\bm{p}}
+% \newcommand{\aval}{\bm{q}}
+% \newcommand{\sval}{\bm{v}}
+% \newcommand{\updateold}{p\polold}
+\newcommand{\transprobmat}{\T}
+\newcommand{\reward}{r}
+\newcommand{\sterm}{s_T}
+\newcommand{\qpol}{\qval_\pol}
+\newcommand{\qopt}{\qval_{\best{\pol}}}
+% \newcommand{\qopt}{\best{q}}
+
+% \newcommand{\modpol}{\hat{\pol}}
+% \newcommand{\modbellq}{\hat{\bellq}}
+\newcommand{\onefun}{\mathbf{1}}
+% \newcommand{\ones}{\mathbf{1}}
+\newcommand{\zerofun}{\mathbf{0}}
+
+\newcommand{\grpol}{P}
+\newcommand{\graval}{Q}
+
+% numbers
+\newcommand{\discount}{\gamma}
+\newcommand{\lrate}{\alpha}
+\newcommand{\diff}{\mathrm{d}}
+\newcommand{\deriv}[2]{\dfrac{\diff #1}{\diff #2}}
+\newcommand{\pderiv}[2]{\dfrac{\partial #1}{\partial #2}}
+\newcommand{\blambda}{\bm{\lambda}}
+
+% vectors
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\br}{\mathbf{r}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bone}{\mathbf{1}}
+
+
+% matrices
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bPi}{\Pi}
+\newcommand{\bT}{\mathbf{T}}
+\newcommand{\eye}{\mathbf{I}}
+\newcommand{\bnull}{\mathbf{0}}
+\newcommand{\bW}{\mathbf{W}}
+
+% expressions
+% \DeclareMathOperator*{\E}{\mathbb{E}}
+% % \newcommand{\expect}[1]{{\mathbb{E}[#1]}}
+% % \newcommand{\expectB}[1]{{\mathbb{E}\Big[#1\Big]}}
+% % \newcommand{\expectpol}[2]{{\mathbb{E}_{#1}[#2}}
+% \DeclareMathOperator*{\prob}{\mathbb{P}}
+% % \newcommand{\prob}[1]{{\mathbb{P}[#1]}}
+% % \newcommand{\probB}[1]{{\mathbb{P}\Big[#1\Big]}}
+% \DeclareMathOperator{\B}{\mathsf{B}}
+% \DeclareMathOperator{\I}{\mathsf{I}}
+% \DeclareMathOperator{\Pol}{\mathsf{P}}
+% \DeclareMathOperator{\T}{\mathsf{T}}
+% \DeclareMathOperator*{\conv}{\textup{conv}}
+% \DeclareMathOperator*{\convex}{\textup{conv}}
+% \DeclareMathOperator*{\argmax}{argmax}
+% \DeclareMathOperator*{\argmin}{argmin}
+% % \DeclareMathOperator*{\limsup}{limsup}
+% % \DeclareMathOperator*{\liminf}{liminf}
+
+\newcommand{\tor}{\text{or}}
+\newcommand{\tand}{\text{and}}
+\newcommand{\tfor}{\text{for}}
+
+% equations
+% \newcommand{\synchrodiscrete}{
+%     q\new = (1-\lrate\old \upprobold) q\old + \lrate\old  \upprobold (q\polold + v\old) \qquad \textup{for } q\old \in \region(\pol\old)
+% }
+% \newcommand{\synchrocontinuous}{
+%     \Dot{q} = \upprob (q_\pol - q) \qquad \textup{for } q \in \region(\pol)
+%     }
+% \newcommand{\asynchrodiscrete}{
+%     q\new(\sa) = 
+%     \begin{cases}
+%     (1-\lrate\old) q\old(\sa) + \lrate\old(q\polold(\sa) + w\old(\sa)) \\
+%     \hfill \text{with probability } \upprobold(\sa),\\
+%     q\old(\sa) \hfill \text{otherwise}.
+%     \end{cases}
+% }
+\newcommand{\DiscreteDeterministic}[1][\update_\pol]{
+    q_+ = q + \lrate f
+    \ \text{with} \
+    f \in F(q) \coloneqq \big\{ \ #1 ( \qpol - q ) : \pol \in \greedyset(q) \ \big\}
+}
+\newcommand{\DiscreteStochastic}[1][\update_\pol]{
+    q_+ = q + \lrate ( f + w )
+    \ \text{with} \
+    f \in F(q) \coloneqq \big\{ \ #1 ( \qpol - q ) : \pol \in \greedyset(q) \ \big\}
+}
+\newcommand{\DifferentialInclusion}[1][\update_\pol]{
+    \Dot{q} 
+    \in \conv\big[F(q)\big] 
+    = \conv_{\pol \in \greedyset(q)} \big[ \ #1 ( \qpol - q ) \ \big]
+}
+
+% \newcommand{\best}[1]{\smash{\overset{\scriptstyle\ast}{#1}}} %{\overline{#1}}
+\newcommand{\worst}[1]{\overline{#1}} %{\underline{#1}}
+\newcommand{\best}[1]{{#1}_*}
+% \newcommand{\worst}[1]{\check{#1}}
+% \newcommand{\best}[1]{\overset{*}{#1}}
+% \newcommand{\worst}[1]{\overline{#1}}
+\newcommand{\opt}{{^{\star}}}
+\newcommand{\bad}{{_{-}}}
+% \newcommand{\start}{[0]}
+% \newcommand{\new}{[\kpo]}
+% \newcommand{\old}{[\kpn]}
+% \newcommand{\oldi}{[i]}
+% \newcommand{\oldK}{[K]}
+% \newcommand{\start}{{_0}}
+\newcommand{\new}{{_\kpo}}
+\newcommand{\old}{{_\kpn}}
+\newcommand{\oldi}{{_\ipn}}
+\newcommand{\oldK}{{_K}}
+
+\newcommand{\polold}{{_{\pol\old}}}
+
+\newcommand{\ipo}{{{i+1}}}
+\newcommand{\imo}{{{i-1}}}
+\newcommand{\imn}{{{i-n}}}
+\newcommand{\ipn}{{i}}
+
+\newcommand{\npo}{{{n+1}}}
+\newcommand{\nmo}{{{n-1}}}
+% \newcommand{\nmn}{{{i-n}}}
+\newcommand{\npn}{{n}}
+
+\newcommand{\mpo}{{{m+1}}}
+\newcommand{\mmo}{{{m-1}}}
+% \newcommand{\mmn}{{{m-n}}}
+\newcommand{\mpn}{{m}}
+
+\newcommand{\kpo}{{{k+1}}}
+\newcommand{\kmo}{{{k-1}}}
+\newcommand{\kpn}{{{k+n}}}
+\newcommand{\kmn}{{{k-n}}}
+\newcommand{\kpz}{{k}}
+\newcommand{\kpN}{{{k+N}}}
+
+\newcommand{\tpo}{{{t+1}}}
+\newcommand{\tpt}{{{t+2}}}
+\newcommand{\tmo}{{{t-1}}}
+\newcommand{\tmn}{{{t-n}}}
+\newcommand{\tpn}{{t+n}}
+\newcommand{\tpnmo}{{\tpn-1}}
+\newcommand{\tpnpo}{{\tpn+1}}
+\newcommand{\tpk}{{t+k}}
+\newcommand{\tpkmo}{{\tpk-1}}
+\newcommand{\tpkpo}{{\tpk+1}}
+\newcommand{\tpnpk}{{t+n+k}}
+\newcommand{\tpnpkmo}{{\tpnpk-1}}
+\newcommand{\tpnpkpo}{{\tpnpk+1}}
+
+\newcommand{\lpo}{{{(l+1)}}}
+\newcommand{\lmo}{{{(l-1)}}}
+\newcommand{\lpn}{(l)}
+
+\newcommand{\sat}{{{s_t,a_t}}}
+\newcommand{\satpo}{{{s_\tpo,a_\tpo}}}
+\newcommand{\satpt}{{{s_\tpt,a_\tpt}}}
+\newcommand{\satmo}{{{s_\tmo,a_\tmo}}}
+\newcommand{\satmn}{{{s_\tmn,a_\tmn}}}
+\newcommand{\satpn}{{s_\tpn,a_\tpn}}
+\newcommand{\satpnmo}{{s_\tpnmo,a_\tpnmo}}
+\newcommand{\satpnpo}{{s_\tpnpo,a_\tpnpo}}
+\newcommand{\satpk}{{s_\tpk,a_\tpk}}
+\newcommand{\satpkmo}{{s_\tpkmo,a_\tpkmo}}
+\newcommand{\satpkpo}{{s_\tpkpo,a_\tpkpo}}
+\newcommand{\satpnpk}{{s_\tpnpk,a_\tpnpk}}
+\newcommand{\satpnpkmo}{{s_\tpnpkmo,a_\tpnpkmo}}
+\newcommand{\satpnpkpo}{{s_\tpnpkpo,a_\tpnpkpo}}
+\newcommand{\sa}{{s,a}}
+\newcommand{\sazero}{{s_0,a_0}}
+\newcommand{\saT}{{s_T,a_T}}
+\newcommand{\saTmo}{{{s_{T-1},a_{T-1}}}}
+
+\newcommand{\diag}{\textup{diag}}
+\newcommand{\inv}{^{-1}}
+% \newcommand{\greedy}{\textup{greedy}}
+\newcommand{\tri}{\bigtriangleup}
+\newcommand{\block}{\square}
+\newcommand{\satis}{\;:\;}
+% \newcommand{\Expect}{\mathbb{E}}
+% \newcommand{\greedy}{\textup{greedy}}
+\newcommand{\interior}{\textup{int} \,}
+% \newcommand{\var}{\textup{Var}}
+
+\newcommand{\nth}{{\textup{th}}}
+\newcommand{\nnd}{{\textup{nd}}}
+\newcommand{\nst}{{\textup{st}}}

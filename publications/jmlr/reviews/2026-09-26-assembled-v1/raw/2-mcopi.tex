@@ -1,0 +1,298 @@
+% \newpage
+\section{Preliminaries}
+\label{sec: mcopi}
+
+% Monte Carlo optimistic policy iteration (MC-O-PI) is a reinforcement learning algorithm that can learn the optimal policy of a finite Markov decision process (MDP) without knowing the underlying parameters of that MDP.
+% This section briefly introduces MDPs, then presents the stochastic difference inclusion that underlies MC-O-PI.
+
+\subsection{Finite Markov decision processes}
+Throughout, $\mathcal S$ is a finite nonempty set of nonterminal states, with finite nonempty action sets $\mathcal A(s)$. Write
+\[
+\mathcal I=\{(s,a):s\in\mathcal S,\ a\in\mathcal A(s)\},\qquad J=|\mathcal I|.
+\]
+One-step rewards have finite expected absolute value. After termination the state remains terminal and all subsequent rewards and values are zero; terminal states are omitted from $\mathcal I$.
+
+
+
+% Reinforcement learning studies the interaction between an agent and an environment.
+% ...
+% this can be modelled using finite MDP
+% ...
+% At each time step \(t\), the agent observes a state \(s_t \in \mathcal S\) and selects an action \(a_t \in \mathcal A(s_t)\) according to a policy \(\pi(a_t | s_t)\).
+% The environment then produces a reward \(r_t\) and a new state \(s_{t+1}\) according to its transition dynamics $p(s_{t+1}, r_t | s_t, a_t)$.
+% % 
+% The action value of a policy \(\pi\) for any pair $(s,a)$ is the expected discounted return obtained by taking action \(a\) in state \(s\), and then following policy \(\pi\):
+% \[
+% q_\pi(s,a)
+% =
+% \mathbb E \left[
+% \sum_{t=0}^{\infty} \gamma^t r_t
+% \;\middle|\;
+% s_0 = s,\
+% a_0 = a,\
+% a_t \sim \pi(\cdot \mid s_t),\
+% (s_{t+1},r_t) \sim p(\cdot,\cdot|s_t,a_t), \
+% \forall\, t\ge 1
+% \right].
+% \]
+% Under standard finite-MDP assumptions,
+% there exists an optimal policy $\pi_*$ that satisfies $q_{\pi_*}(s,a) = \max_\pi q_\pi(s,a)$ for all $(s,a)$.
+% Moreover, $\pi_*$ can be chosen greedily with respect to $q_{\pi_*}$, meaning
+% % $q_{\pi_*}(s,\pi_*(s)) = \max_a q_{\pi_*}(s,a)$ for all $s$.
+% $\pi_*(s) \in \arg\max_a q_{\pi_*}(s,a)$ for all $s$.
+
+
+A Markov decision process evolves over discrete steps.
+% with finite state space $\sset$ and finite action space $\aset(s)$ for each state $s \in \sset$.
+At time \(t\), the agent observes a state \(s_t \in \mathcal S\) and selects an action \(a_t \in \mathcal A(s_t)\) according to a policy \(\pi(a_t | s_t)\).
+The environment then produces a reward \(r_t\) and transitions to a new state \(s_{t+1}\) according to its dynamics $p(s_{t+1}, r_t | s_t, a_t)$.
+% Taking action $a$ in state $s$ yields a finite reward $r(s,a) \in \real$ 
+% and transitions to a new state $s'$ with probability $p(s' \mid s, a)$.
+% The discount factor is $\discount \in [0,1]$.
+If a policy $\pol$ is deterministic in state $s$, then $\pol(s)$ directly refers to the action $a$ where $\pol(a | s) = 1$.
+We denote the finite set of deterministic stationary policies by $\polset$.
+
+% A stationary policy is a map $\pol(\cdot \mid s)$ that assigns a distribution over $\aset(s)$ for each state $s$.
+% As is common in the literature, we refer to that distribution using the notation $\pol(s)$.
+% We also insert the distribution $\pol(s)$ in functions with domain $\aset(s)$.
+% For instance, the expected immediate reward when following policy $\pol$ in state $s$ is
+% \begin{align*}
+%     r(s, \pol(s)) \equiv \sum_{a \in \aset(s)} \pol(a \mid s) r(s, a) .
+% \end{align*}
+% If a policy $\pol$ is deterministic in state $s$, then $\pol(s)$ directly refers to the action $a$ where $\pol(a \mid s) = 1$.
+% The set of deterministic policies is denoted by $\polset$.
+
+
+
+% \begin{align}
+%     \polset \coloneqq 
+%     \Big\{ \pol : \aset \times \sset \to \{ 0,1 \}
+%     \ \Big| \
+%     \forall s \in \sset : \sum_{a \in \aset(s)} \pol(a \mid s) = 1 
+%     \Big\} .
+% \end{align}
+
+% Following a policy $\pi$ generates an episode, namely a sequence $(s_t, a_t, r_t)_{0 \leq t < T}$ such that for each $t < T$
+% \begin{align*}
+%     a_t \sim \pol(\cdot \mid s_t) ,
+%     \quad\quad
+%     r_t = r(s_t, a_t) ,
+%     \quad\quad
+%     \ s_{t+1} \sim \transit(\cdot \mid s_t, a_t) .
+% \end{align*}
+% The return of the episode for a state-action pair $(s_t, a_t)$ is
+% \begin{align*}
+%     r_t + \discount r_{t+1} + \discount^2 r_{t+2} + \dots + \discount^{T-1-t} r_{T-1} .
+% \end{align*}
+% These episodes induce the standard value functions, as
+% the state-value function $v_\pol : \sset \to \real$ measures the expected return
+% when starting in state $s$ and following policy $\pol$:
+% \begin{align*} 
+%     v_\pol(s) 
+%     \coloneqq 
+%     \E_{\transit} \big[ r(s_0, \pol) + \discount r(s_1, \pol) + \discount^2 r(s_2, \pol) + \dots \mid s_0 = s \big] ,
+% \end{align*}
+For any policy $\pi$,
+the state-value function $v_\pol : \sset \to \real$ 
+measures the expected discounted return when following policy $\pol$ starting in state $s$:
+\begin{align*} 
+    v_\pol(s)
+    :=
+    % \E_{p} \big[ r(s_0, a_0) + \discount r(s_1, \pol)
+    % \\
+    % &\hspace{4.5cm} + \discount^2 r(s_2, \pol) + \dots \mid s_0 = s, a_0 = a \big] .
+    \mathbb E_{p, \pi} \left[ \sum_{t=0}^{\infty} \gamma^t \, r_t  \ \bigg| \ s_0 = s \right] .
+\end{align*}
+The action-value function $q_\pol : \sset \times \aset \to \real$ measures the expected discounted return when taking action $a$ in state $s$ and then following policy $\pol$:
+\begin{align*} 
+    q_\pol(s,a)
+    :=
+    % \E_{p} \big[ r(s_0, a_0) + \discount r(s_1, \pol)
+    % \\
+    % &\hspace{4.5cm} + \discount^2 r(s_2, \pol) + \dots \mid s_0 = s, a_0 = a \big] .
+    \mathbb E_{p, \pi} \left[ \sum_{t=0}^{\infty} \gamma^t \, r_t  \ \bigg| \ s_0 = s, a_0 = a \right] .
+\end{align*}
+
+Let $p(s'\mid s,a)$ be the transition probability and $r(s,a)$ the expected immediate reward. Then
+\begin{equation}\label{eq: value identity}
+q_\pi(s,a)=r(s,a)+\gamma\sum_{s'\in\mathcal S}p(s'\mid s,a)v_\pi(s'),
+\qquad v_\pi(s)=q_\pi(s,\pi(s)).
+\end{equation}
+All vector inequalities are coordinatewise and $\|\cdot\|_\infty$ denotes the maximum absolute coordinate. Policy order $\pi'\succeq\pi$ means $v_{\pi'}\ge v_\pi$, which implies $q_{\pi'}\ge q_\pi$ by \eqref{eq: value identity}. The converse need not hold: taking a prescribed initial action can bypass the only decision at which the policies differ.
+
+This paper considers discounted or proper episodic MDPs: either $\gamma\in[0,1)$, or $\gamma=1$ and every deterministic stationary policy reaches a terminal state almost surely from every state. We use the following form of policy improvement~\citep{Howard1960DynamicProcesses}.
+
+We record why the episodic assumption suffices even when comparing a stationary policy with arbitrary control laws.
+\begin{lemma}[Uniform termination]\label{lem: uniform termination}
+If every deterministic stationary policy is proper, there exist an integer $m\ge1$ and $\rho<1$ such that the termination time $T$ satisfies $\mathbb P(T>jm)\le\rho^j$ for every $j\ge0$, uniformly over initial states, prescribed initial actions and history-dependent control laws. In particular, $\sup\mathbb E[T^2]<\infty$.
+\end{lemma}
+\begin{proof}
+Let $w_n(s)$ be the largest probability of remaining nonterminal after $n$ transitions. Conditioning on the first transition gives
+\[
+w_0(s)=1,\qquad w_{n+1}(s)=\max_{a\in\mathcal A(s)}\sum_{s'}p(s'\mid s,a)w_n(s').
+\]
+These probabilities decrease to a vector $w$. Since the sets are finite, the limit satisfies the same equation. Choose a stationary maximizing policy $\pi$ in this equation, and denote its nonterminal transition matrix by $P_\pi$. Then $w=P_\pi w=P_\pi^n w$. The row sum $\sum_{s'}P_\pi^n(s,s')$ is the probability of remaining nonterminal after $n$ transitions starting at $s$. Properness makes each such probability tend to zero. Hence every entry of $P_\pi^n$ tends to zero, and $w=0$. Choose $m$ with $\max_s w_m(s)\le\rho<1$. Conditioning after each block of $m$ transitions proves the bound. Prescribing the first action cannot increase the maximum. For an integer-valued $T\ge0$, the identity $T^2=\sum_{n=0}^{T-1}(2n+1)$ gives $\mathbb E[T^2]=\sum_{n\ge0}(2n+1)\mathbb P(T>n)$. The geometric bound makes this sum finite uniformly over the control law.
+\end{proof}
+
+Values are finite under either discounting or properness. Since $\mathcal P$ is finite, so is
+\begin{equation}\label{eq: target bound}
+B=\max_{\pi\in\mathcal P}\|q_\pi\|_\infty.
+\end{equation}
+
+\begin{lemma}[Policy improvement]\label{thm: strict PIT}
+If $\pi,\pi'\in\mathcal P$ satisfy
+\begin{equation}\label{eq: PIT condition}
+q_\pi(s,\pi'(s))\ge q_\pi(s,\pi(s))\qquad(s\in\mathcal S),
+\end{equation}
+then $v_{\pi'}\ge v_\pi$ and $q_{\pi'}\ge q_\pi$. If $q_{\pi'}\ne q_\pi$, both vector comparisons are strict in at least one coordinate. A policy greedy for its own action values is optimal, including among history-dependent control laws. An optimal deterministic stationary policy $\pi_*$ exists.
+\end{lemma}
+\begin{proof}
+Write $r_{\pi'}(s)=r(s,\pi'(s))$ and $P_{\pi'}(s,s')=p(s'\mid s,\pi'(s))$. Set
+\[
+h=r_{\pi'}+\gamma P_{\pi'}v_\pi-v_\pi\ge0.
+\]
+Subtracting the value equations gives $v_{\pi'}-v_\pi=h+\gamma P_{\pi'}(v_{\pi'}-v_\pi)$. Substituting this identity $n$ times yields the first $n$ terms below plus the remainder $(\gamma P_{\pi'})^n(v_{\pi'}-v_\pi)$. The remainder tends to zero: discounting bounds the row sums by $\gamma^n$, while properness makes the nonterminal transition probabilities tend to zero. Thus
+\begin{equation}\label{eq: policy inverse}
+v_{\pi'}-v_\pi=\sum_{j=0}^\infty(\gamma P_{\pi'})^j h\ge0.
+\end{equation}
+Equation~\eqref{eq: value identity} gives the action-value comparison. If the state values were equal, that equation would make the action values equal as well, proving the strictness assertion.
+
+If $\pi$ is greedy for $q_\pi$, then for every action $a$,
+\[
+v_\pi(s)\ge r(s,a)+\gamma\sum_{s'}p(s'\mid s,a)v_\pi(s').
+\]
+For any control law, condition on its history before each action and apply the inequality to that chosen action. Induction, multiplying the step-$t$ inequality by $\gamma^t$ and cancelling successive continuation terms, gives
+\[
+\mathbb E\!\left[\sum_{t=0}^{n-1}\gamma^t r_t+\gamma^n v_\pi(s_n)\mid s_0=s\right]\le v_\pi(s),
+\]
+where the value at a terminal state is zero. The final continuation term has absolute expectation at most $\|v_\pi\|_\infty\gamma^n$ in the discounted case, or $\|v_\pi\|_\infty\mathbb P(T>n)$ in the undiscounted case. The remainder tends to zero, using Lemma~\ref{lem: uniform termination} in the latter case. Finite expected absolute rewards and the same tail bounds justify passing to the full return. Policy $\pi$ attains $v_\pi$, so it is optimal.
+
+Finally choose $\pi$ maximizing $\sum_s v_\pi(s)$ over the finite set $\mathcal P$. If it were not greedy for $q_\pi$, a greedy policy $\pi'$ would make $h\ge0$ with a positive coordinate. The $j=0$ term in \eqref{eq: policy inverse} would strictly increase the sum, a contradiction. All optimal policies share the values denoted by $v_{\pi_*}$ and $q_{\pi_*}$.
+\end{proof}
+
+\subsection{Monte Carlo optimistic policy iteration}
+
+In many real-world applications, the transition dynamics and reward functions of the underlying MDP are unknown. Learning the optimal policy therefore requires interacting with the system to estimate expected returns from accumulated experience.
+One fundamental framework for this is \textit{policy iteration}.
+This approach tracks an action-value estimate $q$ and a policy $\pol$ and refines them by alternately evaluating the current policy and improving it.
+This cycle is intended to converge to a policy that is greedy with respect to its own action values, and therefore optimal.
+
+
+Monte Carlo optimistic policy iteration implements the policy-iteration framework by using 
+\textit{Monte Carlo policy evaluation}, which simulates complete episodes of the MDP to update $q$ towards the action values of $\pol$,
+and \textit{optimistic policy improvement}, which updates $\pol$ to obtain higher returns as anticipated by $q$.
+
+
+\subsubsection{Greedy policies and initial-visit updates}
+Let $\mathcal Q=\mathbb R^{\mathcal I}$. For $q\in\mathcal Q$, retain the manuscript's notation
+\[
+P(q)=\{\pi\in\mathcal P:q(s,\pi(s))=\max_a q(s,a)\text{ for every }s\},
+\qquad Q(\pi)=\{q\in\mathcal Q:\pi\in P(q)\}.
+\]
+The set $Q(\pi)$ is the convex region of estimates for which $\pi$ is greedy; equivalently, $q\in Q(\pi)$ if and only if $\pi\in P(q)$. Boundaries can belong to several policy regions.
+
+MC-O-PI starts from a finite deterministic table $q_0$. At iteration $k$ it selects $\pi_k\in P(q_k)$, draws the initial pair $I_{k+1}$ according to $\sigma_k$, obtains a return $G_{k+1}$ by following $\pi_k$ after that pair, and updates only this pair:
+\begin{equation}\label{eq: update q with chi}
+q_{k+1}(i)=q_k(i)+\alpha_k u_k(i)\bigl(q_{\pi_k}(i)+v_k(i)-q_k(i)\bigr),\qquad i\in\mathcal I,
+\end{equation}
+where $u_k(i)=\mathbf1_{\{I_{k+1}=i\}}$. On the sampled pair, $v_k(i)=G_{k+1}-q_{\pi_k}(i)$; set $v_k(i)=0$ otherwise. For ordinary episodic returns the policy remains fixed until termination.
+
+Use full inertia: choose $\pi_0$ greedily, and thereafter
+\begin{equation}\label{eq:greedy-pol-tie-breaking}
+\pi_{k+1}(s)=\pi_k(s)\quad\text{whenever }\pi_k(s)\in\arg\max_a q_{k+1}(s,a).
+\end{equation}
+If the preceding action is no longer greedy, any maximizing action may be selected.
+The first-visit variant also updates each pair at its first occurrence within the episode; the every-visit variant uses all its occurrences. Our theorem concerns initial visits only, for which the update probabilities equal the initial-pair probabilities.
+
+
+The history $\mathcal F_k$ contains the information available after $q_k$ is computed but before selecting $\pi_k$ and $\sigma_k$. Write $\mathcal F'_k=\sigma(\mathcal F_k,\pi_k,\sigma_k)$ for the post-selection history. Thus
+\[
+\mathcal F_k\subseteq\mathcal F'_k\subseteq\sigma(\mathcal F'_k,I_{k+1})\subseteq\mathcal F_{k+1}.
+\]
+A history is represented mathematically by a sigma-algebra, and conditional expectation averages over the remaining randomness given that information. An increasing sequence of histories is a filtration. All stopping times below refer to $(\mathcal F'_k)$: whether such a time has occurred by $k$ can be decided from $\mathcal F'_k$. For example, the first index at which $\|q_k\|_\infty>K$ is a stopping time, since the tables already observed determine whether a crossing has occurred. We use the tower property: averaging a conditional expectation again over a smaller history gives the conditional expectation for that smaller history.
+
+\begin{assumption}[Standing assumptions]\label{asp: standing}
+The deterministic steps satisfy $0<\alpha_k\le1$ and $\sum_k\alpha_k^2<\infty$. The sampling law may depend on the entire available history and the selected policy, but every pair receives infinite conditional learning weight:
+\begin{equation}\label{eq: cumulative learning}
+\sum_{k=0}^\infty\alpha_k\sigma_k(i)=\infty\quad\text{almost surely for every }i\in\mathcal I.
+\end{equation}
+For a deterministic constant $c_v<\infty$, almost surely on $\{\sigma_k(i)>0\}$,
+\begin{equation}\label{eq: return moments}
+\mathbb E[G_{k+1}\mid\mathcal F'_k,I_{k+1}=i]=q_{\pi_k}(i),\qquad
+\mathbb E[(G_{k+1}-q_{\pi_k}(i))^2\mid\mathcal F'_k,I_{k+1}=i]\le c_v.
+\end{equation}
+No restriction is imposed on a conditional version where $\sigma_k(i)=0$.
+\end{assumption}
+Condition~\eqref{eq: cumulative learning} implies $\sum_k\alpha_k=\infty$, giving the usual Robbins--Monro conditions. Infinite visitation alone would not suffice: infinitely many updates can still have finite total learning weight. Bounded one-step rewards ensure \eqref{eq: return moments} for ordinary episode returns, by discounting or Lemma~\ref{lem: uniform termination}; otherwise we explicitly assume these return moments.
+
+For initial visits, the update distribution is $\mu_k(i)=\mathbb E[u_k(i)\mid\mathcal F'_k]=\sigma_k(i)$. The combined noise and mean-field representation are
+\begin{align}
+ w_k(i)&=u_k(i)v_k(i)+(u_k(i)-\mu_k(i))(q_{\pi_k}(i)-q_k(i)),\label{eq: definition combined noise}\\
+ q_{k+1}&=q_k+\alpha_k\bigl(\mu_k(q_{\pi_k}-q_k)+w_k\bigr),\label{eq: mcopi sa}
+\end{align}
+with coordinatewise products. The moments in \eqref{eq: return moments} imply
+\begin{equation}\label{eq: combined moments}
+\mathbb E[w_k(i)\mid\mathcal F'_k]=0,\qquad
+\mathbb E[w_k(i)^2\mid\mathcal F'_k]\le\sigma_k(i)\{c_v+(B+\|q_k\|_\infty)^2\}.
+\end{equation}
+Indeed, $w_k(i)$ is the centered version of $u_k(i)(G_{k+1}-q_k(i))$, and variance is bounded by its second moment. Fixed-time tables have finite second moments, by induction in \eqref{eq: update q with chi}.
+
+\subsubsection{Accumulated noise and persistent targets}\label{sec: replacement foundations}
+A martingale difference is a random increment whose conditional mean given the previous history is zero. We use the following elementary consequence of square summability: if such increments $e_{k+1}$ satisfy $\sum_k\mathbb E[e_{k+1}^2]<\infty$, their partial sums converge almost surely. To see the tail control behind this fact, orthogonality of distinct increments and the martingale maximal inequality give
+\[
+\mathbb P\left(\sup_{n\ge r}\left|\sum_{k=r}^{n-1}e_{k+1}\right|>\varepsilon\right)
+\le\varepsilon^{-2}\sum_{k=r}^\infty\mathbb E[e_{k+1}^2].
+\]
+Here is a direct finite-horizon justification. Put $S_n=\sum_{k=r}^{n-1}e_{k+1}$ and fix a terminal index $N$. Distinct increments have zero expected product: for $j<k$, conditioning $e_{j+1}e_{k+1}$ on the history at $k$ gives zero. Consequently $\mathbb E[S_N^2]=\sum_{k=r}^{N-1}\mathbb E[e_{k+1}^2]$. Let $\theta$ be the first index with $|S_\theta|>\varepsilon$. On each event $\{\theta=j\}$, which is known at $j$, the later sum $S_N-S_j$ has conditional mean zero. Expanding the square therefore gives
+\[
+\mathbb E[\mathbf1_{\{\theta=j\}}S_N^2]
+\ge\mathbb E[\mathbf1_{\{\theta=j\}}S_j^2]
+\ge\varepsilon^2\mathbb P(\theta=j).
+\]
+Sum over $j\le N$ and then let $N\to\infty$ to obtain the displayed maximal inequality. Choose $r_j$ making the variance tail at most $2^{-3j}$ and take $\varepsilon=2^{-j}$; the probabilities then sum to a finite number. The elementary Borel--Cantelli implication (events whose probabilities sum to a finite number occur only finitely often) shows that these tails are uniformly small eventually. Hence the partial sums are Cauchy almost surely.
+
+\begin{lemma}[Actual learning weight]\label{lem: actual learning}
+Under the standing assumptions, almost surely
+\[
+\sum_k\alpha_k u_k(i)=\infty\qquad(i\in\mathcal I).
+\]
+\end{lemma}
+\begin{proof}
+The increments $\alpha_k(u_k(i)-\sigma_k(i))$ have conditional mean zero given $\mathcal F'_k$ and second moment at most $\alpha_k^2$. Their series converges by the preceding fact. Thus the partial sums of actual and conditional learning weights differ by a convergent sequence. Equation~\eqref{eq: cumulative learning} proves the claim. Intersect the probability-one events over the finitely many pairs.
+\end{proof}
+
+\begin{lemma}[Filtering accumulated errors]\label{lem: filtering}
+Consider a scalar recursion $x_{k+1}=(1-b_k)x_k+b_ky_k+e_{k+1}$ with $0\le b_k\le1$. For $n>r$,
+\begin{equation}\label{eq: filtered error}
+\left|\sum_{k=r}^{n-1}e_{k+1}\prod_{j=k+1}^{n-1}(1-b_j)\right|
+\le2\max_{r\le m\le n}\left|\sum_{k=r}^{m-1}e_{k+1}\right|.
+\end{equation}
+If $\sum_k b_k=\infty$ and $\sum_k e_{k+1}$ converges, eventual bounds $\ell\le y_k\le h$ imply $\ell\le\liminf_k x_k\le\limsup_k x_k\le h$. In particular, an eventually constant target $y$ gives $x_k\to y$. These are pathwise statements, with no independence assumption.
+\end{lemma}
+\begin{proof}
+Unrolling the recursion assigns the initial value weight $\prod_{k=r}^{n-1}(1-b_k)$, the targets nonnegative weights summing to one minus this product, and the errors the weights in \eqref{eq: filtered error}. Put $E_m=\sum_{k=r}^{m-1}e_{k+1}$ and $a_k=\prod_{j=k+1}^{n-1}(1-b_j)$. Summation by parts gives
+\[
+\sum_{k=r}^{n-1}(E_{k+1}-E_k)a_k
+=E_n a_{n-1}-\sum_{k=r+1}^{n-1}E_k(a_k-a_{k-1}).
+\]
+Here $0\le a_r\le\cdots\le a_{n-1}=1$, proving \eqref{eq: filtered error}. Since $\sum_kb_k=\infty$, the initial weight tends to zero for fixed $r$. Convergence of the error series makes its tail partial sums uniformly small. Take $r$ after the target bounds begin, let $n\to\infty$, and then let $r\to\infty$.
+\end{proof}
+
+\begin{lemma}[Stability and persistent targets]\label{thm: bounded limit sets}
+Under the standing assumptions, on one probability-one event,
+\[
+\limsup_k\|q_k\|_\infty\le B.
+\]
+On the same event, if $q_{\pi_k}=\bar q$ for all sufficiently large $k$, then $q_k\to\bar q=q_{\pi_*}$.
+\end{lemma}
+\begin{proof}
+For a pair $i$, use $b_k=\alpha_k u_k(i)$, $y_k=q_{\pi_k}(i)$ and $e_{k+1}=\alpha_k u_k(i)v_k(i)$ in Lemma~\ref{lem: filtering}. The weights sum to infinity by Lemma~\ref{lem: actual learning}. The error increments have conditional mean zero and second moment at most $c_v\alpha_k^2$, so their series converges almost surely. Intersect these events over all pairs. The targets lie in $[-B,B]$, giving the asserted bound, and an eventual target $\bar q$ gives $q_k\to\bar q$.
+
+Choose a policy $\widehat\pi$ occurring infinitely often after the target has become constant. It satisfies $q_{\widehat\pi}=\bar q$. Along that subsequence its greedy inequalities pass to the limit, so it is greedy for its own action values. Policy improvement and verification therefore give $\bar q=q_{\pi_*}$. This argument is pathwise; it does not condition on the event that the target eventually becomes constant.
+\end{proof}
+
+A transition time records a change of the target, not merely a change of policy label. Starting at $t_0=0$, define
+\begin{equation}\label{def: transition times}
+t_{n+1}=\inf\{k>t_n:q_{\pi_k}\ne q_{\pi_{t_n}}\}\quad(t_n<\infty),
+\end{equation}
+with $\inf\varnothing=\infty$ and $t_{n+1}=\infty$ when $t_n=\infty$. These are stopping times for $(\mathcal F'_k)$. On $[t_n,t_{n+1})$ the target is constant even if the selected policy changes. To prove convergence it therefore suffices to prove that only finitely many transitions occur. A nonoptimal policy can share the optimal action-value table, so its selection alone does not imply a future target change.
