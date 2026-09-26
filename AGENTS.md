@@ -12,3 +12,5 @@ See `.agents/README.md` for supporting guidance. Keep paper-specific decisions a
 # Collaboration
 
 Develop paper revisions on separate branches. Merge into `main` only when the authors agree the paper is ready for arXiv, coordinating the upload at that point. `publications/` on `main` should contain agreed, submission-ready papers.
+
+When opening or updating a pull request that changes a publication, add its matching label (`jmlr`, `neurips`, or `thesis`) so its PDF preview is compiled automatically; add every applicable label if multiple publications change.
