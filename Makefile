@@ -19,4 +19,4 @@ neurips jmlr thesis: latex-image
 		--mount "type=bind,source=$(PUBLICATION_DIR),target=/work,readonly" \
 		--mount "type=bind,source=$(PUBLICATION_DIR)/build,target=/work/build" \
 		$(LATEX_IMAGE) -pdf -interaction=nonstopmode -halt-on-error \
-		-file-line-error -outdir=build $(MAIN_TEX)
+		-file-line-error -outdir=build -jobname=$@ $(MAIN_TEX)
