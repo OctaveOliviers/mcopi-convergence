@@ -1,11 +1,14 @@
-# Mathematical writing
+# Repository purpose
 
-For work on papers and proofs, use the repository harness in [.agents/README.md](.agents/README.md). JMLR is the first target. Leave other publications outside the task unless the user includes them.
+A shared workspace for papers and supporting research, giving collaborators and their agents the same context.
 
-- Agree the claims, assumptions, reader prerequisites and proof increments before substantive drafting. Reuse an existing agreed specification; do not ask for the same approval again.
-- The main session is the paper writer. Use separate correctness, exposition and notation checkers according to the workflow. A delegated checker follows only its assigned review scope and does not start the writer workflow.
-- Checkers start without the writer's conversation history. Share the manuscript, definitions and explicit messages, not private drafting notes or expected exposition answers. These are instruction-enforced boundaries, not filesystem isolation.
-- Keep review findings, resolutions and the exact reviewed versions in the paper's status/review files. The writer may challenge a finding, but cannot mark its own response as independently verified.
-- A request to set up or change the harness does not authorize rewriting or approving the paper.
+# Writing workflow
 
-These instructions concern mathematical writing. Use the usual repository workflow for unrelated code or build work.
+1. Use `.agents/skills/agree-writing-spec/SKILL.md` to agree the claims, assumptions and intended changes. Reuse an existing agreed specification.
+2. Use `.agents/skills/write-and-review-paper/SKILL.md` to implement and independently review the agreed changes.
+
+See `.agents/README.md` for supporting guidance. Keep paper-specific decisions and review records beside the relevant paper.
+
+# Collaboration
+
+Develop paper revisions on separate branches. Merge into `main` only when the authors agree the paper is ready for arXiv, coordinating the upload at that point. `publications/` on `main` should contain agreed, submission-ready papers.
