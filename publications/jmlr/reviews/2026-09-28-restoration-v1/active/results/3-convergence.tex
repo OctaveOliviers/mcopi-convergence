@@ -1,0 +1,78 @@
+\subsubsection{Combining the three stages}
+We can now combine the favorable seed updates with the growth and lock-in estimates. The number $N$ of requested updates controls the chance of losing a small initial gap, while square summability controls the chance of losing a gap after it reaches $\delta$. Choosing $N$ first and then a sufficiently late start makes their total failure probability smaller than one, uniformly over the current policy.
+
+\begin{lemma}
+\label{thm: fixed prob that bad actions dont become greedy}
+Under \autoref{asp: standing}, fix $K>\max_{\pi\in\mathcal P}\|q_\pi\|_\infty$. There are deterministic constants $k_0<\infty$ and $p>0$ such that, for every deterministic restart $r$ and stopping time $t\ge\max\{r,k_0\}$, the times in \autoref{def: gap variables} satisfy
+\begin{equation}
+\label{eq:progress}
+\mathbb P\!\left(
+\begin{aligned}
+&\{\zeta_r\le\tau,\ \zeta_r<\infty\}\ \text{or}\ \{\tau=\zeta_r=\infty\}\ \text{or}\\
+&\{\tau<\zeta_r,\ \pi_\tau\succ\pi_t\}
+\end{aligned}
+\ \middle|\ \mathcal F'_t\right)\ge p
+\end{equation}
+on $\{t<\infty,t<\zeta_r\}$. Thus the stopped interval either reaches the bound, continues forever with the same target, or ends with a better policy, with conditional probability at least $p$.
+\end{lemma}
+\begin{proof}
+Fix the constants in \eqref{eq:c-def}. Choose a positive integer $N$ such that
+\[
+\frac{2|\mathcal S\times\mathcal A|c_gc_\alpha^2}{\delta N}\le\frac14.
+\]
+Then choose a deterministic $k_0\ge k_\alpha$ so that, for every $t\ge k_0$,
+\begin{equation}
+\label{eq:choices}
+N\alpha_t\le2c_\alpha,
+\qquad
+\frac{|\mathcal S\times\mathcal A|c_l}{\delta^2}\sum_{k=t}^\infty\alpha_k^2\le\frac14.
+\end{equation}
+These choices are possible because $\alpha_t\to0$ and the squared learning rates have a finite sum.
+
+Use the auxiliary law in \autoref{lem:measure}, so that all requested seed updates succeed. For a state completing at $T_s<\tau\wedge\zeta_r$, its subsequent update law is unchanged. The gap recursion and conditional moments therefore hold under this law, and \autoref{lem:barrier} applies starting at $T_s$. Equations~\eqref{eq:seedmargin} and \eqref{eq:choices} give
+\[
+\frac{c_\alpha\alpha_{T_s}}{\min\{d_{T_s}(s,a),\delta\}}
+\le\frac{c_\alpha^2}{c_sN}
+=\frac{2c_\alpha^2}{\delta N}.
+\]
+The conditional probability of losing this gap through the endpoint is consequently at most
+\begin{equation}
+\label{eq:crossprob}
+\frac{2c_gc_\alpha^2}{\delta N}
++\frac{c_l}{\delta^2}\sum_{k=t}^\infty\alpha_k^2.
+\end{equation}
+Multiply the conditional estimate by the event $\{T_s<\tau\wedge\zeta_r\}$, which is known at $T_s$, and average back to $\mathcal F'_t$. Summing over at most $|\mathcal S\times\mathcal A|$ pairs bounds the chance of any completed gap closing by $1/2$. No independence or simultaneous completion is required.
+
+On the complementary event, a finite target transition before exit cannot select a pair in $\mathcal B_\pi$. States that completed earlier have positive gaps; states still unfinished retain the reference action, as do states completed exactly at the endpoint. Hence
+\[
+q_\pi(s,\pi_\tau(s))\ge q_\pi(s,\pi(s))
+\qquad\text{for every state }s\in\mathcal S.
+\]
+The two targets differ at a transition, so \autoref{thm: strict PIT} gives $\pi_\tau\succ\pi$.
+We do not need every state to complete: at a finite endpoint unfinished states are safe, while an infinite endpoint without exit already gives a constant target. Transferring back with \eqref{eq:transfer} proves \eqref{eq:progress} with
+\[
+p=\frac12p_0^{|\mathcal S\times\mathcal A|N}>0.
+\]
+If $\mathcal B_\pi$ is empty for the reference policy, the policy-improvement inequality holds for every next selected policy, so the same bound applies without a seed construction. An exit after an unsuccessful finite transition is not counted as success for that earlier interval.
+\end{proof}
+
+\subsubsection{Global convergence of MC-O-PI}
+The preceding result gives a uniform chance of progress on each continuing interval. We now repeat these opportunities. There can be at most $|\mathcal P|-1$ consecutive strict policy improvements, so a sufficiently long run of successful intervals must end either with exit from the fixed bound or with a target that stays constant. Boundedness then removes the exit alternative.
+
+\begin{proof}[Proof of \autoref{thm: convergence mcopi uniform}]
+Fix $K>\max_{\pi\in\mathcal P}\|q_\pi\|_\infty$, and take $k_0,p$ from \autoref{thm: fixed prob that bad actions dont become greedy}. For a deterministic restart $r\ge k_0$, restart the transition-time construction at $t_0=r$. Stop counting immediately if $\|q_r\|_\infty>K$, and subsequently if exit occurs before or at the next target change, or if the target stays constant forever without exit. Every finite continuing transition time is a stopping time.
+
+At each continuing interval, stopping or strict policy improvement has conditional probability at least $p$. By induction and the tower property, stopping within the next $m$ intervals or obtaining $m$ consecutive improvements has conditional probability at least $p^m$. On a branch already stopped, the continuation probability is one; on a finite successful-transition branch, condition at its stopping time and apply the bound again. No independence is used, and we never continue by conditioning at an infinite time.
+
+There cannot be $|\mathcal P|$ consecutive strict improvements. Thus, from every continuing interval, the conditional probability of stopping within the next $|\mathcal P|$ intervals is at least $p^{|\mathcal P|}$. Applying this bound in successive blocks gives probability at most
+\[
+\big(1-p^{|\mathcal P|}\big)^j
+\]
+of continuing through $j$ blocks. This tends to zero, so infinitely many target changes before $\zeta_r$ have probability zero. Unsuccessful transitions may worsen the policy; the bound still holds because it concerns the chance of a new run of consecutive successful intervals from each surviving block.
+
+Intersect these probability-one conclusions over the deterministic integers $r\ge k_0$. By \autoref{thm: bounded limit sets}, almost every path remains inside the bound $K$ after some such integer. On that path, choose $r$ with $\zeta_r=\infty$. It follows that only finitely many target changes occur. The restart is chosen pathwise after the countable intersection, without treating eventual containment as a stopping time.
+
+By \autoref{thm: suboptimal blocks finite}, $q_k\to q_{\pi_*}$ almost surely. At each state, every nonoptimal action has a positive gap below the optimal action value. Finiteness and convergence exclude those actions from all sufficiently late greedy selections. Every sufficiently late policy is therefore optimal. If each state has a unique optimal action, the policy is eventually constant.
+\end{proof}
+
+The proof thus follows a policy-level argument: monotone mean-field improvement, a positive chance that stochastic updates preserve it, and finitely many possible successive improvements. The additional estimates are needed precisely because state sampling need not have a positive lower bound.

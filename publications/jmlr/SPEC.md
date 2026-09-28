@@ -1,16 +1,16 @@
 # JMLR proof: working decisions
 
-Updated 2026-09-26. The user's instructions settle the scope and algorithm choices below. The requested replacement is integrated and has assembled correctness, notation and clean fresh-reader clearance; see STATUS.md for the exact version and evidence. No scope decision or review gate remains pending. Any future strengthening of assumptions or weakening of conclusions must be surfaced before changing this agreed target.
+Updated 2026-09-28. The mathematical scope below remains agreed. The user additionally requires the original introduction, algorithm explanation and existing proofs to remain verbatim wherever sound. Outside the main proof, only corrections of errors, ambiguity or missing dependencies and changes required by the agreed assumptions are authorized. Apply the 18 PDF comments throughout the main proof, including unannotated lemmas. No new specification approval is needed. The restoration has completed the independent correctness, notation and exposition reviews; see STATUS.md for the exact reviewed version and evidence.
 
 ## Agreed direction
 
-Simplify the main proof while preserving the introduction, algorithm explanation and established notation, with targeted corrections. Keep initial-visit updates and full inertia: retain the previous action whenever it remains greedy. Cover fixed priorities briefly in the discussion if their local retention argument is verified. First-/every-visit extensions are deferred.
+Simplify the main proof while preserving the introduction, algorithm explanation and established notation, with targeted corrections. Keep initial-visit updates and inertia in greedy policy selection: retain the previous action whenever it remains greedy. Cover fixed priorities briefly in the discussion if their local retention argument is verified. First-/every-visit extensions are deferred.
 
 Preserve the combined stability–ODE discussion and reinforce it briefly in the introduction. Explain the connection to Kushner and Yin (2003), §5.4, and entries whose margins may vanish. Verify the exact attribution. Describe step regularity as sufficient for this proof, not necessary for algorithm convergence without a necessity result.
 
 ## Agreed target theorem
 
-Retain finite state sets and finite nonempty action sets, with \(\gamma<1\), or \(\gamma=1\) and every deterministic stationary policy proper. Start from a finite deterministic table. Use initial-visit Monte Carlo updates and full inertia. The sampling law may depend on history and the selected policy, but almost surely
+Retain finite state sets and finite nonempty action sets, with \(\gamma<1\), or \(\gamma=1\) and every deterministic stationary policy proper. Start from a finite deterministic table. Use initial-visit Monte Carlo updates and inertia in greedy policy selection. The sampling law may depend on history and the selected policy, but almost surely
 
 \[
 \sigma_k(s,a)=\sigma_k(s)\ge0,\qquad
@@ -35,8 +35,8 @@ Intended conclusions on one probability-one event: \(q_k\to q_{\pi_*}\), finitel
 | --- | --- | --- |
 | P1: foundations and mean field | MDP/update assumptions yield policy improvement, actual cumulative learning, stability, persistent-target convergence and deterministic convergence. | Lemmas 1–2, 5–7 and §3.1 / `2-mcopi.tex`, `results/1-mean-field.tex`, appendix. |
 | P2: gap barrier | Stopped drift/variance bounds and weaker steps yield a conditional crossing bound uniform in restart time, including the endpoint. No divergent state clock needed locally. | `lem:barrier` / probability subsection. |
-| P3: safe updates and conditioning | P1, full inertia and weaker steps yield safe unfinished states, completion margins and preserved completed-state return laws under the auxiliary measure. | `lem:seeds`, `lem:measure` / probability subsection. |
-| P4: progress and convergence | P1–P3 yield uniform stopped progress; deterministic restarts and finite target ordering establish convergence. | `lem:progress`, `thm:convergence` / probability and convergence subsections. |
+| P3: safe updates and conditioning | P1, inertia in greedy policy selection and weaker steps yield safe unfinished states, completion margins and preserved completed-state return laws under the auxiliary measure. | `lem:seeds`, `lem:measure` / probability subsection. |
+| P4: progress and convergence | P1–P3 yield uniform stopped progress; deterministic restarts and finite target ordering establish convergence. | `thm: fixed prob that bad actions dont become greedy`, `thm: convergence mcopi uniform` / probability and convergence subsections. |
 | P5: integration | Validated P1–P4 and checked citations support consistent theorem, introduction, methodology and discussion. | Active manuscript and assembled review. |
 
 Start with P1, then P2/P3 independently, then P4, then P5. Develop revisions in `tmp/`, separately from the faithful reference. Integrate validated units. Require independent correctness, notation and fresh-reader checks of the same version, resolved blocking findings, and a successful build/render check. Retain existing result labels where their meaning survives.

@@ -1,0 +1,416 @@
+
+\section{Preliminaries}
+\label{sec: mcopi}
+
+
+
+
+\subsection{Finite Markov decision processes}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+A Markov decision process evolves over discrete steps.
+Throughout, the state set $\sset$ and the action sets $\aset(s)$ are finite and nonempty. We write $\sset\times\aset$ for the state-action pairs, with $a\in\aset(s)$ understood. Terminal states have zero value and are omitted from $\sset$; rewards have finite expected absolute value.
+
+At time \(t\), the agent observes a state \(s_t \in \mathcal S\) and selects an action \(a_t \in \mathcal A(s_t)\) according to a policy \(\pi(a_t | s_t)\).
+The environment then produces a reward \(r_t\) and transitions to a new state \(s_{t+1}\) according to its dynamics $p(s_{t+1}, r_t | s_t, a_t)$.
+
+
+
+If a policy $\pol$ is deterministic in state $s$, then $\pol(s)$ directly refers to the action $a$ where $\pol(a | s) = 1$.
+We denote the set of deterministic stationary policies by $\polset$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For any deterministic stationary policy $\pi$,
+the state-value function $v_\pol : \sset \to \real$ 
+measures the expected discounted return when following policy $\pol$ starting in state $s$:
+\begin{align*} 
+    v_\pol(s)
+    :=
+
+
+
+    \mathbb E_{p, \pi} \left[ \sum_{t=0}^{\infty} \gamma^t \, r_t  \ \bigg| \ s_0 = s \right] .
+\end{align*}
+The action-value function $q_\pol : \sset \times \aset \to \real$ measures the expected discounted return when taking action $a$ in state $s$ and then following policy $\pol$:
+\begin{align*} 
+    q_\pol(s,a)
+    :=
+
+
+
+    \mathbb E_{p, \pi} \left[ \sum_{t=0}^{\infty} \gamma^t \, r_t  \ \bigg| \ s_0 = s, a_0 = a \right] .
+\end{align*}
+
+A policy $\pi$ is at least as good as another policy $\pi'$ if $v_{\pi} \ge v_{\pi'}$, where the inequality holds at every state.
+This also implies $q_{\pi} \ge q_{\pi'}$ at every state-action pair.
+We denote this relation by $\pi \succeq \pi'$.
+If, additionally, there exists a state where $v_{\pi}(s) > v_{\pi'}(s)$, then $\pi$ is better than $\pi'$, denoted $\pi \succ \pi'$.
+
+This paper considers discounted or episodic MDPs,
+meaning $\gamma \in [0,1)$
+or $\gamma=1$ and episodes simulated with any deterministic stationary policy reach a terminal state almost surely. Such a policy is called \emph{proper}. In a finite MDP, properness gives a geometric tail for the termination time and hence finite values~\citep[Section~2.2.1, Eqs.~(2.7)--(2.9)]{Bertsekas1996Neuro-DynamicProgramming}.
+The Policy Improvement Theorem then allows us to compare policies using only the action-value function of one of them~\citep{Howard1960DynamicProcesses}.
+We rely on a strict version of that theorem.
+
+\begin{lemma}
+\label{thm: strict PIT}
+Given deterministic stationary policies $\pi$ and $\pi'$, suppose that
+\begin{align}
+\label{eq: PIT condition}
+q_\pi(s,\pi'(s)) \ge q_\pi(s,\pi(s))
+\end{align}
+for every state $s\in\mathcal S$.
+Then \(v_{\pi'} \ge v_\pi\). Moreover, if \(q_{\pi'}\neq q_\pi\), then the improvement is strict, meaning
+there exists a state \(s\in\mathcal S\) such that
+\[
+v_{\pi'}(s)>v_\pi(s).
+\]
+\end{lemma}
+\begin{proof}
+By the Policy Improvement Theorem, inequality \eqref{eq: PIT condition} implies that $v_{\pi'} \ge v_\pi$.
+Suppose that $v_{\pi'} = v_{\pi}$. Then for every pair $(s,a)$,
+\begin{align*}
+q_{\pi'}(s,a)
+= \mathbb E_p\!\left[r_0+\gamma v_{\pi'}(s_1)\mid s_0=s,a_0=a\right]
+= \mathbb E_p\!\left[r_0+\gamma v_{\pi}(s_1)\mid s_0=s,a_0=a\right]
+= q_{\pi}(s,a) .
+\end{align*}
+Thus, if $q_{\pi'} \neq q_\pi$, there exists at least one state where $v_{\pi'}(s) > v_{\pi}(s)$, and thus $\pi' \succ \pi$.
+\end{proof}
+
+Classical results guarantee that, for discounted or episodic MDPs,
+there exists an optimal policy $\pi_*$ that satisfies $q_{\pi_*}(s,a) = \max_\pi q_\pi(s,a)$ for all pairs $(s,a)$.
+Moreover, $\pi_*$ may be chosen to be deterministic and greedy with respect to $q_{\pi_*}$, meaning
+$\pi_*(s) \in \arg\max_{a \in \mathcal A(s)} q_{\pi_*}(s,a)$ for all $s$.
+The converse is also true: if a deterministic policy is greedy with respect to its own action values, then it must be optimal.
+This essential property allows us to verify whether a policy is optimal by inspecting its action values, rather than comparing it with all other policies.
+
+\subsection{Monte Carlo optimistic policy iteration}
+
+In many real-world applications, the transition dynamics and reward functions of the underlying MDP are unknown. Learning the optimal policy therefore requires interacting with the system to estimate expected returns from accumulated experience.
+One fundamental framework for this is \textit{policy iteration}.
+This approach tracks an action-value estimate $q$ and a policy $\pol$ and refines them by alternately evaluating the current policy and improving it.
+This cycle is intended to converge to a policy that is greedy with respect to its own action values, and therefore optimal.
+
+Monte Carlo optimistic policy iteration implements the policy-iteration framework by using 
+\textit{Monte Carlo policy evaluation}, which simulates complete episodes of the MDP to update $q$ towards the action values of $\pol$,
+and \textit{optimistic policy improvement}, which updates $\pol$ to obtain higher returns as anticipated by $q$.
+
+Specifically, consider the function space $\qset \coloneqq \{ \mathcal S \times \mathcal A \to \mathbb R \}$.
+MC-O-PI starts from a finite deterministic estimate $q_0$ and generates a sequence $(q_k)_{k \ge 0}$ in $\qset$ as follows.
+At the beginning of iteration $k$, the algorithm selects a deterministic policy $\pi_k$ that is greedy with respect to $q_k$:
+\begin{align}
+\label{eq: greedy policy definition}
+    \pol_k(s) \in \arg\max_{a \in \aset(s)} q_k(s,a),
+    \qquad \forall \, s \in \sset .
+\end{align}
+The algorithm then samples an initial state-action pair $(s_0, a_0)$ according to a sampling distribution $\start_k$,
+simulates an episode of the MDP following policy $\pol_k$, and observes the discounted return for each state-action pair in the episode.
+The observed return equals $q_{\pi_k}(s,a) + v_k(s,a)$, where $v_k(s,a)$ is a stochastic perturbation.
+Finally, the estimate $q_k$ is updated at the chosen pairs appearing in the episode
+according to
+\begin{align}
+\label{eq: MC eval update}
+    q_{k+1}(s, a)
+    &= q_k(s,a) +  \lrate_k( q_{\pol_k}(s, a) + v_k(s, a) - q_k(s,a) ) ,
+\end{align}
+while all other estimates remain unchanged. Here $(\lrate_k)_{k \ge 0}$ is a scalar learning rate sequence that satisfies the Robbins-Monro conditions:
+\begin{align}
+ \label{eq: robbins monro conditions}
+    \sum_{k =0}^\infty \alpha_k = \infty ,
+    \qquad
+    \sum_{k =0}^\infty \alpha_k^2 < \infty .
+\end{align}
+We take these learning rates to be deterministic, with $0<\alpha_k\le1$. The stochastic convergence proof also uses the following weaker form of eventual nonincrease: there are deterministic constants $c_\alpha\ge1$ and $k_\alpha<\infty$ such that
+\begin{equation}
+\label{eq:comparison}
+\alpha_j\le c_\alpha\alpha_k\qquad\text{for every }j\ge k\ge k_\alpha.
+\end{equation}
+This permits occasional increases; for example, $\alpha_k=(2+(-1)^k)/(k+3)$ satisfies it with $c_\alpha=3$.
+
+Let $\mathcal F_k$ represent the available information after $q_k$ is computed, but before selecting the policy, sampling distribution and update method for iteration $k$.
+Write $\mathcal F'_k$ for the information after these choices and before simulating the episode, so $\mathcal F_k\subseteq\mathcal F'_k\subseteq\mathcal F_{k+1}$.
+Conditional expectations given $\mathcal F'_k$ average over the remaining randomness in that episode. Any quantity already determined by this history can be taken outside the conditional expectation. We also use the tower property: averaging again over an earlier history gives the conditional expectation for that earlier history.
+
+\subsubsection{Greedy policy}
+
+Define the set-valued function $\grpol : \qset \rightrightarrows \polset$ that maps any action-value function $q$ to the set of deterministic policies that are greedy with respect to $q$:
+\begin{align}
+\label{eq: greedy pol}
+    \grpol(q) \coloneqq \big\{ \pol \in \polset : q(s, \pol(s)) = \max_{a \in \aset(s)} q(s,a), \ \forall \, s \in \sset \big\} .
+\end{align}
+At every step, the policy $\pi_k$ thus satisfies
+\begin{align}
+\label{eq: greedy policy def}
+    \pi_k \in \grpol(q_k) .
+\end{align}
+When several actions are greedy, we retain the previous action whenever it is still greedy:
+\begin{equation}
+\label{eq:greedy-pol-tie-breaking}
+\pi_{k+1}(s)=\pi_k(s)
+\quad\text{if }\pi_k(s)\in\arg\max_{a\in\mathcal A(s)}q_{k+1}(s,a),
+\qquad s\in\mathcal S.
+\end{equation}
+The initial policy is any greedy policy, and when the previous action ceases to be greedy, any maximizing action may be selected.
+This inertia in the greedy policy selection means, in particular, that the policy does not change at a state that has not been updated.
+
+\subsubsection{Update function}
+
+Not all state-action pairs are necessarily updated after each episode.
+Given an episode $\big( (s_t, a_t) \big)_{t \ge 0}$, there are three common update functions to decide which pairs to modify.
+The \textit{initial-visit} method only updates the first state-action pair $(s_0, a_0)$.
+The \textit{first-visit} method updates each state-action pair $(s_t, a_t)$ provided it has not appeared in the sequence $\big((s_{t'}, a_{t'})\big)_{t' < t}$.
+The \textit{every-visit} method updates all state-action pairs of an episode using every observed return from each pair.
+
+Write $f_k$ for the update method used at iteration $k$.
+For initial- or first-visit updates, let $u_k(s,a)=1$ if the pair $(s,a)$ is updated, and $0$ otherwise. Set $v_k(s,a)=0$ for pairs that are not updated.
+MC-O-PI then takes the form
+\begin{align}
+\label{eq: update q with chi}
+q_{k+1}(s,a)
+= q_k(s,a)+\alpha_k u_k(s,a)\big(q_{\pi_k}(s,a)+v_k(s,a)-q_k(s,a)\big).
+\end{align}
+The indicator function $u_k$ depends on the initial state-action pair of the episode, the policy used for simulating it and the chosen update method.
+Thus this representation separates the choice of updated pairs from the noise in their observed returns. The algebra below applies to either indicator-based update method; the convergence theorem in this paper uses initial visits.
+
+For initial-visit updates, the return from the sampled pair has conditional mean $q_{\pi_k}(s,a)$. We assume a uniform bound on its conditional variance:
+\begin{equation}
+\label{eq: return moments}
+\mathbb E[v_k(s,a)\mid\mathcal F'_k,u_k(s,a)=1]=0,
+\qquad
+\mathbb E[v_k(s,a)^2\mid\mathcal F'_k,u_k(s,a)=1]\le c_v.
+\end{equation}
+These conditions are imposed only when the pair has positive sampling probability. Bounded one-step rewards suffice: discounting bounds the return directly, while the geometric termination tail of a proper finite-state policy gives a finite second moment. There are only finitely many deterministic policies and initial pairs, so the bound is uniform~\citep[Section~2.2.1]{Bertsekas1996Neuro-DynamicProgramming}.
+
+\subsubsection{Initial sampling distribution}
+
+To ensure that all state-action pairs are updated sufficiently often, we commonly impose \textit{exploring starts} on the sampling distribution of the initial pair of each episode. This condition requires that every state-action pair has a non-zero probability of being selected:
+\[
+\sigma_k(s,a)>0\qquad\text{for every }k\ge0,\ s\in\mathcal S,\ a\in\mathcal A(s).
+\]
+However, we can effectively nullify this condition using quickly decaying sampling probabilities.
+For example, if $\sigma_k(s,a)\le1/(k+2)^2$ for a particular pair, there is at least a $50\%$ chance that no episode ever starts there. Under initial-visit updates, that pair would never be updated.
+A common sufficient condition is \textit{strict exploring starts}: a fixed positive lower bound on every sampling probability. We instead require only infinite accumulated learning at each pair:
+\begin{equation}
+\label{eq: cumulative learning}
+\sum_{k=0}^{\infty}\alpha_k\sigma_k(s,a)=\infty
+\quad\text{almost surely for every }s\in\mathcal S,\ a\in\mathcal A(s).
+\end{equation}
+This allows a pair to have zero sampling probability at some iterations, and it allows arbitrarily long waits between its updates. Infinite visitation alone would not suffice, since the learning rates at those visits could have a finite sum.
+
+Our main result further requires that, after selecting the initial state, the initial action is chosen uniformly from its available actions. We then write
+\begin{equation}
+\label{eq: uniform starts}
+\sigma_k(s,a)=\sigma_k(s)\ge0,
+\qquad
+\sum_{s\in\mathcal S}|\mathcal A(s)|\sigma_k(s)=1.
+\end{equation}
+Here $\sigma_k(s)$ is the probability of each pair at state $s$, so the probability of choosing the state is $|\mathcal A(s)|\sigma_k(s)$. The state may be chosen adaptively using the available history, subject to \eqref{eq: cumulative learning}.
+
+\subsubsection{Update distribution}
+
+The probability of updating each state-action pair after an episode depends on the distribution of the initial state-action pair, the policy used for simulating the episode and the update function.
+We gather these probabilities in the update distribution $\mu_k$ defined as
+\[
+\mu_k := \mathbb E [ u_k \mid \mathcal F'_k] .
+\]
+
+For initial-visit updates, $\mu_k=\sigma_k$. For first-visit updates, $\mu_k(s,a)$ is the probability that the pair appears anywhere in the episode; these probabilities need not sum to one.
+
+This distribution controls the exploration-exploitation trade-off
+as it determines how frequently each action is updated.
+Exploration favours actions whose current estimated value is most uncertain, for instance by biasing $\mu_k$ towards actions that received few updates in the past.
+Exploitation, on the other hand, prioritises updating actions with the highest estimated value. It thus biases $\mu_k$ towards actions that are greedy with respect to $q_k$.
+
+Using the update distribution,
+we can combine the stochastic terms $u_k$ and $v_k$ in equation \eqref{eq: update q with chi} into a single term $w_k$ defined as
+\begin{align}
+\label{eq: definition combined noise}
+    w_k
+    \coloneqq
+    u_k \, v_k + (u_k - \mu_k) ( q_{\pol_k} - q_k ) .
+\end{align}
+This term incorporates the perturbations caused by the episode simulation and the asynchronous updates of state-action pairs.
+It simplifies equation \eqref{eq: update q with chi} to
+\begin{align}
+\label{eq: mcopi not yet sri}
+    q_{k+1}
+    =
+    q_k + \lrate_k \big( \update_k ( q_{\pol_k} - q_k ) + w_k \big) .
+\end{align}
+
+\subsubsection{Difference inclusion}
+
+After defining the sequences of learning rates $(\lrate_k)_{k \ge 0}$, start distributions $(\start_k)_{k \ge 0}$ and update functions $(f_k)_{k \ge 0}$,
+we can combine equations \eqref{eq: greedy policy def} and \eqref{eq: mcopi not yet sri} into the difference inclusion
+\begin{multline}
+\label{eq: mcopi sa}
+    q_\kpo
+    \in
+    \Big\{ q_k + \alpha_k \big( \mu_k(q_{\pol_k} - q_k) + w_k \big)
+    :
+    \\
+    \pol_k \in \grpol(q_k),
+    \update_k = \update(\start_k, \pol_k, f_k),
+    w_k \sim w(q_k, \start_k, \pol_k, f_k)
+    \Big\} .
+\end{multline}
+Here $\mu(\sigma,\pi,f)$ and $w(q,\sigma,\pi,f)$ denote the conditional update probabilities and combined-noise law produced by the selected sampling distribution, policy and update method. Products of functions are evaluated separately at each state-action pair.
+
+We gather the conditions for the main convergence result in one place.
+
+\begin{assumption}[Standing assumptions]
+\label{asp: standing}
+\phantom{Assume}
+\begin{enumerate}[label=(\arabic*)]
+\item \textbf{Finite MDP and initialization.} The state and action sets are finite, rewards have finite expected absolute value, and the MDP is discounted or every deterministic stationary policy is proper. The initial estimate $q_0$ is finite and deterministic.
+\item \textbf{Learning rates.} The deterministic rates satisfy $0<\alpha_k\le1$, the Robbins--Monro conditions \eqref{eq: robbins monro conditions}, and the weakened monotonicity condition \eqref{eq:comparison}.
+\item \textbf{Greedy policy selection.} The policies are greedy as in \eqref{eq: greedy policy def}, with inertia as in \eqref{eq:greedy-pol-tie-breaking}.
+\item \textbf{Initial-visit updates.} Only the initial pair of each episode is updated. The sampled returns satisfy \eqref{eq: return moments} for a deterministic constant $c_v<\infty$.
+\item \textbf{Sampling.} The initial actions are uniform within each state as in \eqref{eq: uniform starts}, and every pair receives infinite accumulated learning as in \eqref{eq: cumulative learning}. The sampling distribution may depend on the available history and the selected policy.
+\end{enumerate}
+\end{assumption}
+
+System \eqref{eq: mcopi sa} is a switched linear system whose active dynamics depend on which policy is greedy with respect to the current estimate $q_k$.
+Thus, as long as the greedy policy does not change, its action-value target remains the same, although the learning rates and update probabilities may vary.
+We can delimit the subsets of $\qset$ associated with each greedy policy using the set-valued function $\graval : \polset \rightrightarrows \qset$ defined as
+\begin{align}
+\label{eq: greedy action values}
+    \graval(\pol) \coloneqq \big\{ q \in \qset : q(s, \pol(s)) = \max_{a \in \aset(s)} q(s,a), \ \forall \, s \in \sset \big\} .
+\end{align}
+This function is the inverse of $P$, defined in \eqref{eq: greedy pol}, as it maps any deterministic policy $\pol$ to the set of action-value functions for which $\pol$ is greedy.
+Since $\graval(\pol)$ forms a convex subset of $\qset$, we refer to $\graval(\pol)$ as the \textit{region} of policy $\pol$ in $\qset$.
+
+\subsubsection{Basic properties}
+\label{sec: replacement foundations}
+The convergence proof needs two basic properties: bounded estimates, and convergence when the action-value target eventually stops changing.
+We first check that the combined perturbations have zero conditional mean and a controlled second moment. We then obtain boundedness by comparing the estimates with averages of returns having fixed lower and upper targets. The proofs are given in the appendix.
+
+\begin{lemma}
+\label{thm: properties of noise}
+Under \autoref{asp: standing}, there exists a constant $c_w \in [0, \infty)$
+such that for every time $k \ge 0$, every state $s \in \sset$ and every action $a \in \aset(s)$,
+\begin{align}
+\label{eq: muw_mds}
+&\mathbb E\!\left[w_k(s,a) \mid \mathcal F'_k\right] = 0,
+\\
+\label{eq: muw_second_moment}
+&\mathbb E\!\left[w_k^2(s,a) \mid \mathcal F'_k\right]
+\le c_w(1+\|q_k\|^2) .
+\end{align}
+\end{lemma}
+
+Using \autoref{thm: properties of noise} and the Robbins--Monro conditions,
+we can apply standard martingale and stochastic approximation arguments to establish fundamental properties of MC-O-PI.
+
+\begin{lemma}
+\label{thm: bounded limit sets}
+Let $\polset_\infty$ denote the set of policies that appear infinitely often in a sequence $(\pi_k)_{k \ge 0}$ generated by MC-O-PI.
+Under \autoref{asp: standing}, the corresponding sequence $(q_k)_{k \ge 0}$ converges almost surely to the set
+\begin{align*}
+    \Big\{
+    q \in \qset :
+    \min_{\pi \in \polset_\infty} q_\pi(s,a) \leq q(s,a) \leq \max_{\pi \in \polset_\infty} q_\pi(s,a), \forall s \in \sset, \forall a \in \aset(s)
+    \Big\} .
+\end{align*}
+Convergence to this set means that the distance from $q_k$ to it tends to zero. In particular,
+\[
+\sup_{k\ge0}\|q_k\|<\infty\qquad\text{almost surely}.
+\]
+\end{lemma}
+
+If the target action values in \eqref{eq: mcopi sa} were fixed, the same averaging argument would give convergence to that target. This conclusion follows directly from the return moments and accumulated learning; it does not require a separate bound on the estimates~\citep[Proposition~4.2]{Bertsekas1996Neuro-DynamicProgramming}.
+Thus, the asymptotic behaviour of MC-O-PI hinges on how its action-value targets evolve over time. To isolate these changes, we introduce \textit{transition times}.
+
+A random iteration is a stopping time when the history available at each iteration determines whether it has already occurred. For example, we can recognize a change of the current action-value target from the policies selected so far. All stopping times below use the histories $(\mathcal F'_k)$.
+
+\begin{definition}
+\label{def: transition times}
+Given a sequence of policies $(\pi_k)_{k \ge 0}$ and a deterministic starting iteration $r\ge0$,
+define the transition times $(t_n)_{n \ge 0}$ as
+\begin{align*}
+t_0 &:= r ,
+\\
+t_{n+1} &:= \inf\{k>t_n : q_{\pi_k} \neq q_{\pi_{t_n}} \},\qquad t_n<\infty.
+\end{align*}
+We use $\inf\varnothing=\infty$ and set $t_{n+1}=\infty$ if $t_n=\infty$.
+For each finite $t_n$, the target stays constant at $q_{\pi_{t_n}}$ for all integer times $t_n\le k<t_{n+1}$; if $t_{n+1}=\infty$, this means all $k\ge t_n$. Unless another starting iteration is specified, take $r=0$.
+\end{definition}
+
+\begin{lemma}
+\label{thm: suboptimal blocks finite}
+Under \autoref{asp: standing}, almost surely, if a finite transition time $t_n$ satisfies $t_{n+1}=\infty$, then
+\[
+q_k\longrightarrow q_{\pi_{t_n}}=q_{\pi_*}.
+\]
+Consequently, if $q_{\pi_{t_n}}\ne q_{\pi_*}$, then $t_{n+1}<\infty$ almost surely.
+\end{lemma}
+\begin{proof}
+The fixed-target averaging argument in the appendix gives $q_k\to q_{\pi_{t_n}}$ on every path where the target becomes constant, outside one null event.
+Choose a policy that appears infinitely often after $t_n$. Its action-value function is $q_{\pi_{t_n}}$, and its greedy inequalities pass to the limit along that subsequence. It is therefore greedy with respect to its own action values and hence optimal.
+\end{proof}
+
+\autoref{thm: suboptimal blocks finite} reduces the convergence problem to showing that only finitely many changes of the action-value target occur. The next section first establishes this for the mean-field dynamics, and then shows why stochastic perturbations cannot prevent it indefinitely.

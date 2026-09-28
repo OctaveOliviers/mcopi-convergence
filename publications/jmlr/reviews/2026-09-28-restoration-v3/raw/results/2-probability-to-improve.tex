@@ -1,0 +1,216 @@
+\subsection{Initial-visit MC-O-PI converges with uniform updates}
+This section proves that stochastic perturbations in initial-visit MC-O-PI cannot consistently offset the policy improvement of mean-field solutions. As a result, the algorithm converges to $\qopt$ when updates are uniform over the actions of each state.
+
+\begin{theorem}
+\label{thm: convergence mcopi uniform}
+Under \autoref{asp: standing}, the action-value targets $(q_{\pi_k})$ change only finitely many times almost surely, and
+\[
+q_k\longrightarrow q_{\pi_*}\qquad\text{almost surely}.
+\]
+Every sufficiently late selected policy is optimal. If every state has a unique optimal action, the selected policy is eventually constant.
+\end{theorem}
+
+\subsubsection{Proof strategy}
+\label{sec: limitations of existing methods}
+The mean-field argument improves the policy at every transition. A sampled update can instead worsen it, so we seek a fixed positive probability of improvement at each sufficiently late transition. Since only finitely many deterministic policies exist, repeated opportunities for improvement will then imply convergence.
+
+This follows the combined stability--ODE strategy of \citet[Section~5.4]{Kushner2003StochasticApplications}. The difficulty is that a trajectory can enter a policy region $Q(\pi)$ arbitrarily close to its boundary. Recurrence to that region alone does not give repeated visits to the fixed interior subset used in a standard lock-in estimate; see the setup in \citet[Section~3]{Borkar2002OnApproximation}.
+We therefore first create a positive separation between the currently selected action and actions that would worsen the policy, and then control the probability that noise removes that separation. Condition~\eqref{eq:comparison} makes this possible even when the initial separation tends to zero. It is a sufficient condition for this proof, not a claimed necessity for convergence of the algorithm.
+
+\subsubsection{Actions that would worsen the policy}
+Consider a policy $\pi$ selected at a time $t$. The pairs
+\[
+\mathcal B_\pi=\big\{(s,a)\in\mathcal S\times\mathcal A:
+q_\pi(s,a)<q_\pi(s,\pi(s))\big\}
+\]
+would worsen its selected action according to $q_\pi$. If none of these pairs becomes greedy, then at the next transition the new policy satisfies the Policy Improvement Theorem. To express this condition in terms of the estimates, we compare their estimated action values.
+
+\begin{definition}[Gap variables]
+\label{def: gap variables}
+Fix a deterministic bound $K>\max_{\pi\in\mathcal P}\|q_\pi\|$ and a deterministic restart $r$. Let
+\[
+\zeta_r=\inf\{k\ge r:\|q_k\|>K\}
+\]
+be the first time the estimate leaves this bound.
+For a stopping time $t\ge r$, on $\{t<\infty,t<\zeta_r\}$ set $\pi=\pi_t$ and let
+\[
+\tau=\inf\{k>t:q_{\pi_k}\ne q_\pi\}
+\]
+be the next change of the action-value target.
+For each pair $(s,a)\in\mathcal B_\pi$ and each $k\ge t$, define
+\begin{align}
+\label{eq:gaps}
+d_k(s,a)&=q_k(s,\pi(s))-q_k(s,a),\\
+d_\pi(s,a)&=q_\pi(s,\pi(s))-q_\pi(s,a).
+\end{align}
+The gap noise is $\xi_k(s,a)=w_k(s,\pi(s))-w_k(s,a)$.
+\end{definition}
+
+The target remains $q_\pi$ before $\tau$, even if the selected policy changes. Equal update probabilities within each state therefore give the gap recursion
+\begin{equation}
+\label{eq:gapdrift}
+d_{k+1}(s,a)=d_k(s,a)+\alpha_k\big(\sigma_k(s)(d_\pi(s,a)-d_k(s,a))+\xi_k(s,a)\big).
+\end{equation}
+Thus, on average, the estimate gap is pulled towards the positive target gap $d_\pi(s,a)$. The noise has the following bounds for $t\le k<\tau\wedge\zeta_r$:
+\begin{equation}
+\label{eq:gapvariance}
+\mathbb E[\xi_k(s,a)\mid\mathcal F'_k]=0,
+\qquad
+\mathbb E[\xi_k(s,a)^2\mid\mathcal F'_k]\le c_\xi\sigma_k(s),
+\qquad c_\xi=2(c_v+4K^2).
+\end{equation}
+Indeed, only the initial pair is updated. The two possible updates forming this gap are disjoint, each has probability $\sigma_k(s)$, and before $\zeta_r$ the difference between an estimate and its target has magnitude at most $2K$. Their total second moment bounds the variance in \eqref{eq:gapvariance}.
+The stopping time $\zeta_r$ is used only to justify these deterministic bounds. Boundedness will remove it at the end of the proof; we never condition the noise on future containment.
+
+We now construct the positive-gap event in three stages. The \emph{seed} stage uses favorable updates to create a small positive gap. The \emph{growth} stage lets its positive mean drift carry it to a fixed margin $\delta$. The \emph{lock-in} stage prevents noise from closing it after reaching that margin. States may wait arbitrarily long between updates. Each state therefore completes its seed stage separately, and its gaps are protected while other states are still waiting.
+
+Choose
+\begin{equation}
+\label{eq:constants}
+\delta=\frac14\min_{\substack{\pi\in\mathcal P\\(s,a)\in\mathcal B_\pi}}d_\pi(s,a)>0.
+\end{equation}
+If the set in this minimum is empty, the Policy Improvement Theorem applies between every two policies in both directions. All policies then have the same optimal values, and \autoref{thm: suboptimal blocks finite} proves the theorem directly. We henceforth consider the nonempty case.
+The following constants quantify the seed, growth and lock-in estimates, respectively:
+\begin{equation}
+\label{eq:c-def}
+c_s=\frac\delta2,
+\qquad c_g=\max\{1,20c_\xi(1+(3\delta)^{-1})\},
+\qquad c_l=16c_\xi.
+\end{equation}
+They depend on the fixed bound $K$ and the MDP, but not on the restart time or reference policy.
+
+\subsubsection{Seed: creating positive gaps}
+Suppose the reference action $\pi(s)$ is still selected and the gap $d_k(s,a)$ is below $\delta$. The favorable update depends on whether that action is under- or overestimated:
+\begin{enumerate}
+\item If $q_\pi(s,\pi(s))-q_k(s,\pi(s))\ge2\delta$, update $(s,\pi(s))$ and require $v_k(s,\pi(s))\ge-c_s$. Its estimate increases by at least $3\delta\alpha_k/2$.
+\item Otherwise update $(s,a)$ and require $v_k(s,a)\le c_s$. Since
+\[
+q_k(s,a)-q_\pi(s,a)
+=q_k(s,\pi(s))-q_\pi(s,\pi(s))+d_\pi(s,a)-d_k(s,a)>\delta,
+\]
+its estimate decreases by more than $c_s\alpha_k$.
+\end{enumerate}
+Either update increases the intended gap by at least $c_s\alpha_k$, leaves every other gap against the reference action unchanged or larger, and keeps the reference action greedy. The selection rule \eqref{eq:greedy-pol-tie-breaking} therefore retains it.
+
+The conditional return moments ensure that each one-sided noise requirement has probability at least $c_s^2/(c_v+c_s^2)$, by the one-sided Chebyshev inequality. Conditional on selecting the state, each action is sampled uniformly. Thus every favorable update has conditional probability at least
+\begin{equation}
+\label{eq:localprob}
+p_0=\frac{c_s^2}{\max_{s\in\mathcal S}|\mathcal A(s)|\,(c_v+c_s^2)}>0.
+\end{equation}
+No lower bound on the probability of selecting the state is needed.
+
+\begin{definition}[Seed construction]
+\label{def: seed construction}
+For the gaps and stopping times in \autoref{def: gap variables}, fix a positive integer $N$. To give every gap an initial margin, order the actions in $\mathcal B_\pi$ at each state. Skip a pair if its gap has already reached $\delta$; otherwise request up to $N$ favorable updates for it, stopping earlier if it reaches $\delta$. Whenever an unfinished state is sampled, request the next favorable update on its list. Completed states receive ordinary updates. Stop the construction at the first failed request or at $\tau\wedge\zeta_r$.
+Write $T_s$ for the iteration when state $s$ completes its list, with $T_s=t$ if it is complete initially and $T_s=\infty$ if the construction stops first. Skips are processed at $t$ and after every successful update, before the next sample, so $T_s$ is a stopping time.
+\end{definition}
+
+\begin{lemma}[Seed]
+\label{lem:seeds}
+Under \autoref{asp: standing}, consider the gaps and stopping times of \autoref{def: gap variables}, with $t\ge k_\alpha$, and let $N$ be a positive integer. The seed construction of \autoref{def: seed construction} requests at most $|\mathcal S\times\mathcal A|N$ favorable updates. Along successful requests, each unfinished state retains its reference action. If $T_s<\infty$, then
+\begin{equation}
+\label{eq:seedmargin}
+d_{T_s}(s,a)\ge\min\{\delta,c_sN\alpha_{T_s}/c_\alpha\}
+\qquad\text{for every }a\text{ with }(s,a)\in\mathcal B_\pi.
+\end{equation}
+This includes a state completed at the endpoint $\tau\wedge\zeta_r$. Each request has conditional probability at least $p_0$ given the current history and the selection of its unfinished state.
+\end{lemma}
+\begin{proof}
+A favorable update only raises the reference estimate or lowers a competing estimate. It keeps the reference action greedy, so \eqref{eq:greedy-pol-tie-breaking} retains that action. At a state not updated, the policy is unchanged. Induction therefore retains the reference action at every unfinished state, including during waits and after its last favorable update.
+
+Every processed gap either reaches $\delta$ or receives $N$ increases of at least $c_s\alpha_k$. Later favorable updates at the same state cannot lower it. By \eqref{eq:comparison}, each of these earlier steps satisfies $\alpha_k\ge\alpha_{T_s}/c_\alpha$, proving \eqref{eq:seedmargin}.
+At most $|\mathcal S\times\mathcal A|$ pairs are processed, and the probability of each request is bounded below by \eqref{eq:localprob}.
+\end{proof}
+
+A state can finish its seed stage long before another state is sampled. To analyze its later gaps, we must preserve the original return distribution at completed states. Conditioning on all future successful behavior would not ensure this. Instead we reweight only the favorable updates requested at unfinished states. The next lemma makes that restriction precise; its proof is in the appendix.
+
+\begin{lemma}
+\label{lem:measure}
+Under the conditions of \autoref{lem:seeds}, there is an auxiliary probability law $\widehat{\mathbb P}$ under which every requested seed update succeeds. State-selection probabilities are unchanged, and at completed states the action and return law given the current history and selected state is unchanged. The same holds after the construction stops. Every event of original probability zero still has auxiliary probability zero, and, for every future event $E$,
+\begin{equation}
+\label{eq:transfer}
+\mathbb P(E\mid\mathcal F'_t)
+\ge p_0^{|\mathcal S\times\mathcal A|N}\widehat{\mathbb P}(E\mid\mathcal F'_t)
+\quad\text{on }\{t<\infty,t<\zeta_r\}.
+\end{equation}
+\end{lemma}
+
+\subsubsection{Growth and lock-in: keeping a positive gap open}
+Once a state has completed its seed stage, its gap starts at the positive margin in \eqref{eq:seedmargin}. We now bound the probability that this gap closes before the next transition or exit. The drift and noise in \eqref{eq:gapdrift}--\eqref{eq:gapvariance} both carry the state's update probability $\sigma_k(s)$. Measuring growth by accumulated learning at that state therefore allows arbitrarily long pauses between its updates.
+
+\begin{lemma}[Growth and lock-in]
+\label{lem:barrier}
+Consider a pair $(s,a)\in\mathcal B_\pi$ in \autoref{def: gap variables}, and a stopping time $t'\ge\max\{t,k_\alpha\}$ with $t'<\infty$, $t'\le\tau\wedge\zeta_r$ and $d_{t'}(s,a)>0$.
+Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap recursion \eqref{eq:gapdrift} and conditional moments \eqref{eq:gapvariance} hold from $t'$ until $\tau\wedge\zeta_r$, under the probability law being used. With the constants in \eqref{eq:c-def},
+\begin{equation}
+\label{eq:barrier}
+\mathbb P\!\left(\exists\text{ finite }n\in[t',\tau\wedge\zeta_r]:d_n(s,a)\le0\ \middle|\ \mathcal F'_{t'}\right)
+\le c_g\frac{c_\alpha\alpha_{t'}}{\min\{d_{t'}(s,a),\delta\}}
++\frac{c_l}{\delta^2}\sum_{k=t'}^\infty\alpha_k^2.
+\end{equation}
+The first term controls the growth stage before reaching $\delta$; the second controls the lock-in stage afterwards. The crossing event includes the update ending at $\tau\wedge\zeta_r$.
+\end{lemma}
+\begin{proof}
+\emph{Growth to the fixed margin $\delta$.} Condition~\eqref{eq:comparison} bounds every later step by $c_\alpha\alpha_{t'}$. Suppose $0<d_{t'}(s,a)<\delta$. If $d_{t'}(s,a)<c_\alpha\alpha_{t'}$, the first term in \eqref{eq:barrier} is already
+at least one. Otherwise define
+\[
+\nu=(\tau\wedge\zeta_r)\wedge\inf\{n\ge t':d_n(s,a)\le0\text{ or }d_n(s,a)\ge\delta\},\qquad
+M_n=\sum_{k=t'}^{n-1}\mathbf1_{\{k<\nu\}}\alpha_k\xi_k(s,a),
+\]
+and the accumulated learning at state $s$
+\begin{equation}\label{eq:clock}
+A_s(t',n)=\sum_{k=t'}^{n-1}\alpha_k\sigma_k(s).
+\end{equation}
+A first crossing at $n\le(\tau\wedge\zeta_r)$ before reaching $\delta$ forces
+\begin{equation}\label{eq:crossing}
+M_n\le-d_{t'}(s,a)-3\delta A_s(t',n).
+\end{equation}
+Fix $b>0$ known at $t'$, and stop the noise sum when the accumulated learning $A_s(t',n)$ first reaches $b$, or at a finite horizon. The final update can overshoot $b$ by at most $c_\alpha\alpha_{t'}$. By \eqref{eq:gapvariance}, the sum of conditional variances of its retained increments is at most
+\[
+c_\xi\sum_k\alpha_k^2\sigma_k(s)
+\le c_\xi c_\alpha\alpha_{t'}(b+c_\alpha\alpha_{t'}),
+\]
+where the sum runs over the retained increments. Orthogonality gives the same bound on the conditional second moment of the stopped sum. The conditional martingale maximal inequality then gives
+\begin{equation}\label{eq:doob}
+\mathbb P\!\left(\exists\text{ finite }n\ge t':
+A_s(t',n)<b,\ |M_n|\ge z\ \middle|\ \mathcal F'_{t'}\right)
+\le\frac{4c_\xi c_\alpha\alpha_{t'}(b+c_\alpha\alpha_{t'})}{z^2}.
+\end{equation}
+Here $z>0$ may also be determined by the history at $t'$. The appendix recalls the inequality and its conditional, stopped version. Increasing the finite horizon proves \eqref{eq:doob} without a bound on waiting times.
+
+Partition possible crossing times into $A_s(t',n)<d_{t'}(s,a)/(3\delta)$ and, for $j\ge1$,
+\[
+2^{j-1}d_{t'}(s,a)/(3\delta)\le A_s(t',n)<2^jd_{t'}(s,a)/(3\delta).
+\]
+By \eqref{eq:crossing}, a crossing in the first range forces $|M_n|\ge d_{t'}(s,a)$, and one in the $j$-th range forces $|M_n|\ge2^{j-1}d_{t'}(s,a)$. Thus each range supplies an upper bound $b$ on accumulated learning and a lower bound $z$ on the required noise excursion. Apply \eqref{eq:doob} to the first range with
+\[
+(b,z)=\big(d_{t'}(s,a)/(3\delta),\ d_{t'}(s,a)\big),
+\]
+and to the other ranges with
+\[
+(b,z)=\big(2^jd_{t'}(s,a)/(3\delta),\ 2^{j-1}d_{t'}(s,a)\big).
+\]
+Because $d_{t'}(s,a)\ge c_\alpha\alpha_{t'}$, the respective bounds are at most
+\[
+4c_\xi(1+(3\delta)^{-1})\frac{c_\alpha\alpha_{t'}}{d_{t'}(s,a)},\qquad
+16c_\xi(1+(3\delta)^{-1})\frac{c_\alpha\alpha_{t'}}{d_{t'}(s,a)}2^{-j}.
+\]
+Summing gives the growth term in \eqref{eq:barrier}.
+
+\emph{Lock-in after reaching $\delta$.} Let $\rho=\inf\{n\ge t':d_n(s,a)\ge\delta\}$, using $\rho=t'$ if $d_{t'}(s,a)\ge\delta$. On $\{\rho<\infty,\rho\le(\tau\wedge\zeta_r)\}$,
+restart at $\rho$ and stop at $\eta=(\tau\wedge\zeta_r)\wedge\inf\{n\ge\rho:d_n(s,a)\le0\}$:
+\[
+\widetilde M_n=\sum_{k=\rho}^{n-1}\mathbf1_{\{k<\eta\}}\alpha_k\xi_k(s,a).
+\]
+For $d_k(s,a)\ge\delta$, \eqref{eq:gapdrift} and $0\le\alpha_k\sigma_k(s)\le1$ imply $d_k(s,a)+\alpha_k\sigma_k(s)(d_\pi(s,a)-d_k(s,a))\ge\delta$. If a first subsequent crossing is
+at $n$, let $\ell<n$ be the last index with $d_\ell(s,a)\ge\delta$. All subsequent gaps before $n$ are in $(0,\delta)$ and
+have nonnegative mean increments, so
+\[
+d_n(s,a)\ge\delta+\widetilde M_n-\widetilde M_\ell.
+\]
+A crossing forces $\sup_{n\ge\rho}|\widetilde M_n|\ge\delta/2$. The martingale maximal inequality at $\rho$ bounds this probability by
+$16c_\xi\delta^{-2}\sum_{k\ge\rho}\alpha_k^2$. Multiply by the $\mathcal F'_\rho$-measurable event $\{\rho<\infty,\rho\le(\tau\wedge\zeta_r)\}$, average back to $\mathcal F'_{t'}$,
+and use $\rho\ge t'$. This proves the lock-in term in \eqref{eq:barrier}. The last-visit index $\ell$ is used only in a pathwise
+inequality; we never condition at it. Both parts retain the increment $k=(\tau\wedge\zeta_r)-1$ and therefore
+protect the gap through the endpoint itself.
+\end{proof}

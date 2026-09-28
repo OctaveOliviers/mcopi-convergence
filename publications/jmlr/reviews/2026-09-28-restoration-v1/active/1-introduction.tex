@@ -1,0 +1,208 @@
+
+\section{Introduction}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Many reinforcement-learning algorithms follow the policy-iteration paradigm, which alternates between 
+estimating the action values of a policy 
+and improving the policy using those estimates. 
+This framework is fundamental because it can learn an optimal policy for an unknown Markov decision process (MDP) using only sampled rewards and transitions.
+Classical policy iteration improves the policy once the action-value estimates have converged.
+In contrast, optimistic variants improve the policy after partial evaluation.
+This reduces computation as it requires fewer evaluation steps between each improvement step.
+However, it complicates the analysis because 
+
+small perturbations 
+
+to the value estimates
+can drastically affect the policy and alter the subsequent dynamics.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Convergence guarantees for optimistic policy-iteration algorithms remain limited, even in the tabular setting.
+Algorithms that use one-step bootstrapped estimates for evaluation, such as $Q$-learning, converge to optimality under standard asynchronous stochastic-approximation conditions.
+When using multi-step bootstrapped estimates, convergence to optimality requires additional structure, such as combining several multi-step approximations~\citep{Harutyunyan2016QCorrections, Munos2016SafeLearning} or using a look-ahead mechanism~\citep{Winnicki2023OnEvaluation}.
+Monte Carlo Optimistic Policy Iteration (MC-O-PI), which uses full-episode returns for evaluation, remains poorly understood. Despite its simplicity, the asymptotic behaviour of this foundational algorithm has been an open question for three decades~\citep{Sutton1999OpenLearning}.
+Convergence to optimality is guaranteed when the MDP exhibits a feedforward structure \citep{Wang2022OnLearning, Lubars2021OptimisticStructure}
+or when the discount factor is smaller than $1/2$ \citep{Delattre2025MarkovAlgorithm}.
+The classical guarantees for general finite MDPs without a small-discount restriction require that all state-action pairs are updated at the same frequency \citep{Tsitsiklis2002OnIteration, Chen2018OnProblem, Liu2021OnStarts}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Updating all pairs as frequently requires that episodes are initialised uniformly over the entire state-action space.
+This condition is unrealistic in practice, especially when the state space is large.
+However, once the initial state of an episode is selected, uniformly sampling the initial action is usually straightforward.
+This paper proves that this weaker condition is sufficient.
+Specifically, initial-visit MC-O-PI converges almost surely to the optimal action values when updates are uniform over the actions within each state.
+Different states may thus be updated at arbitrary frequencies, provided each receives infinite accumulated learning. The precise sampling, policy-selection and learning-rate conditions are collected in \autoref{asp: standing}.
+This result relaxes the state-sampling requirement of the previous convergence guarantees 
+and applies in settings where uniform state sampling is not feasible but uniform action sampling is easy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The proof of this new theorem, stated as \autoref{thm: convergence mcopi uniform} below, requires new tools. 
+Previous work demonstrates convergence by studying the evolution of the value estimates. The arguments rely centrally on a commutativity property of the Bellman operator that fails when updates are not uniform over all state-action pairs.
+Instead, we track the evolution of the policy and find that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions within each state.
+We then show that stochastic perturbations cannot systematically defeat this improvement: at sufficiently late transitions, there is a fixed positive chance of improving the policy or of keeping the same action-value target forever. Boundedness allows this probability estimate to be made before exit from a fixed bounded set. Repeated opportunities then imply that only finitely many target changes occur, so the value estimates converge to the optimal action values.
+
+This develops the combined stability--ODE method of \citet[Section~5.4]{Kushner2003StochasticApplications} for entries into policy regions that may approach their boundaries. The proof explains how the learning-rate condition allows noise control even when these entry margins vanish.
+
+This paper is organised as follows. Section~2 introduces finite Markov decision
+processes and formulates MC-O-PI as a stochastic difference inclusion. Section~3 proves the
+main convergence theorem, first for the mean-field dynamics and then for the stochastic
+algorithm. Section~4 discusses the practical implications of action-wise uniform updates
+and possible extensions to related optimistic methods. 
+
+Unless stated otherwise, operations and relations between functions are elementwise. For instance, given functions $f, g : \mathcal X \to \mathcal Y$ we write
+\begin{align*}
+&(f + g)(x) = f(x) + g(x), \qquad \forall \, x \in \xset ,
+    \\
+&f \le g \iff f(x) \le g(x), \qquad \forall \, x \in \xset .
+\end{align*}
+Moreover, we compute norms as $\|f\| := \sup_{x \in \xset} |f(x)|$ 
+and adopt the convention $\inf \varnothing = \infty$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
