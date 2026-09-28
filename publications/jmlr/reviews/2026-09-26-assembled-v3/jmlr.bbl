@@ -1,0 +1,109 @@
+\begin{thebibliography}{16}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bertsekas and Tsitsiklis(1996)]{Bertsekas1996Neuro-DynamicProgramming}
+D.~P. Bertsekas and J.~N. Tsitsiklis.
+\newblock \emph{Neuro-Dynamic Programming}.
+\newblock Athena Scientific, Belmont, MA, 1996.
+
+\bibitem[Borkar(2002)]{Borkar2002OnApproximation}
+V.~S. Borkar.
+\newblock On the lock-in probability of stochastic approximation.
+\newblock \emph{Combinatorics, Probability and Computing}, 11\penalty0
+  (1):\penalty0 11--20, 2002.
+\newblock \doi{10.1017/S0963548301004953}.
+
+\bibitem[Chen(2018)]{Chen2018OnProblem}
+Y.~Chen.
+\newblock On the convergence of optimistic policy iteration for stochastic
+  shortest path problem, 2018.
+
+\bibitem[Delattre and Fournier(2025)]{Delattre2025MarkovAlgorithm}
+S.~Delattre and N.~Fournier.
+\newblock Markov decision processes: on the convergence of the monte-carlo
+  first visit algorithm, Sept. 2025.
+\newblock Preprint.
+
+\bibitem[Harutyunyan et~al.(2016)Harutyunyan, Bellemare, Stepleton, and
+  Munos]{Harutyunyan2016QCorrections}
+A.~Harutyunyan, M.~G. Bellemare, T.~Stepleton, and R.~Munos.
+\newblock Q($\lambda$) with off-policy corrections.
+\newblock In \emph{International Conference on Algorithmic Learning Theory},
+  2016.
+
+\bibitem[Howard(1960)]{Howard1960DynamicProcesses}
+R.~A. Howard.
+\newblock \emph{Dynamic Programming and Markov Processes}.
+\newblock Technology Press of MIT and John Wiley \& Sons, 1960.
+
+\bibitem[Kushner and Yin(2003)]{Kushner2003StochasticApplications}
+H.~J. Kushner and G.~G. Yin.
+\newblock \emph{Stochastic Approximation and Recursive Algorithms and
+  Applications}.
+\newblock Springer, 2003.
+\newblock \doi{10.1007/b97441}.
+
+\bibitem[Liu(2021)]{Liu2021OnStarts}
+J.~Liu.
+\newblock On the convergence of reinforcement learning with monte carlo
+  exploring starts.
+\newblock \emph{Automatica}, 129:\penalty0 109693, 2021.
+\newblock \doi{10.1016/j.automatica.2021.109693}.
+
+\bibitem[Lubars et~al.(2021)Lubars, Winnicki, Livesay, and
+  Srikant]{Lubars2021OptimisticStructure}
+J.~Lubars, A.~Winnicki, M.~Livesay, and R.~Srikant.
+\newblock Optimistic policy iteration for {MDPs} with acyclic transient state
+  structure, 2021.
+
+\bibitem[Munos et~al.(2016)Munos, Stepleton, Harutyunyan, and
+  Bellemare]{Munos2016SafeLearning}
+R.~Munos, T.~Stepleton, A.~Harutyunyan, and M.~G. Bellemare.
+\newblock Safe and efficient off-policy reinforcement learning.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~29, 2016.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{Schulman2017ProximalAlgorithms}
+J.~Schulman, F.~Wolski, P.~Dhariwal, A.~Radford, and O.~Klimov.
+\newblock Proximal policy optimization algorithms, 2017.
+
+\bibitem[Sutton(1999)]{Sutton1999OpenLearning}
+R.~S. Sutton.
+\newblock Open theoretical questions in reinforcement learning.
+\newblock In \emph{Proceedings of the 4th European Conference on Computational
+  Learning Theory}, pages 11--17, Berlin, Heidelberg, 1999. Springer.
+\newblock \doi{10.1007/3-540-49097-3_2}.
+
+\bibitem[Tsitsiklis(2002)]{Tsitsiklis2002OnIteration}
+J.~N. Tsitsiklis.
+\newblock On the convergence of optimistic policy iteration.
+\newblock \emph{Journal of Machine Learning Research}, 3:\penalty0 59--72,
+  2002.
+
+\bibitem[Wagner(2013)]{Wagner2013OptimisticResult}
+P.~Wagner.
+\newblock Optimistic policy iteration and natural actor-critic: A unifying view
+  and a non-optimality result.
+\newblock In C.~J. Burges, L.~Bottou, M.~Welling, Z.~Ghahramani, and K.~Q.
+  Weinberger, editors, \emph{Advances in Neural Information Processing
+  Systems}, volume~26. Curran Associates, Inc., 2013.
+
+\bibitem[Wang et~al.(2022)Wang, Yuan, Shao, and Ross]{Wang2022OnLearning}
+C.~Wang, S.~Yuan, K.~Shao, and K.~Ross.
+\newblock On the convergence of the monte carlo exploring starts algorithm for
+  reinforcement learning.
+\newblock In \emph{International Conference on Learning Representations}, 2022.
+
+\bibitem[Winnicki and Srikant(2023)]{Winnicki2023OnEvaluation}
+A.~Winnicki and R.~Srikant.
+\newblock On the convergence of policy iteration-based reinforcement learning
+  with monte carlo policy evaluation.
+\newblock In \emph{Proceedings of the 26th International Conference on
+  Artificial Intelligence and Statistics}, 2023.
+
+\end{thebibliography}

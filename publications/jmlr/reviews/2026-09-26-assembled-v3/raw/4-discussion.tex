@@ -1,0 +1,320 @@
+% \newpage
+\section{Discussion}
+\label{sec: discussion}
+
+\autoref{thm: convergence mcopi uniform} showed that initial-visit MC-O-PI converges almost surely to $\qopt$ 
+% for a contractive MDP 
+when updates are uniform over the actions in each state.
+% or, equivalently, when they are uniform over the deterministic policies.
+% 
+% provided
+% that the learning rates satisfy the Robbins--Monro conditions and the comparability property,
+% % the update functions are initial-visit,
+% that the sampling distributions satisfy strict exploring starts,
+% and that the resulting update distributions are uniform over all actions in each state.
+% 
+This section explores the implications of this result.
+We first explain that the uniformity condition effectively requires using initial-visit updates, which does not necessarily slow down convergence compared to first-visit updates.
+We then discuss possible extensions to temporal-difference updates and to estimates stored approximately at every step.
+Finally, we discuss the roles of cumulative learning, step-size regularity and policy ties.
+
+
+% as the condition for uniform updates forces the use of initial-visit method
+% Even if initial-visits is less data-efficient than first-visits, this does not mean that solutions converge slower to the optimal policy.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Uniform updates effectively force initial-visits}
+
+
+For first-visit updates, $\mu_k(i)=\mathbb P(i\text{ is visited}\mid\mathcal F'_k)$ is the marginal probability that pair $i$ is updated. These probabilities need not sum to one. For every-visit updates, the corresponding expected update counts can also exceed one. We call these quantities \emph{update rates}. When the underlying MDP is unknown, both depend on its transition dynamics under $\pi_k$.
+Therefore, requiring uniform update rates effectively forces the use of initial-visit updates,
+% because we cannot determine how the initial sampling distribution $\sigma_k$ will propagate through the MDP under policy $\pi_k$. 
+because by updating only the initial state-action pair of each episode, we ensure $\mu_k$ equals $\sigma_k$ and thus retain control.
+
+This control comes at the cost of data efficiency: the initial-visit method discards within-episode transitions that the first-visit method would reuse. However, more updates per episode do not automatically translate into faster policy convergence.
+The extra updates induce unequal action update rates that can generate sliding modes in the action-value estimates $(q_k)_{k \ge 0}$ and thereby slow down the convergence of the policy sequence $(\pi_k)_{k \ge 0}$. Ultimately, it is the convergence speed of this policy sequence that truly matters for identifying the optimal behaviour of the MDP.
+
+% describe MDP
+To illustrate this, consider the MDP in \autoref{fig: experiment smallest MDP for iv vs fv} with a discount factor $\discount = 0.5$. Action \textit{left} yields a reward of one and \textit{right} yields a reward of zero.
+% The best policy $\best{\pol}$ follows the \textit{left} action, whereas the worst policy $\worst{\pol}$ follows the \textit{right} action.
+% describe learning algorithm
+Under a uniform sampling distribution $\sigma_k$, the intial-visit method updates exactly one state-action pair per episode, whereas the first-visit method updates on average $1.5$ pairs.
+With a learning rate $\alpha_k = 1/(k+100)$, the first-visit method also benefits from larger effective steps because it updates state-action pairs more frequently.
+% Despite this numerical advantage, experiments show that IV can convergence to $\pi^*$ sooner.
+
+
+Despite this apparent advantage, the initial-visit method is more stable than first-visit when MC-O-PI is initialised above $\qopt$.
+Namely, initial-visit solutions follow straight lines that always point towards better policies.
+In contrast, first-visit solutions exhibit a sliding mode that causes high-frequency oscillations in the policy sequence and traps $q_k$ near the boundary for longer.
+As a result, first-visit can take longer to settle on the optimal policy.
+For instance, when averaging over 1000 solutions starting in $q'$, first-visit ones require on average 43 updates to settle on $\pi_*$, whereas initial-visit ones always remain in $\region(\best{\pi})$.
+When starting in $q$, the solutions take 68 and 70 updates to settle on $\pi_*$.
+
+
+Overall, this experiment illustrates that the initial-visit method can be practical in real-world applications. 
+By avoiding sliding modes, it sometimes converges to the optimal policy $\best{\pi}$ as fast as, or faster than, the first-visit method despite fewer updates and smaller effective learning rates.
+Besides, the initial-visit method is more reliable for early stopping. Namely, if training stops early, the last greedy policy of an initial-visit solution is typically the best policy encountered so far, whereas the first-visit solution may be oscillating across a decision boundary, making it unclear which policy is best.
+
+% Namely, since the policy sequence transitions almost smoothly instead of oscillating, terminating the algorithm prematurely yields a policy that reliably reflects the best policy found so far. In contrast, stopping a first-visit trajectory early risks catching it across a decision boundary, leaving it unclear which policy is actually best.
+
+
+% since the initial-visit method experiences no sliding modes, 
+% it can converge as fast as, or faster than, the first-visit method to $\best{\pi}$, even with fewer updates and smaller effective learning rates. Furthermore, the absence of sliding mode makes
+% , the current policy is a more reliable “best-so-far” policy. So if training stops early, the IV iterate typically reflects the best policy reached so far, while FV may still oscillate across the decision boundary, making it unclear which policy is best.
+
+% this problem is not conthrived
+% - happens when overestimate the action values (a priori dont know them)
+% - dont know how strong the greedy bias with FV is, this is the region with potential sliding modes
+
+% if we use learning rate $1/n(s,a)$
+% actually helps FV because learning rate decreases the greedy bias
+
+
+\input{figures/single-state-simulation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Guaranteeing convergence with non-uniform updates}
+
+% The practical takeaway from this paper is simple: if MC-O-PI seems trapped in a suboptimal limit set (on a boundary or in a cycle), 
+% then using initial-visit updates
+% with uniform sampling distributions over the actions in each state
+% guarantees that the algorithm eventually converges to the optimal policy and its action values
+% while avoiding slow sliding modes.
+
+% In order to turn non-uniform update distributions into uniform effective updates, \cite{Tsitsiklis2002OnIteration} suggests making the learning rates inversely proportional to the update distribution.
+% In a model-free setting, this strategy only applies if the update distributions are generated with the initial-visit method.
+% This is because the first-visit method causes the update distributions to depend on the transition dynamics induced by the currently greedy policy on the MDP.
+% Since the greedy policy changes at every step and the structure of the MDP is unknown,
+% we must assume that first-visit update distributions change at every step.
+% Cancelling out these changing, non-uniform distributions thus requires knowing the induced transition dynamics, which are unpredictable if the MDP is unknown.
+
+% Nonetheless, consider non-uniform, initial-visit update distributions $(\mu_k)_{k \ge 0}$, which essentially equal the sampling distributions $(\sigma_k)_{k \ge 0}$.
+% For any scalar sequence $(\lambda_k)_{k \ge 0}$ that satisfies the Robbins--Monro conditions,
+% if the $k^\nth$ episode starts in $(s_0, a_0)$, then setting
+% \[
+%     \alpha_k = \frac{\lambda_k}{\sigma_k(s_0, a_0)} , 
+% \]
+% guarantees that the effective learning rates in MC-O-PI's difference inclusion are uniform because $\alpha_k \, \mu_k(s_0, a_0) = \lambda_k$.
+% However, this approach is impractical because it requires knowing the sampling probability for each state-action pair at every step,
+% or, if these probabilities are constant over time, tracking the number of updates of each state-action pair \citep[p.~66]{Tsitsiklis2002OnIteration}.
+
+
+% Tsitsiklis notes that MC-O-PI's asymptotic behaviour depends on the asymptotic behaviour of the effective learning rates $(\lrate_k \update_k)$, not on either component alone.
+% For instance, if the update distributions are non-uniform but constant, say $\update_k = \update$ for all $k$, and the learning rates take the form $\lrate_k(s,a) = 1/n_k(s,a)$, where $n_k(s,a)$ denotes the number of updates of $(s,a)$ in the first $k$ steps,
+% then $\lrate_k \update_k$ converges to $1/k$ because for each state-action pair $n_k(s,a)$ tends to $k \update(s,a)$. As a result, updates are eventually uniform. So \autoref{thm: convergence mcopi uniform} still applies.
+
+
+% In contrast, we showed that global convergence only requires uniform updates over all actions in each state.
+% Using the decomposition
+% \[
+% \sigma_k(s,a) = \sigma^{\sset}_k(s) \, \sigma^{\aset}_k(a \mid s)
+% \]
+% where $\sigma^{\sset}$ represents the sampling distribution over the state space,
+% and $\sigma^{\aset}$ is the distribution over the action space of each state,
+% it is thus sufficient to choose learning rates as
+% \[
+%     \alpha_k = \frac{\lambda_k}{\sigma^{\aset}_k(a_0 \mid s_0)}.
+% \]
+% This is more practical because it only assumes knowing the sampling probability of the initial action $a_0$ relative to the other actions of the initial state $s_0$, rather than all other state-action pairs.
+% In other words, we can obtain global convergence 
+% by turning non-uniform update distributions 
+% into uniform effective updates even if the initial state is sampled from an unknown distribution, provided the distribution of the initial action in that state is known. This occurs in practice, for instance, when selecting the initial action using an $\varepsilon$-greedy strategy.
+
+
+% A concrete example of a non-uniform update distribution arises when biasing updates towards the greedy actions to \textit{exploit} the policy that is currently believed to be optimal.
+% However, by unevenly updating actions, this approach causes non-greedy actions to evolve very slowly and potentially leads to the sliding modes depicted in \autoref{fig: iv versus fv simulations}.
+% Therefore, if we additionally scale down the learning rates for the greedy actions in proportion to their increased update probability (so that the product $\alpha_k(s,a)\,\mu_k(s,a)$ does not depend on $a$),
+% then updates are effectively uniform over the actions of each state, and global convergence is guaranteed.
+% Notably, this adjustment does not violate the comparability property (\autoref{asp: additional conditions on learning rate}) required by \autoref{thm: convergence mcopi uniform}. Although learning rates may fail global comparability across the entire process, the proof only uses the comparability property between transitions, which matches the intervals in which the greedy actions remain the same.
+% An additional benefit of making the learning rates inversely proportional to the update distribution is that this reduces the variance of the estimate $q_k$ for greedy actions, which means the solution remains closer to the well-behaved mean-field solution along that dimension.
+% On the other hand, the larger learning rates for non-greedy actions compensate for their infrequent updates but at the cost of slightly increased variance.
+% Ultimately, this learning rate adjustment 
+% % removes the convergence difficulties seen with purely greedy updates (such as slow learning for non-greedy actions, or sliding modes), keeps all trajectories well-behaved, and 
+% ensures that all action values converge at similar rates along approximately straight trajectories towards the optimum.
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Importance of noise}
+% \label{sec: discussion noise}
+
+
+% general comment to anybody studying
+% switching linear system
+
+% stochastic difference equation
+
+% proof is not an iff
+
+% stochastic solutions can lock into the region of a policy thanks to noise even when the mean-field
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Mean-field analysis with temporal difference updates}
+\label{sec: discussion temporal difference}
+
+The gap estimate uses conditional drift and variance bounds, while the favorable-update construction uses a bounded number of requests regardless of the waiting time. An analogous approach to temporal-difference updates would additionally need a policy-improvement mechanism and a favorable-update construction compatible with targets that change with the current estimate. The present theorem does not establish those properties.
+The additional difficulty would be to understand how the estimate $q$ and the simulation depth $n$ affect the target $T_{\pi}^n q$, where $\pi \in P(q)$. Here $T_\pi$ is the action-value Bellman operator,
+\[
+(T_\pi q)(s,a)=r(s,a)+\gamma\sum_{s'}p(s'\mid s,a)q(s',\pi(s')),
+\]
+and the superscript $n$ denotes repeated composition.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MC-O-PI with function approximation}
+\label{sec: discussion function approximation}
+
+\autoref{thm: convergence mcopi uniform} applies specifically to \textit{tabular} MC-O-PI, where the estimate $q_k$ can be stored exactly.
+In practical applications, however, the estimate is approximated, for instance using a neural network.
+In this setting, the error between the observed return and the current estimate is then used to update the parameters of the approximation.
+% for instance using gradient descent.
+
+Extending the theorem would require quantitative control of accumulated approximation errors and a replacement for the coordinatewise favorable-update argument. Representational richness alone does not provide either property. Perturbation analyses such as \citet[Section~4.3.3]{Bertsekas1996Neuro-DynamicProgramming} and \citet[Section~5.2]{Kushner2003StochasticApplications} suggest possible tools, but their applicability to this extension remains to be established.
+%Furthermore, integrating a normalisation trick as in \autoref{sec: normalisation trick} into Monte Carlo Tree Search might accelerate AlphaZero's or MuZero's learning process by mitigating slow sliding modes.
+
+% Finally, \citet{Wagner2013OptimisticResult} shows that policy gradient methods
+% % which underlie recent breakthroughs in natural language processing and robotics \citep{Schulman2017ProximalAlgorithms}, 
+% can be interpreted as optimistic policy iteration algorithms with function approximation. Extending our results to this setting might
+% thus improve the efficiency and performance of these essential methods.
+
+
+Finally, recent breakthroughs in natural language processing and robotics~\citep{Schulman2017ProximalAlgorithms} rely on policy gradient methods.
+\citet{Wagner2013OptimisticResult} shows that some of these methods can be interpreted as optimistic policy iteration algorithms with function approximation.
+Extending our results to this setting might thus improve the efficiency and performance of these essential methods.
+
+
+% \textcolor{red}{still necessary?}
+
+% Applying the method of \autoref{sec: results} when update distributions are uniform over all state-action pairs 
+% reveals a Lyapunov interpretation of Tsitsiklis' framework.
+% Namely, consider the potential function that measures the one-sided Bellman residual
+% \begin{align}
+%     \tilde V(q) = \frac{1}{2} \|(q-\B q)_+\|_2^2 .
+% \end{align}
+% Its gradient is
+% \begin{align}
+%     \nabla \tilde V (q) = (I - \discount P_\pi )^\top (q-\B q)_+
+% \end{align}
+% where $\pi$ is any deterministic policy that is greedy with respect to $q$.
+% Computing the inner product with the mean-field update of MC-O-PI yields
+% \begin{align*}
+%     \langle \nabla \tilde V(q) , q_\pi - q \rangle
+%     &= \langle (I - \discount P_\pi )^\top (q-\B q)_+ , (I - \discount P_\pi )^{-1} (\B q - q) \rangle
+%     \\
+%     &= \langle (q-\B q)_+ , (\B q - q) \rangle
+%     \\
+%     &= - \|(q - \B q)_+\|_2^2
+%     \\
+%     &= - 2 \tilde V(q)
+% \end{align*}
+% Thus, when updates are uniform over all state-action pairs, the mean-field update $(q_\pi - q)$ is a strict descent direction for the potential $\tilde V$.
+% This geometric insight corresponds to the decrease in inequality \eqref{eq: q-Bq decreases} that is essential to Tsitsiklis' proof.
+% % That proof thus exploits the tension between the fact that every limit point is upper and lower bounded by the best and worst action values of the corresponding greedy policies (\autoref{thm: bounded limit sets})
+% % and that such point has a strictly positive one-sided Bellman residual (\autoref{thm: bellman residual has positive component}).
+% The proof in \autoref{sec: results} builds on this insight. 
+% Unlike Tsitsiklis' method, our proof does not rely on the commutativity of the transition matrix $P_\pi$ and the update distribution $\mu$. The trade-off is that we must instead constrain the variation of the update distribution to ensure that the local descent property is preserved.
+% Yet, as discussed earlier, we expect that this conditions can be relaxed.
+
+% We note that Tsitsiklis extends his proof to optimistic policy iteration with temporal difference returns, i.e. where the target $q_\pi$ is replaced by a geometrically weighted sum of multi-step returns (TD($\lambda$)).
+% This introduces an additional error term in the descent inequality \eqref{eq: q-Bq decreases}. Given the structural similarities, we conjecture that the framework of \autoref{sec: results} can be similarly extended. Future work could apply our method to TD-O-PI, where an analogous summable error term would likely appear in the critical inequality \eqref{eq: V goes to infinity}, potentially establishing convergence for TD control under our broader class of update distributions.
+
+
+% Tsitsiklis proof also works with temporal difference optimistic policy iteration
+% $n$-step TD-O-PI is when updates are
+% \begin{align}
+%     q_{k+1} \in 
+%     \{
+%     q+k + \lrate_k \update_k (\B_\pi^n q_k - q_k + w_k)
+%     \}
+% \end{align}
+% with the appropriate definition of stochastic perturbations.
+% so $n=1$ is q learning whereas $n=\infty$ is MC-O-PI
+
+% not sure whether the argument is exactly symmetrical ...
+% the argument in \autoref{sec: results} is symmetrical. All that matters is that $\bqar q \neq \B \bar q$. either focus on state-action pairs where $[\bar q(s,a) - \B \bar q](s,a)>0$ and then use the definition of $g_\pi$ and $V$ as above. or focus on states where $[\bar q(s,a) - \B \bar q](s,a) < 0$ and then use the definition of $g_\pi \coloneqq \mu^{-1} (I - \discount P_\pi^\top)(\B \bar q - q)_+$ and $V(q) \coloneqq \min_\pi \langle g_\pi, q - \bar q \rangle$ and show that $q_k \to \bar q$ drives V to $- \infty$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Sampling, learning rates and policy ties}
+\label{sec: relaxing conditions}
+The theorem requires infinite accumulated learning at every state, $\sum_k\alpha_k\sigma_k(s)=\infty$, but no positive lower sampling bound and no bound on the waiting time between updates. This distinction matters for a global learning-rate sequence: infinitely many visits can carry only finite total weight. The deterministic argument needs only the divergent effective weights and coefficients in $[0,1]$; square summability is used to control stochastic errors.
+
+Full inertia is a convenient tie rule for the proof. Fixed action priorities give the same convergence conclusion, provided the priorities are used consistently from initialization. The only change is the local retention argument: raising the reference estimate, lowering a competitor, or leaving a state's table unchanged cannot introduce a higher-priority maximizer. Thus unfinished states retain their reference actions during the favorable-update construction, and the rest of the proof is unchanged. Fresh random tie-breaking would require a different retention argument and is not included in the theorem as stated.
+
+The learning-rate condition bounds future increases by a fixed factor; it allows infinitely many increases and imposes no comparability lower bound on future steps. It is used twice: earlier favorable updates must be large enough relative to the eventual completion step, and future noise must be controlled relative to the gap created at completion. Whether this regularity can be removed from the stochastic theorem remains open here. Its role in the proof does not establish its necessity for convergence.
+
+\section{Conclusion}
+
+
+%\textcolor{red}{mention that our result make more sense / uniform over all state-action pairs automatically forces more frequent updates to states with more actions, which does not really make sense}
+
+
+ % 1. Finding = what did we find
+We established that the mean-field dynamics of Monte Carlo optimistic policy iteration drive trajectories toward monotonically improving policies when updates are uniform over all actions in each state. 
+We then proved that the stochastic perturbations cannot systematically counteract this improvement,
+and consequently that MC-O-PI converges to the optimal action values when updates are uniform.
+
+
+% Consequence of the result
+This result extends existing convergence guarantees to more practical settings. Unlike previous proofs that required uniform updates across all state-action pairs, our analysis allows different states to be updated at different frequencies.
+This relaxation makes the algorithm applicable to large-scale problems where uniform sampling over the joint state-action space is not feasible.
+The guarantee allows such state-dependent sampling under the stated cumulative-learning, return-moment, tie-breaking and learning-rate conditions.
+% Instead, learning can prioritise different states at different times by sampling the initial states of episodes accordingly.
+% As long as every state is sampled infinitely often and all actions of each state are updated equally frequently, MC-O-PI eventually converges to the optimal policy and action values. 
+
+
+% consequence of the method
+We extended the lock-in strategy of the combined stability-ODE method to accommodate the discontinuous dynamics of MC-O-PI.
+This mean-field approach provided a more intuitive explanation for the convergence mechanism than previous proofs that directly tackled the stochastic process.
+More importantly, it opens up new possibilities, beyond contraction-based analysis, to study the convergence of optimistic policy iteration algorithms.
+
+
+% perspectives
+We see three principal directions for future work:
+(1) determine whether the remaining step-size regularity can be weakened further,
+% (2) find whether the optimal action values remain globally stable for mean-field solutions of MC-O-PI when updates are non-uniform,
+(2) apply this new method to study the convergence of optimistic policy iteration algorithms that rely on temporal difference evaluation,
+and (3) generalise our result when value estimates are stored approximately.
+
+
+
+% Afterwards, there would be insane potential to generalise the results to the function approximation case.
+% \textcolor{red}{because ...}
+
+% Generalizing our results to function approximation opens substantial opportunities.
+% \citet{Wagner2013OptimisticResult} show that optimistic policy iteration with approximation is closely connected to policy gradient methods.
+% These methods underpin many of the most impactful advances in artificial intelligence, including large language models and robotics.
+% Extending our guarantees to this setting could lead to faster learning and stronger performance guarantees, enabling the reliable computation of higher-quality policies in complex environments.
+
+
+% relaxing constraints that are not necessary to preserve the mean-field improvement property,
+% % (see section \ref{sec: relaxing conditions}),
+% and extending the analytical framework to temporal difference methods.
+% % (see section \ref{sec: discussion tsitsiklis link}).
+
+
+% can use the same approach when estimates are biased, but bias decreases over time => multi-step TD
+
+
+% PERSPECTIVES = generalise
+% Feedback from Silver
+% discussion that connects the algorithms to real world impact
+% - discussion of the exploration-exploitation trade-off that is so fundamental to RL (beyond introducing GLIE and an aside in 6.2.6)
+% - some discussion of function approximation (at least to say that the majority of practical applications would need to also bring in function approximation), 
+% - scalable algorithms that build upon Monte-Carlo learning (e.g. Monte-Carlo tree search)
+% - some additional axes of reinforcement learning, such as on-policy/off-policy, model-free/model-based, value-based/actor-critic/policy-based -
+% would any of the insights in this thesis generalize along any of these axes?
+
+
+
+\clearpage

@@ -1,0 +1,297 @@
+% \usepackage{amsthm}
+% \renewcommand\qedsymbol{$\blacksquare$}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{bm}
+
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{assumption}{Assumption}
+% \newtheorem{lemma}{Lemma}
+% \newtheorem{proposition}{Proposition}
+% \newtheorem{definition}{Definition}
+% \newtheorem{corollary}{Corollary}
+
+% \newcommand{\definitionautorefname}{Definition}
+% \newcommand{\assumptionautorefname}{Assumption}
+% \newcommand{\lemmaautorefname}{Lemma}
+% \newcommand{\propositionautorefname}{Proposition}
+
+% \usepackage{multirow}
+
+% \usepackage{setspace}
+% \setstretch{1}
+
+% \usepackage{natbib}
+
+
+% \usepackage{colortbl} 
+
+% define useful colors
+\usepackage[table,xcdraw]{xcolor}
+% 
+\definecolor{cambridgeblue}{RGB}{163, 193, 173}
+% 
+\definecolor{CambridgeSuperLightBlue}{RGB}{204, 227, 245}
+\definecolor{CambridgeSuperLightOrange}{RGB}{252, 229, 205}
+\definecolor{CambridgeSuperLightPurple}{RGB}{142,37,141}
+\definecolor{CambridgeSuperLightGreen}{RGB}{217, 234, 211}
+% 
+\definecolor{CambridgeDarkLightBlue}{RGB}{84,138,182}
+\definecolor{CambridgeLightBlue}{RGB}{106,173,228}
+\definecolor{CambridgeLightOrange}{RGB}{239,189,71}
+\definecolor{CambridgeLightGreen}{RGB}{168,180,0}
+\definecolor{CambridgeLightPurple}{RGB}{181,147,155}
+\definecolor{CambridgeLightTeal}{RGB}{163,193,173}
+% 
+\definecolor{CambridgeCoreBlue}{RGB}{0,115,207}
+\definecolor{CambridgeCoreOrange}{RGB}{227,114,34}
+\definecolor{CambridgeCoreBurgundy}{RGB}{144,27,59}
+\definecolor{CambridgeCoreGreen}{RGB}{88,166,24}
+\definecolor{CambridgeCorePurple}{RGB}{142,37,141}
+\definecolor{CambridgeCoreTeal}{RGB}{0,179,190}
+% 
+\definecolor{CambridgeDarkBlue}{RGB}{0,62,114}
+\definecolor{CambridgeDarkOrange}{RGB}{200,78,0}
+\definecolor{CambridgeDarkGreen}{RGB}{67,81,37}
+\definecolor{CambridgeDarkPurple}{RGB}{65,45,93}
+\definecolor{CambridgeDarkTeal}{RGB}{21,101,112}
+% 
+\definecolor{CambridgeWhitePrint}{RGB}{255,255,255}
+\definecolor{CambridgeBlackPrint}{RGB}{0,0,0}
+% 
+\definecolor{CambridgeYellow}{RGB}{220,20,6}
+
+\definecolor{mygrey}{RGB}{170, 170, 170}
+\definecolor{mylightgrey}{RGB}{230, 230, 230}
+
+
+% % \usepackage[shortlabels]{enumitem}
+% \renewcommand{\labelenumi}{(\theenumi)}
+
+% \usepackage[parfill]{parskip}
+% \setlength{\parskip}{10pt}
+
+
+% \renewcommand\labelitemi{--}
+
+
+% \usepackage{titlesec}
+% % numbering of \paragraph like \subsubsubsection
+% \setcounter{secnumdepth}{4}
+% \titleformat{\paragraph}
+% {\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+% \titlespacing*{\paragraph}
+% {0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows.meta, decorations.markings, calc}
+\tikzset{
+    middle arrow/.style={
+        decoration={markings,
+            mark=at position #1 with {\arrow{>}}}, % Choose arrow style here
+        postaction={decorate},
+        thick
+    }
+}
+
+
+% % \newcommand\drawsteparrow[5]{
+% %     % Extract start and end coordinates
+% %     \coordinate (start) at (#1,#2);
+% %     \def\xstart{#1}
+% %     \def\ystart{#2}
+% %     \def\xend{#3}
+% %     \def\yend{#4}
+% %     % Number of steps
+% %     \def\numsteps{#5}
+    
+% %     % Calculate step sizes
+% %     \pgfmathsetmacro{\xstep}{(\xend - \xstart)/(\numsteps/2)}
+% %     \pgfmathsetmacro{\ystep}{(\yend - \ystart)/(\numsteps/2)}
+    
+% %     % Initialize current position
+% %     \coordinate (current) at (start);
+    
+% %     % Loop to draw steps
+% %     \foreach \i in {1,...,\numsteps} {
+% %         \ifnum\i=\numexpr\numsteps/2+1\relax
+% %             \draw[
+% %                 decoration={
+% %                     markings,
+% %                     mark=at position 0.5 with {\arrow{>}},
+% %                 },
+% %                 postaction={decorate},
+% %                 thick
+% %             ] (current) -- ++((mod(\i,2)*\xstep,(1-mod(\i,2))*\ystep)) coordinate (current);
+% %         \else
+% %             \draw[thick] (current) -- ++((mod(\i,2)*\xstep,(1-mod(\i,2))*\ystep)) coordinate (current);
+% %         \fi
+% %     }
+% % }
+
+
+% % Load hyperref package with custom link colors and without boxes
+% \usepackage[
+%     colorlinks=true,       % Enable colored links
+%     linkcolor=CambridgeCoreBlue,  % Color for internal links (e.g., sections, pages)
+%     citecolor=CambridgeCoreBlue,  % Color for citations
+%     urlcolor=CambridgeCoreBlue,   % Color for URLs
+%     filecolor=CambridgeCoreBlue,  % Color for files
+%     linkbordercolor={0 0 0},  % Black for link border (invisible)
+%     citebordercolor={0 0 0},  % Black for citation border (invisible)
+%     urlbordercolor={0 0 0}    % Black for URL border (invisible)
+% ]{hyperref}
+
+
+\usepackage{aliascnt}
+
+
+% % Define a custom theorem style with non-italic text
+% \newtheoremstyle{nonItalic}%
+% {}   % Space above
+% {}   % Space below
+% {\upshape}  % Body font
+% {}          % Indent amount
+% {\bfseries} % Theorem head font % \sffamily
+% {}         % Punctuation after theorem head
+% {\newline}         % Space after theorem head
+% {}          % Theorem head spec (can be left empty, meaning `normal`)
+
+% % use frames
+% \usepackage{mdframed}
+% \mdfdefinestyle{thmstyle}{%
+%     % line
+%     linecolor = black,
+%     linewidth = 0.5 pt,
+%     topline=true,     % Show top border
+%     bottomline=true,  % Show bottom border
+%     leftline=true,   % Hide left border
+%     rightline=true,  % Hide right border
+%     % middlelinewidth=2pt,
+%     roundcorner = 10 pt,
+%     % background
+%     backgroundcolor = white,
+%     % frametitlebackgroundcolor= mygrey!20,
+%     % margins
+%     leftmargin = 0,
+%     rightmargin = 0,
+%     innerbottommargin = \topskip ,
+%     innertopmargin = \topskip,
+%     innerleftmargin = \topskip ,
+%     innerrightmargin = \topskip,
+%     % splittopskip = \topskip ,
+%     skipabove = \topskip ,
+%     skipbelow = \topskip ,
+%     % ntheorem = true,
+%     % frame title
+%     % frametitlerule=true,
+%     % frametitlefont= \bfseries, %\sffamily
+% }
+
+% % Apply the new non-italic style to the theorem environments
+% \theoremstyle{nonItalic}
+% \newtheorem{parentthm}{Theorem}
+% \numberwithin{parentthm}{section}
+% \numberwithin{figure}{section}
+
+% \newaliascnt{theorem}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{theorem}[theorem]{Theorem}
+% \aliascntresetthe{theorem}
+% \renewcommand{\theHtheorem}{theorem.\thesection.\thetheorem}
+% \renewcommand{\theoremautorefname}{Theorem}
+
+% \newaliascnt{assumption}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{assumption}[assumption]{Assumption}
+% \aliascntresetthe{assumption}
+% \renewcommand{\theHassumption}{assumption.\thesection.\theassumption}
+% \newcommand{\assumptionautorefname}{Assumption}
+
+% \newaliascnt{proposition}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{proposition}[proposition]{Proposition}
+% \aliascntresetthe{proposition}
+% \renewcommand{\theHproposition}{proposition.\thesection.\theproposition}
+% \newcommand{\propositionautorefname}{Proposition}
+
+% \newaliascnt{lemma}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{lemma}[lemma]{Lemma}
+% \aliascntresetthe{lemma}
+% \renewcommand{\theHlemma}{lemma.\thesection.\thelemma}
+% \newcommand{\lemmaautorefname}{Lemma}
+
+% \newaliascnt{conjecture}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{conjecture}[conjecture]{Conjecture}
+% \aliascntresetthe{conjecture}
+% \renewcommand{\theHconjecture}{conjecture.\thesection.\theconjecture}
+% \newcommand{\conjectureautorefname}{Conjecture}
+
+% \newaliascnt{corollary}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{corollary}[corollary]{Corollary}
+% \aliascntresetthe{corollary}
+% \renewcommand{\theHcorollary}{corollary.\thesection.\thecorollary}
+% \newcommand{\corollaryautorefname}{Corollary}
+
+% \newaliascnt{definition}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{definition}[definition]{Definition}
+% \aliascntresetthe{definition}
+% \renewcommand{\theHdefinition}{definition.\thesection.\thedefinition}
+% \newcommand{\definitionautorefname}{Definition}
+
+% \newaliascnt{example}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{example}[example]{Example}
+% \aliascntresetthe{example}
+% \renewcommand{\theHexample}{example.\thesection.\theexample}
+% \newcommand{\exampleautorefname}{Example}
+
+% \newaliascnt{remark}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{remark}[remark]{Remark}
+% \aliascntresetthe{remark}
+% \renewcommand{\theHremark}{remark.\thesection.\theremark}
+% \newcommand{\remarkautorefname}{Remark}
+
+% \newaliascnt{claim}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{claim}[claim]{Claim}
+% \aliascntresetthe{claim}
+% \renewcommand{\theHclaim}{claim.\thesection.\theclaim}
+% \newcommand{\claimautorefname}{Claim}
+
+% \newaliascnt{algorithm}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{algorithm}[algorithm]{Algorithm}
+% \aliascntresetthe{algorithm}
+% \renewcommand{\theHalgorithm}{algorithm.\thesection.\thealgorithm}
+% \newcommand{\algorithmautorefname}{Algorithm}
+
+% \newaliascnt{property}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{property}[property]{Property}
+% \aliascntresetthe{property}
+% \renewcommand{\theHproperty}{property.\thesection.\theproperty}
+% \newcommand{\propertyautorefname}{Property}
+
+% \newaliascnt{notation}{parentthm}
+% \newmdtheoremenv[style=thmstyle]{notation}[notation]{Notation}
+% \aliascntresetthe{notation}
+% \renewcommand{\theHnotation}{notation.\thesection.\thenotation}
+% \newcommand{\notationautorefname}{Notation}
+
+% % use to do notes
+% \usepackage[colorinlistoftodos, textsize=scriptsize, textwidth=3.3cm]{todonotes}
+% \newcommand{\mytodo}[1]{\todo[linecolor=CambridgeCoreOrange,backgroundcolor=CambridgeSuperLightOrange,bordercolor=CambridgeCoreOrange]{\textcolor{CambridgeCoreOrange}{#1}}}
+
+% \usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{caption}
+% \captionsetup[figure]{labelfont=bf}
+% \captionsetup[table]{labelfont=bf}
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+
+% \usepackage{pgfplotstable}
+% \usepgfplotslibrary{fillbetween}
+
+\usepackage{float}
+
+\usepackage{enumitem}

@@ -1,0 +1,56 @@
+% Faithful transcription of the supplied PDF, Sections 1--3 only.
+% This is reconstructed source, not the original author's TeX.
+\documentclass[twoside,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[preprint]{jmlr2e}
+\usepackage{microtype}
+\renewenvironment{proof}[1][Proof]
+  {\par\noindent{\bfseries #1.}\quad}
+  {\unskip\nobreak\hfill\penalty50\hskip1em\null\nobreak\hfill
+   \BlackBox\par\vspace{2mm}}
+\usepackage{enumitem}
+\newtheorem{assumption}[theorem]{Assumption}
+\hypersetup{hidelinks,
+ pdftitle={Convergence of Monte Carlo Optimistic Policy Iteration: Statewise Cumulative Learning and Sharpness},
+ pdfauthor={Octave Oliviers and Glenn Vinnicombe},
+ pdfsubject={Faithful transcription of Sections 1--3}}
+\jmlrheading{}{2026}{}{}{}{}{Octave Oliviers and Glenn Vinnicombe}
+\ShortHeadings{Convergence and sharpness of initial-visit MCES}{Oliviers and Vinnicombe}
+\firstpageno{1}
+\begin{document}
+\raggedbottom
+\title{Convergence of Monte Carlo Optimistic Policy Iteration:\\
+Statewise Cumulative Learning and Sharpness}
+\author{\name Octave Oliviers \email ofao2@cam.ac.uk \\
+\addr Department of Engineering\\
+University of Cambridge\\
+Cambridge, UK
+\AND
+\name Glenn Vinnicombe \email gv103@cam.ac.uk \\
+\addr Department of Engineering\\
+University of Cambridge\\
+Cambridge, UK}
+\maketitle
+\begin{abstract}
+We prove almost-sure convergence of initial-visit Monte Carlo optimistic policy iteration
+when initial actions are uniform within each state and every state accumulates infinite
+learning weight. State sampling may be adaptive and may vanish for arbitrarily long
+intervals. The result covers finite discounted and proper undiscounted episodic Markov
+decision processes, unbiased returns with uniformly bounded conditional variance, fixed-priority or fully inertial ties, and square-summable, eventually nonincreasing deterministic
+steps, without an additional comparability condition. The estimates converge to the optimal
+action values, the policy-evaluation target changes only finitely often, and all sufficiently
+late policies are optimal. Three sampled counterexamples show that convergence need not
+survive replacing Monte Carlo targets by forward TD($0.99$), updating every first-visited
+pair, or biasing initial actions toward the greedy action. Each changes only one of these
+algorithmic choices and retains a positive sampling floor. The examples establish sharpness
+in these three directions, without asserting absolute maximality.
+\end{abstract}
+\begin{keywords}
+reinforcement learning, optimistic policy iteration, Monte Carlo exploring
+starts, stochastic approximation, policy improvement
+\end{keywords}
+\input{01-introduction}
+\input{02-preliminaries}
+\input{03-results}
+\end{document}

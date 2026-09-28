@@ -1,0 +1,37 @@
+\section{Mean-field policy improvement}
+\label{sec: mean field}
+Averaging the sampled update over its pair and return gives
+\begin{equation}\label{eq: deterministic mcopi}
+q_{k+1}(s,a)=q_k(s,a)+\alpha_k\mu_k(s,a)(q_{\pi_k}(s,a)-q_k(s,a)),\qquad\pi_k\in P(q_k).
+\end{equation}
+For this deterministic recursion, impose $0<\alpha_k\le1$, $0\le\mu_k(s,a)\le1$ and uniform updates within each state:
+\begin{equation}\label{asp: unbiased over policies}
+\mu_k(s,a)=\mu_k(s)\quad(a\in\mathcal A(s)),\qquad
+\sum_k\alpha_k\mu_k(s)=\infty\quad(s\in\mathcal S).
+\end{equation}
+The scalar $\mu_k(s)$ is the common coefficient for actions at $s$. When derived from a sampling law, it is a per-pair probability, not the state marginal. Use full inertia: choose $\pi_0$ greedily, and thereafter
+\begin{equation}\label{eq:greedy-pol-tie-breaking}
+\pi_{k+1}(s)=\pi_k(s)\quad\text{whenever }\pi_k(s)\in\arg\max_a q_{k+1}(s,a).
+\end{equation}
+If the preceding action is no longer greedy, any maximizing action may be selected.
+
+\begin{proposition}\label{thm: improving policies}
+Under these conditions $v_{\pi_{k+1}}\ge v_{\pi_k}$ and $q_{\pi_{k+1}}\ge q_{\pi_k}$ for every $k$. At every finite target transition the state values improve strictly in at least one state.
+\end{proposition}
+\begin{proof}
+Fix $s$ and put $c=\alpha_k\mu_k(s)$. If $c>0$, greediness before and after the update gives
+\[
+q_{\pi_k}(s,\pi_{k+1}(s))-q_{\pi_k}(s,\pi_k(s))
+\ge\frac{1-c}{c}\bigl(q_k(s,\pi_k(s))-q_k(s,\pi_{k+1}(s))\bigr)\ge0.
+\]
+If $c=0$, the table at $s$ is unchanged and full inertia retains the action, giving equality. Lemma~\ref{thm: strict PIT} proves both comparisons. Across a target transition they remain valid by transitivity, and distinct action-value targets force a strict state-value comparison.
+\end{proof}
+
+\begin{proposition}\label{thm: convergence deterministic mcopi}
+Under the same conditions, $q_k\to q_{\pi_*}$. This conclusion needs neither square summability nor step-size regularity.
+\end{proposition}
+\begin{proof}
+The target sequence $(q_{\pi_k})$ is nondecreasing and takes values in the finite set $\{q_\pi:\pi\in\mathcal P\}$, so it is eventually a single target $\bar q$. Apply Lemma~\ref{lem: filtering} to each coordinate, with $b_k=\alpha_k\mu_k(s)$ and zero errors, to obtain $q_k\to\bar q$. A policy occurring infinitely often is greedy for $\bar q=q_\pi$, and hence optimal by Lemma~\ref{thm: strict PIT}.
+\end{proof}
+
+The common coefficient $c$ is the reason for requiring equal action rates within each state. Different states may have different rates and may pause arbitrarily long, provided their cumulative learning diverges. Fixed-priority ties give the same deterministic result: an unchanged table retains the same priority maximizer, which is the only tie property used above.

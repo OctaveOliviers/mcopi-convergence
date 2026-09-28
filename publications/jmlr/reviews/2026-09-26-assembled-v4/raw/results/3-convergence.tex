@@ -1,0 +1,97 @@
+\subsubsection{A stopped positive probability of progress}
+Let $W(\pi)=\sum_{i\in\mathcal I}q_\pi(i)$. Its possible values form a finite ordered set. A distinct componentwise larger target has strictly larger $W$, although different targets may have equal
+$W$.
+
+\begin{lemma}[Stopped improvement bound]\label{thm: fixed prob that bad actions dont become greedy}
+Under the assumptions of Theorem~\ref{thm: convergence mcopi uniform}, for
+every fixed $K>B$ there are deterministic $k_0$ and $p>0$ such that for every deterministic
+restart $r$ and stopping time $t\ge\max\{r,k_0\}$, on $\{t<\infty,t<\zeta_r\}$,
+\begin{equation}\label{eq:progress}
+\mathbb P\!\left(
+\begin{aligned}
+&\{\zeta_r\le\tau,\zeta_r<\infty\}\text{ or }\{\tau=\zeta_r=\infty\}\text{ or}\\
+&\{\tau<\zeta_r,W(\pi_\tau)>W(\pi_t)\}
+\end{aligned}
+\ \middle|\ \mathcal F'_t\right)\ge p.
+\end{equation}
+Here $\tau$ is the next target change in \eqref{eq:stops}.
+\end{lemma}
+\begin{proof}
+Fix $V$ from \eqref{eq:gapvariance} and $C_0,C_1$ from the state-clock barrier. Choose a positive integer
+$N$ with $2JC_0 C_\alpha^2/(\delta N)\le1/4$. Then choose deterministic $k_0\ge k_\alpha$ so that, for every $t\ge k_0$,
+\begin{equation}\label{eq:choices}
+N\alpha_t\le2C_\alpha,\qquad\frac{JC_1}{\delta^2}\sum_{k=t}^{\infty}\alpha_k^2\le\frac14.
+\end{equation}
+The radius and variance constants are fixed before choosing $N$.
+
+Use the auxiliary law of Lemma~\ref{lem:measure}. For each bad action whose state completes at
+$T_s<\chi$, apply the barrier at $T_s$, stopped at $\chi$. At that completed state the original sampling
+and return laws are preserved, so \eqref{eq:gapdrift}--\eqref{eq:gapvariance} hold under $\widehat{\mathbb P}$. No such assertion is made for
+a conditioned return at an unfinished state. Bounded future increases and \eqref{eq:seedmargin}--\eqref{eq:choices} imply that its
+conditional crossing probability is at most
+\begin{equation}\label{eq:crossprob}
+\frac{2C_0 C_\alpha^2}{\delta N}+\frac{C_1}{\delta^2}\sum_{k=t}^{\infty}\alpha_k^2.
+\end{equation}
+Indeed the choice of $k_0$ applies to every $T_s\ge t$, so $gN\alpha_{T_s}/C_\alpha\le\delta$ and
+\[
+\frac{C_\alpha\alpha_{T_s}}{\min\{d_{T_s}(s,a),\delta\}}\le\frac{C_\alpha^2}{gN}.
+\]
+Multiply the conditional estimate by
+the $\mathcal F'_{T_s}$-measurable event $\{T_s<\chi\}$ and average back to $\mathcal F'_t$. A union bound over at most
+$J$ pairs gives probability at most $1/2$ of any completed gap failing through $\chi$. This needs
+neither independence nor simultaneous completion. If $T_s=\chi<\infty$, its final favorable update
+already retains the reference action, so no subsequent barrier is needed.
+
+On the complementary event, either exit occurs first, the target persists without exit,
+or $\tau<\zeta_r$ is finite. In the third case, states unfinished just before the endpoint retain the
+reference action, including those completed at the endpoint. Previously completed states
+cannot choose a bad action. Thus
+\[
+q_\pi(s,\pi_\tau(s))\ge q_\pi(s,\pi(s))\quad\text{for every }s.
+\]
+Policy improvement gives $q_{\pi_\tau}\ge q_\pi$ with distinct targets, and hence a strict increase of $W$.
+There is no need to prove that every seed completes: at a finite endpoint unfinished states
+are safe, and an infinite endpoint without exit is already a successful outcome. Transfer back
+by \eqref{eq:transfer}, obtaining \eqref{eq:progress} with $p=\frac12p_0^{JN}$.
+
+If $\mathcal B_\pi$ is empty, the gap conditions and barrier are vacuous and policy improvement
+holds for every next selected policy. The same lower bound remains valid. An exit \emph{after} an
+unsuccessful finite target change is not counted as success for that earlier interval.
+\end{proof}
+
+\subsection{Finitely many target changes and convergence}
+\begin{proof}[Proof of Theorem~\ref{thm: convergence mcopi uniform}]
+Fix $K>B$ and constants $k_0,p$ from Lemma~\ref{thm: fixed prob that bad actions dont become greedy}. For a deterministic
+$r\ge k_0$, start at $t_0=r$ and absorb immediately if $\|q_r\|_\infty>K$. Enumerate successive target
+changes
+\[
+t_{n+1}=\inf\{k>t_n:q_{\pi_k}\ne q_{\pi_{t_n}}\}
+\]
+only while $t_n<\zeta_r$. All finite continuing times are stopping times. Stop counting if exit
+occurs before or at the next target change, or if the target persists forever without exit.
+
+At every alive interval, absorption or a strict increase in $W$ has conditional probability
+at least $p$. By induction and the tower property, absorption within the next $m$ intervals
+or $m$ consecutive strict increases has conditional probability at least $p^m$. On an absorbed
+branch the continuation probability is one; on a finite successful-transition branch condition
+at its stopping time and apply the remaining bound. This uses no independence and never
+conditions at an infinite time on a continuing branch.
+
+Let $L$ be the number of distinct values of $W$. There cannot be $L$ consecutive strict
+increases. Absorption within the next $L$ intervals therefore has conditional probability at least
+$p^L$. Applying the bound at successive surviving blocks gives probability at most $(1-p^L)^j$
+of surviving $j$ such blocks. In particular the probability of infinitely many target changes
+before exit is zero.
+
+Intersect these probability-one conclusions over all deterministic integers $r\ge k_0$. Lemma~\ref{thm: bounded limit sets}
+says that almost every path remains inside the ball after some such integer. On that path,
+choose $r$ with $\zeta_r=\infty$; the original sequence consequently has only finitely many target
+changes. The integer is selected pathwise only after the countable intersection. We do not
+condition on an eventual containment time or claim that it is a stopping time. Nor is an
+unconditional geometric tail for the original process's total number of changes asserted.
+
+Lemma~\ref{thm: bounded limit sets} now gives $q_k\to q_{\pi_*}$. Every nonoptimal action has a strictly positive optimality
+gap. Finiteness of the action sets and convergence exclude all such actions from sufficiently
+late greedy policies. Those policies are greedy for $q_{\pi_*}$ and hence optimal by Bellman verification.
+If every state has a unique optimal action, their labels are eventually constant.
+\end{proof}
