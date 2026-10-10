@@ -15,7 +15,7 @@ Every sufficiently late selected policy is optimal. If every state has a unique 
 The mean-field argument improves the policy at every transition. A sampled update can instead worsen it, so we seek a fixed positive probability of improvement at each sufficiently late transition. Since only finitely many deterministic policies exist, repeated opportunities for improvement will then imply convergence.
 
 This follows the combined stability--ODE strategy of \citet[Section~5.4]{Kushner2003StochasticApplications}. The difficulty is that a trajectory can enter a policy region $Q(\pi)$ arbitrarily close to its boundary. Recurrence to that region alone does not give repeated visits to the fixed interior subset used in a standard lock-in estimate; see the setup in \citet[Section~3]{Borkar2002OnApproximation}.
-We therefore first create a positive separation between the currently selected action and actions that would worsen the policy, and then control the probability that noise removes that separation. Condition~\eqref{eq:comparison} makes this possible even when the initial separation tends to zero. It is a sufficient condition for this proof, not a claimed necessity for convergence of the algorithm.
+We therefore first create a positive separation between the currently selected action and actions that would worsen the policy, and then control the probability that noise removes that separation. A sufficiently large fixed multiple of the current learning rate is enough: the separation may tend to zero at successive entries. Condition~\eqref{eq:comparison} makes the resulting probability bound uniform over sufficiently late entries. It is a sufficient condition for this proof, not a claimed necessity for convergence of the algorithm.
 
 \subsubsection{Actions that would worsen the policy}
 Consider a policy $\pi$ selected at a time $t$. The pairs
@@ -62,7 +62,7 @@ Thus, on average, the estimate gap is pulled towards the positive target gap $d_
 Indeed, only the initial pair is updated. The two possible updates forming this gap are disjoint, each has probability $\sigma_k(s)$, and before $\zeta_r$ the difference between an estimate and its target has magnitude at most $2K$. Their total second moment bounds the variance in \eqref{eq:gapvariance}.
 The stopping time $\zeta_r$ is used only to justify these deterministic bounds. Boundedness will remove it at the end of the proof; we never condition the noise on future containment.
 
-We now construct the positive-gap event in three stages. The \emph{seed} stage uses favorable updates to create a small positive gap. The \emph{growth} stage lets its positive mean drift carry it to a fixed margin $\delta$. The \emph{lock-in} stage prevents noise from closing it after reaching that margin. States may wait arbitrarily long between updates. Each state therefore completes its seed stage separately, and its gaps are protected while other states are still waiting.
+The construction has two steps: \emph{seeding} creates positive gaps through favorable updates, and \emph{gap preservation} bounds the probability that these gaps close before the next transition or exit. States may wait arbitrarily long between updates, so each state completes its seed separately and its gaps are protected while other states are still waiting.
 
 Choose
 \begin{equation}
@@ -70,12 +70,11 @@ Choose
 \delta=\frac14\min_{\substack{\pi\in\mathcal P\\(s,a)\in\mathcal B_\pi}}d_\pi(s,a)>0.
 \end{equation}
 If the set in this minimum is empty, the Policy Improvement Theorem applies between every two policies in both directions. All policies then have the same optimal values, and \autoref{thm: suboptimal blocks finite} proves the theorem directly. We henceforth consider the nonempty case.
-The following constants quantify the seed, growth and lock-in estimates, respectively:
+The following constants are used in the seed and gap-preservation estimates, respectively:
 \begin{equation}
 \label{eq:c-def}
 c_s=\frac\delta2,
-\qquad c_g=\max\{1,20c_\xi(1+(3\delta)^{-1})\},
-\qquad c_l=16c_\xi.
+\qquad c_g=\max\{1,20c_\xi(1+(3\delta)^{-1})\}.
 \end{equation}
 They depend on the fixed bound $K$ and the MDP, but not on the restart time or reference policy.
 
@@ -135,10 +134,10 @@ Under the conditions of \autoref{lem:seeds}, there is an auxiliary probability l
 \end{equation}
 \end{lemma}
 
-\subsubsection{Growth and lock-in: keeping a positive gap open}
-Once a state has completed its seed stage, its gap starts at the positive margin in \eqref{eq:seedmargin}. We now bound the probability that this gap closes before the next transition or exit. The drift and noise in \eqref{eq:gapdrift}--\eqref{eq:gapvariance} both carry the per-action update probability $\sigma_k(s)$ at state $s$. Measuring growth by accumulated learning at that state therefore allows arbitrarily long pauses between its updates.
+\subsubsection{Preserving positive gaps}
+Once a state has completed its seed, we apply a single estimate to bound the probability that a gap closes before the next transition or exit. The estimate starts from the small margin in \eqref{eq:seedmargin}; we need not first bring the gap to a fixed positive margin. The drift and noise variance in \eqref{eq:gapdrift}--\eqref{eq:gapvariance} both carry the per-action update probability $\sigma_k(s)$ at state $s$. Measuring elapsed learning at that state therefore allows arbitrarily long pauses between its updates.
 
-\begin{lemma}[Growth and lock-in]
+\begin{lemma}[Gap preservation]
 \label{lem:barrier}
 Consider a pair $(s,a)\in\mathcal B_\pi$ in \autoref{def: gap variables}, and a stopping time $t'\ge\max\{t,k_\alpha\}$ with $t'<\infty$, $t'\le\tau\wedge\zeta_r$ and $d_{t'}(s,a)>0$.
 Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap recursion \eqref{eq:gapdrift} and conditional moments \eqref{eq:gapvariance} hold from $t'$ until $\tau\wedge\zeta_r$, under the probability law being used. With the constants in \eqref{eq:c-def},
@@ -146,12 +145,14 @@ Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap
 \label{eq:barrier}
 \mathbb P\!\left(\exists\text{ finite }n\in[t',\tau\wedge\zeta_r]:d_n(s,a)\le0\ \middle|\ \mathcal F'_{t'}\right)
 \le c_g\frac{c_\alpha\alpha_{t'}}{\min\{d_{t'}(s,a),\delta\}}
-+\frac{c_l}{\delta^2}\sum_{k=t'}^\infty\alpha_k^2.
++\frac{16c_\xi}{\delta^2}\sum_{k=t'}^\infty\alpha_k^2.
 \end{equation}
-The first term controls the growth stage before reaching $\delta$; the second controls the lock-in stage afterwards. The crossing event includes the update ending at $\tau\wedge\zeta_r$.
+The crossing event includes the update ending at $\tau\wedge\zeta_r$.
 \end{lemma}
+For the seed margin in \eqref{eq:seedmargin}, the first term is bounded by a constant times $1/N$ at sufficiently late completion times, and the second tends to zero. Thus the estimate protects gaps at the learning-rate scale; the substitution is given explicitly in the next subsection. The proof treats crossings before and after first reaching $\delta$ separately. This case distinction places no requirement on how quickly, or whether, the gap reaches $\delta$.
+
 \begin{proof}
-\emph{Growth to the fixed margin $\delta$.} Condition~\eqref{eq:comparison} bounds every later step by $c_\alpha\alpha_{t'}$. Suppose $0<d_{t'}(s,a)<\delta$. If $d_{t'}(s,a)<c_\alpha\alpha_{t'}$, the first term in \eqref{eq:barrier} is already
+\emph{A crossing before reaching $\delta$.} Condition~\eqref{eq:comparison} bounds every later step by $c_\alpha\alpha_{t'}$. Suppose $0<d_{t'}(s,a)<\delta$. If $d_{t'}(s,a)<c_\alpha\alpha_{t'}$, the first term in \eqref{eq:barrier} is already
 at least one. Otherwise define
 \[
 \nu=(\tau\wedge\zeta_r)\wedge\inf\{n\ge t':d_n(s,a)\le0\text{ or }d_n(s,a)\ge\delta\},\qquad
@@ -195,9 +196,9 @@ Because $d_{t'}(s,a)\ge c_\alpha\alpha_{t'}$, the respective bounds are at most
 4c_\xi(1+(3\delta)^{-1})\frac{c_\alpha\alpha_{t'}}{d_{t'}(s,a)},\qquad
 16c_\xi(1+(3\delta)^{-1})\frac{c_\alpha\alpha_{t'}}{d_{t'}(s,a)}2^{-j}.
 \]
-Summing gives the growth term in \eqref{eq:barrier}.
+Summing gives the first term in \eqref{eq:barrier}.
 
-\emph{Lock-in after reaching $\delta$.} Let $\rho=\inf\{n\ge t':d_n(s,a)\ge\delta\}$, using $\rho=t'$ if $d_{t'}(s,a)\ge\delta$. On $\{\rho<\infty,\rho\le(\tau\wedge\zeta_r)\}$,
+\emph{A crossing after reaching $\delta$.} Let $\rho=\inf\{n\ge t':d_n(s,a)\ge\delta\}$, using $\rho=t'$ if $d_{t'}(s,a)\ge\delta$. On $\{\rho<\infty,\rho\le(\tau\wedge\zeta_r)\}$,
 restart at $\rho$ and stop at $\eta=(\tau\wedge\zeta_r)\wedge\inf\{n\ge\rho:d_n(s,a)\le0\}$:
 \[
 \widetilde M_n=\sum_{k=\rho}^{n-1}\mathbf1_{\{k<\eta\}}\alpha_k\xi_k(s,a).
@@ -210,7 +211,7 @@ d_n(s,a)\ge\delta+\widetilde M_n-\widetilde M_\ell.
 \]
 A crossing forces $\sup_{n\ge\rho}|\widetilde M_n|\ge\delta/2$. The martingale maximal inequality at $\rho$ bounds this probability by
 $16c_\xi\delta^{-2}\sum_{k\ge\rho}\alpha_k^2$. Multiply by the $\mathcal F'_\rho$-measurable event $\{\rho<\infty,\rho\le(\tau\wedge\zeta_r)\}$, average back to $\mathcal F'_{t'}$,
-and use $\rho\ge t'$. This proves the lock-in term in \eqref{eq:barrier}. The last-visit index $\ell$ is used only in a pathwise
+and use $\rho\ge t'$. This proves the second term in \eqref{eq:barrier}. The last-visit index $\ell$ is used only in a pathwise
 inequality; we never condition at it. Both parts retain the increment $k=(\tau\wedge\zeta_r)-1$ and therefore
 protect the gap through the endpoint itself.
 \end{proof}

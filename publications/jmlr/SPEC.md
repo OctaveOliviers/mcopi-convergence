@@ -1,6 +1,6 @@
 # JMLR proof: working decisions
 
-Updated 2026-09-28. The mathematical scope below remains agreed. The user additionally requires the original introduction, algorithm explanation and existing proofs to remain verbatim wherever sound. Outside the main proof, only corrections of errors, ambiguity or missing dependencies and changes required by the agreed assumptions are authorized. Apply the 18 PDF comments throughout the main proof, including unannotated lemmas. No new specification approval is needed. The restoration has completed the independent correctness, notation and exposition reviews; see STATUS.md for the exact reviewed version and evidence.
+Updated 2026-10-10. The mathematical scope below remains agreed. The user authorized a focused simplification around seeding and gap preservation, making protection from a learning-rate-scale margin explicit and removing unnecessary notation. Preserve the weaker sampling and learning-rate assumptions and the original exposition outside the affected proof. No new specification approval is needed. See STATUS.md for the exact reviewed version and evidence.
 
 ## Agreed direction
 

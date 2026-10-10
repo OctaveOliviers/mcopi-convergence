@@ -1,28 +1,30 @@
 # JMLR proof review status
 
-Updated 2026-09-28. The restoration addressing the user's general feedback and all 18 PDF comments is **agent-checked**. The agreed theorem and weaker assumptions are unchanged. No mathematical scope decision or blocking review finding remains open.
+Updated 2026-10-10. The focused revision presents the stochastic proof as seeding followed by gap preservation, explains protection from a sufficiently large multiple of the learning rate, and removes the redundant constant c_l. The theorem and assumptions are unchanged. Correctness, notation and fresh unassisted exposition review pass. The revision is agent-checked within the scope below. No scope decision is pending.
 
 ## Current version
 
-Branch: `feature/simplify-jmlr-proof`; [PR #4](https://github.com/OctaveOliviers/mcopi-convergence/pull/4), with the `jmlr` label. The original manuscript used for restoration is `d9a1efc31b838533c20e0e4f6d7058c0d1ca77c1`. The exact reviewed sources, dependencies and PDF are retained in [restoration-v4](reviews/2026-09-28-restoration-v4/MANIFEST.txt), based on `2fd2e18e4d0815dab88c4fe89e91deccaacb0073`. The active manuscript matches that snapshot.
+Branch: `feature/simplify-jmlr-proof`; [PR #4](https://github.com/OctaveOliviers/mcopi-convergence/pull/4), with the `jmlr` label. The exact reviewed sources, dependencies and PDF are retained in [gap-preservation-v1](reviews/2026-10-10-gap-preservation-v1/MANIFEST.txt), based on `cae73243ee232631cf77a3d2fb3d27d92f8db5c3`. The active manuscript and PDF match this snapshot.
 
-Sections 1–2 and the mean-field section preserve the original exposition wherever sound. Necessary repairs concern policy ordering, cumulative learning, conditional moments, stopping times and persistent-target reasoning. The stochastic proof introduces its gaps before use and follows seed/growth/lock-in. Unnecessary aliases and arbitrary lemma names are removed; all main-theorem assumptions appear together. The [18-comment response map](reviews/2026-09-28-comment-responses.md) and [restoration audit](reviews/2026-09-28-restoration-audit.md) identify the changes and justify repairs outside the main proof.
+This revision changes only the probability-of-improvement section, its composition with convergence, and one matching appendix sentence. The single gap-preservation estimate starts at each state's seed completion. Its before/after-threshold cases bound possible failures; they do not require a separate growth stage. The alias c_l is replaced by its exact value, 16 c_xi. No symbol is added.
+
+Sections 1–2, the mean-field section, the theorem and its assumptions are unchanged from restoration-v4. That restoration preserved the original exposition wherever sound, with necessary repairs to policy ordering, cumulative learning, conditional moments, stopping times and persistent-target reasoning. The [18-comment response map](reviews/2026-09-28-comment-responses.md) and [restoration audit](reviews/2026-09-28-restoration-audit.md) retain those earlier decisions.
 
 ## Review and validation
 
 | Check | Current evidence |
 | --- | --- |
-| Correctness | `restoration-v4-correctness`: pass; full dependency-chain review and verification of every subsequent substantive change. [Findings and resolutions](reviews/2026-09-28-restoration-review.md). |
-| Notation | `restoration-v4-notation`: pass; all original findings independently resolved or dismissed, including preservation of established value/noise notation. Same review record. |
-| Exposition | R-E4: pass; fresh unassisted explain-back and three neutral follow-ups covering endpoints, conditional reweighting and deterministic restarts. [Session record](reviews/2026-09-28-exposition.md) and [verbatim responses](reviews/2026-09-28-reader-v4-verbatim.md). |
-| Sources | Standard proper-policy termination and fixed-target supermartingale results directly verified. [Source audit](reviews/2026-09-28-source-checks.md). |
-| Build and rendering | `make jmlr` passes with pinned TeX Live 2025. All 28 pages checked directly or by pixel comparison with previously inspected pages. No undefined references, duplicate labels, overfull or underfull boxes; only the inherited caption-package warning remains. |
-| Version integrity | All 404 historical/current snapshot manifest entries verified. The active sources and PDF match restoration-v4; `git diff --check -- publications/jmlr` passes. |
+| Correctness | `gap-preservation-v1-correctness`: pass. Independent inspection of the changed claims and assembled dependency chain, followed by reconciliation of prior findings, confirms that restoration-v4's mathematical clearance carries forward. [Full report](reviews/2026-10-10-gap-preservation-correctness.md). |
+| Notation | `gap-preservation-v1-notation`: pass. Exact constant substitution, current terminology, references and all changed rendered pages independently checked. [Full report](reviews/2026-10-10-gap-preservation-notation.md). |
+| Exposition | GP-E2: pass. A fresh unassisted reader reconstructed the full mechanism and answered four questions about completion-time bounds, shrinking margins, unattained thresholds and probability transfer. The earlier assisted diagnostic is retained, not counted as a pass. [Session and assessment](reviews/2026-10-10-gap-preservation-review.md). |
+| Sources | The [earlier source audit](reviews/2026-09-28-source-checks.md) remains applicable to the unchanged proper-policy and fixed-target dependencies, as verified in the correctness reconciliation. No new external-source audit is claimed. |
+| Build and rendering | `make jmlr` passes with pinned TeX Live 2025. All changed pages (12–22 and 27) were inspected directly; pages 1–11, 23–26 and 28 are pixel-identical to the previously inspected PDF. No undefined references, duplicate labels, overfull or underfull boxes; only the inherited caption-package warning remains. |
+| Version integrity | All 427 historical/current snapshot manifest entries verified. Current inputs and PDF match gap-preservation-v1. The staged whitespace check passes for the live edits and review prose; exact frozen copies retain inherited/generated whitespace. |
 
-Final PDF: `build/jmlr.pdf`, 28 pages, SHA-256 `446c114389c3751d6a33405eaa62293681a150037e39b8431b7a28bccd7b976e`.
+Final PDF: `build/jmlr.pdf`, 28 pages, SHA-256 `0a04d412c1467dfb91b32e1aae367814bf84bb923ecdab44f4943b791077cf97`.
 
 ## Boundaries and history
 
-Fresh checkers received only the frozen active manuscript, dependencies and permitted guides or source evidence. Writer specifications, assessments and earlier reader answers were excluded. Earlier A4 and restoration-v1/v2/v3/intermediary snapshots are historical evidence, not approvals of the final version. The [previous status](reviews/2026-09-28-status-before-comments.md) preserves prior decisions and scope limits.
+Fresh checkers received only the frozen active manuscript, dependencies and permitted guides. Earlier correctness findings were supplied only after the independent current inspection; writer assessments and earlier reader answers were excluded from fresh comprehension tests. The [current review record](reviews/2026-10-10-gap-preservation-review.md) retains assignments, exact reports, assistance and scope. Earlier A4 and restoration snapshots/reviews remain historical evidence; their applicability to this revision is established by the current checks, not assumed. The [previous status](reviews/2026-09-28-status-before-comments.md) preserves prior decisions and scope limits.
 
 Existing experiments were not rerun. Exhaustive novelty review and a sampling algorithm for unknown state discovery remain outside scope, as do other publications and first-/every-visit, temporal-difference and function-approximation extensions. The faithful reference transcription is unchanged. Agent checks are not formal proof certification or human sign-off.

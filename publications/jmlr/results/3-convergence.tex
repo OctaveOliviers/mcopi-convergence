@@ -1,5 +1,5 @@
-\subsubsection{Combining the three stages}
-We can now combine the favorable seed updates with the growth and lock-in estimates. The number $N$ of requested updates controls the chance of losing a small initial gap, while square summability controls the chance of losing a gap after it reaches $\delta$. Choosing $N$ first and then a sufficiently late start makes their total failure probability smaller than one, uniformly over the current policy.
+\subsubsection{A positive probability of policy improvement}
+We now apply the gap-preservation estimate at each state's seed completion. Under the auxiliary law of \autoref{lem:measure}, all requested updates succeed. Choosing their number $N$ first and then a sufficiently late start bounds the probability of losing any completed gap by $1/2$, uniformly over the current policy. Transferring back to the original law gives the following positive probability of improvement.
 
 \begin{lemma}
 \label{thm: fixed prob that bad actions dont become greedy}
@@ -25,7 +25,7 @@ Then choose a deterministic $k_0\ge k_\alpha$ so that, for every $t\ge k_0$,
 \label{eq:choices}
 N\alpha_t\le2c_\alpha,
 \qquad
-\frac{|\mathcal S\times\mathcal A|c_l}{\delta^2}\sum_{k=t}^\infty\alpha_k^2\le\frac14.
+\frac{16|\mathcal S\times\mathcal A|c_\xi}{\delta^2}\sum_{k=t}^\infty\alpha_k^2\le\frac14.
 \end{equation}
 These choices are possible because $\alpha_t\to0$ and the squared learning rates have a finite sum.
 
@@ -39,7 +39,7 @@ The conditional probability of losing this gap through the endpoint is consequen
 \begin{equation}
 \label{eq:crossprob}
 \frac{2c_gc_\alpha^2}{\delta N}
-+\frac{c_l}{\delta^2}\sum_{k=t}^\infty\alpha_k^2.
++\frac{16c_\xi}{\delta^2}\sum_{k=t}^\infty\alpha_k^2.
 \end{equation}
 Multiply the conditional estimate by the event $\{T_s<\tau\wedge\zeta_r\}$, which is known at $T_s$, and average back to $\mathcal F'_t$. Summing over at most $|\mathcal S\times\mathcal A|$ pairs bounds the chance of any completed gap closing by $1/2$. No independence or simultaneous completion is required.
 
