@@ -1,0 +1,199 @@
+\section*{Appendix}
+\label{sec: Appendix}
+
+\paragraph{Proof of \autoref{thm: properties of noise}}
+
+% \begin{proof}
+Fix a time $k\ge 0$, a state $s \in \mathcal S$ and an action $a \in \mathcal A(s)$.
+
+By definition,
+\begin{align}
+\label{eq: noise def in appendix proof}
+w_k(s,a) = u_k(s,a) v_k(s,a) + \big( u_k(s,a)-\mu_k(s,a) \big) \big( q_{\pi_k}(s,a) - q_k(s,a) \big).
+\end{align}
+By the return-moment assumption \eqref{eq: return moments}, 
+and $u_k(s,a) v_k(s,a) = 0$ on $\{u_k(s,a)=0\}$,
+it follows that
+\begin{align}
+\label{eq: unbiased noise p1}
+\mathbb E[ u_k(s,a) v_k(s,a) \mid \mathcal F_k']
+=
+\mathbb E \big[ 
+    \mathbf 1_{\{u_k(s,a)=1\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=1] 
+    % +
+    % \mathbf 1_{\{u_k(s,a)=0\}} \mathbb E[ v_{k}(s,a) \mid \mathcal F_k', u_k(s,a)=o] 
+    \mid \mathcal F_k' \big]
+= 0 .
+\end{align}
+Also, $\mathbb E[u_k(s,a) \mid \mathcal F_k'] = \mu_k(s,a)$, and $\mu_k$ and $q_{\pi_k}-q_k$ are $\mathcal F_k'$-measurable. Hence,
+\begin{multline}
+\label{eq: unbiased noise p2}
+\mathbb E \!\left[
+\bigl( u_k(s,a)-\mu_k(s,a) \bigr) \bigl( q_{\pi_k}(s,a)-q_k(s,a) \bigr)
+\mid \mathcal F_k'
+\right]
+\\
+=
+\big( q_{\pi_k}(s,a)-q_k(s,a) \big) 
+\big( \mathbb E\!\left[ u_k(s,a) \mid \mathcal F_k'
+\right]
+-\mu_k(s,a) \big)
+=
+0 .
+\end{multline}
+Summing \eqref{eq: unbiased noise p1} and \eqref{eq: unbiased noise p2} yields $\mathbb E[w_k(s,a) \mid \mathcal F_k'] = 0$.
+This proves \eqref{eq: muw_mds}.
+
+Finally, since $u_k^2(s,a) \le 1$ and $(u_k(s,a) - \mu_k(s,a))^2 \le 1$,
+using $(x+y)^2 \le 2 x^2 + 2 y^2$ on \eqref{eq: noise def in appendix proof} yields
+\begin{align*}
+w_k^2(s,a) 
+&\le 2 v_k^2(s,a) + 2 (q_{\pi_k}(s,a)-q_k(s,a) )^2 
+\\
+&\le 2 v_k^2(s,a) + 2 ( 2 q_{\pi_k}^2(s,a) + 2 q_k^2(s,a) ) .
+\end{align*}
+Since all action-values are bounded,
+there exists a constant $c_\polset < \infty$ such that $\|q_\pi\|^2 \leq c_\polset$ for every policy $\pi \in \polset$. As a result,
+\begin{align*}
+\mathbb E \!\big[ w_{k}^2(s,a) \mid \mathcal F'_k \big]
+&\le
+2 c_v + 2 \, \mathbb E \!\left[ ( q_{\pi_k}(s,a)-q_k(s,a) )^2 \mid \mathcal F'_k \right]
+\\
+&\le
+2 c_v + 4 c_\polset + 4 \|q_k\|^2
+\end{align*}
+So \eqref{eq: muw_second_moment} holds for example with $c_w := \max \{ 2 c_v + 4 c_\polset, 4\}$.
+% \end{proof}
+\hfill \BlackBox
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\paragraph{Fixed-target averages.}
+\label{app: fixed target averages}
+The comparison argument for boundedness and the convergence of a constant-target block both use the following consequence of the supermartingale convergence theorem~\citep[Proposition~4.2]{Bertsekas1996Neuro-DynamicProgramming}: if a nonnegative process has conditional expected increments bounded above by a negative term plus a summable error, then it converges and the negative terms have finite sum.
+
+Fix a deterministic restart $r$, a policy $\pi\in\mathcal P$ and a state-action pair $(s,a)$.
+Starting from $x_r=q_r(s,a)$, consider the average with fixed target $q_\pi(s,a)$,
+\[
+x_{k+1}=x_k+\alpha_k u_k(s,a)\big(q_\pi(s,a)+v_k(s,a)-x_k\big).
+\]
+The initial squared error is integrable: finite-time estimates have finite second moments by induction in \eqref{eq: update q with chi} and \eqref{eq: return moments}.
+Since $u_k(s,a)$ is an indicator with conditional mean $\sigma_k(s,a)$, the return moments and $0<\alpha_k\le1$ give
+\[
+\mathbb E\!\left[(x_{k+1}-q_\pi(s,a))^2\mid\mathcal F'_k\right]
+\le (1-\alpha_k\sigma_k(s,a))(x_k-q_\pi(s,a))^2+c_v\alpha_k^2.
+\]
+The cited theorem shows that $(x_k-q_\pi(s,a))^2$ converges and that
+\[
+\sum_{k=r}^{\infty}\alpha_k\sigma_k(s,a)(x_k-q_\pi(s,a))^2<\infty
+\quad\text{almost surely}.
+\]
+Its limit must be zero, since \eqref{eq: cumulative learning} makes the sum of the weights infinite.
+These assertions hold simultaneously for every deterministic integer $r$, every policy and every state-action pair: take the intersection of their countably many probability-one events. We may therefore choose a restart and a target separately on each resulting path, without conditioning on their future-dependent values.
+
+\paragraph{Proof of \autoref{thm: bounded limit sets}}
+Let $(q_k)$ and $(\pi_k)$ be an MC-O-PI solution satisfying \autoref{asp: standing}, and work on the probability-one event just obtained. Since the policy set is finite, there is a finite index $r$ after which only policies in $\polset_\infty$ appear.
+Thus for all $k\ge r$ and every pair $(s,a)$,
+\[
+\min_{\pi\in\polset_\infty}q_\pi(s,a)
+\le q_{\pi_k}(s,a)
+\le\max_{\pi\in\polset_\infty}q_\pi(s,a).
+\]
+Start $x_r=y_r=q_r(s,a)$ and use the same sampled updates and return noise, with the two fixed targets:
+\begin{align*}
+x_{k+1}&=x_k+\alpha_k u_k(s,a)
+\left(\min_{\pi\in\polset_\infty}q_\pi(s,a)+v_k(s,a)-x_k\right),\\
+y_{k+1}&=y_k+\alpha_k u_k(s,a)
+\left(\max_{\pi\in\polset_\infty}q_\pi(s,a)+v_k(s,a)-y_k\right).
+\end{align*}
+Because $0\le\alpha_k u_k(s,a)\le1$, induction gives $x_k\le q_k(s,a)\le y_k$ for every $k\ge r$.
+Each comparison target is one of the finitely many values covered by the preceding fixed-target calculation. Consequently,
+\begin{align*}
+\liminf_{k\to\infty}q_k(s,a)&\ge\min_{\pi\in\polset_\infty}q_\pi(s,a),\\
+\limsup_{k\to\infty}q_k(s,a)&\le\max_{\pi\in\polset_\infty}q_\pi(s,a).
+\end{align*}
+This proves convergence to the stated bounded set. In particular, the estimates are bounded along almost every path. If the actual target is eventually constant, the estimate itself is one of the fixed-target averages above, which also justifies its use in \autoref{thm: suboptimal blocks finite}.
+\hfill\BlackBox
+
+\paragraph{Proof of \autoref{thm: convergence deterministic mcopi}}
+Let $(q_k)$ be a solution of the mean-field dynamics \eqref{eq: deterministic mcopi} under the stated assumptions, with policies $(\pi_k)$ and transition times $(t_n)$.
+\autoref{thm: improving policies} shows that their action-value functions are nondecreasing and change only by improvements. Since there are finitely many deterministic policies, the target is constant from some finite transition time $t_n$ onwards.
+For every pair $(s,a)$ and every $k\ge t_n$, unrolling the deterministic recursion gives
+\[
+q_k(s,a)-q_{\pi_{t_n}}(s,a)
+=\big(q_{t_n}(s,a)-q_{\pi_{t_n}}(s,a)\big)
+\prod_{j=t_n}^{k-1}(1-\alpha_j\mu_j(s,a)).
+\]
+The product tends to zero because $\sum_j\alpha_j\mu_j(s,a)=\infty$.
+A policy appearing infinitely often in the remaining sequence has action values $q_{\pi_{t_n}}$; passing its greedy inequalities to the limit shows that it is greedy for its own action values, hence optimal. Therefore $q_{\pi_{t_n}}=q_{\pi_*}$ and $q_k\to q_{\pi_*}$.
+\hfill\BlackBox
+
+\paragraph{Proof of \autoref{lem:measure}}
+At a requested update of state $s$, let $p_k(s)$ be the conditional probability of the favorable action and return event, given $\mathcal F'_k$ and that state $s$ is selected. By \eqref{eq:localprob}, $p_k(s)\ge p_0$ on positive-probability selections. Values at zero-probability selections may be assigned arbitrarily.
+
+Starting with $L_t=1$, multiply $L_k$ by the indicator that the requested update succeeds, divided by $p_k(s)$. At iterations without a request, use factor one. Each factor has conditional mean one given the current history and selected state. Thus
+\[
+\mathbb E[L_{k+1}\mid\mathcal F'_k]=L_k.
+\]
+This is the martingale property: knowing the present history does not change the expected future weight. At most $|\mathcal S\times\mathcal A|N$ factors differ from one, so
+\[
+0\le L_k\le p_0^{-|\mathcal S\times\mathcal A|N}.
+\]
+The weight is eventually constant on each path, even though there is no bound on the times of the requested updates. Denote its limit by $L_\infty$. The common deterministic bound permits passing expectations through the limit. Indeed, for every $\varepsilon>0$,
+\[
+\mathbb E|L_k-L_\infty|
+\le\varepsilon+2p_0^{-|\mathcal S\times\mathcal A|N}
+\mathbb P(|L_k-L_\infty|>\varepsilon),
+\]
+and the probability tends to zero. Letting $\varepsilon$ decrease to zero gives convergence in mean.
+For every event $A$ known from $\mathcal F'_t$, the martingale identity consequently gives
+\[
+\mathbb E[\mathbf1_A L_\infty]=\mathbb P(A).
+\]
+These identities mean that $\mathbb E[L_\infty\mid\mathcal F'_t]=1$: a conditional expectation is the quantity determined by the conditioning history that reproduces the original average on each event known from that history. The same argument at later histories gives $\mathbb E[L_\infty\mid\mathcal F'_k]=L_k$.
+
+Define the auxiliary law by
+\[
+\widehat{\mathbb P}(E)=\mathbb E[L_\infty\mathbf1_E].
+\]
+It assigns more weight to runs with successful seed updates. A failed request makes $L_\infty=0$, so all requests succeed under this law. An event of original probability zero still has probability zero after reweighting.
+For a random start $t$, use weight one before $t$, on $\{t=\infty\}$ and when $t\ge\zeta_r$, and combine the fixed-start constructions on $\{t=j\}$ over integers $j$. Each of these events is known at time $j$, so the same conditional argument applies.
+
+It remains to check that future requests do not bias updates at completed states. If a bounded random variable $Y$ is determined by the next history $\mathcal F'_{k+1}$, then on $\{L_k>0\}$,
+\begin{equation}
+\label{eq: weighted conditional law}
+\widehat{\mathbb E}[Y\mid\mathcal F'_k]
+=\frac{\mathbb E[L_\infty Y\mid\mathcal F'_k]}{L_k}
+=\frac{\mathbb E[L_{k+1}Y\mid\mathcal F'_k]}{L_k}.
+\end{equation}
+For the first equality, test the proposed conditional expectation against any event $A$ known at $k$. The definition of the weighted law and $\mathbb E[L_\infty\mid\mathcal F'_k]=L_k$ give
+\[
+\widehat{\mathbb E}\!\left[\mathbf1_A
+\frac{\mathbb E[L_\infty Y\mid\mathcal F'_k]}{L_k}\right]
+=\mathbb E[\mathbf1_A L_\infty Y]
+=\widehat{\mathbb E}[\mathbf1_A Y].
+\]
+The fraction is defined as zero where $L_k=0$; nonnegativity and the conditional-mean identity imply that those histories have auxiliary probability zero. The second equality in \eqref{eq: weighted conditional law} uses $\mathbb E[L_\infty\mid\mathcal F'_{k+1}]=L_{k+1}$, so all later request factors average out, even when the later requests depend on the present return.
+
+The current factor $L_{k+1}/L_k$ has conditional mean one given the history and selected state. Applying \eqref{eq: weighted conditional law} to the indicator that a particular state is selected therefore preserves state-selection probabilities. If that state is complete, the current factor is exactly one. Conditioning further on its selection consequently leaves the action and return law unchanged. The same holds after the construction stops. The algorithmic identities and the inertia rule also remain valid, since originally null events remain null.
+Finally,
+\[
+\widehat{\mathbb P}(E\mid\mathcal F'_t)
+=\mathbb E[L_\infty\mathbf1_E\mid\mathcal F'_t]
+\le p_0^{-|\mathcal S\times\mathcal A|N}\mathbb P(E\mid\mathcal F'_t),
+\]
+which is \eqref{eq:transfer}. This reweighting is only a proof device; the algorithm continues to sample its original returns.
+\hfill\BlackBox
+
+\paragraph{The martingale maximal inequality used in \autoref{lem:barrier}}
+\label{app: martingale bound}
+For a sum $M_n$ of increments with zero conditional mean, distinct increments have zero expected product. Its second moment is therefore the sum of their second moments. To bound its largest deviation, first fix a finite horizon $N$ and let $\theta$ be the first index at which $|M_\theta|\ge z$, where $M$ starts from zero and $z>0$ is known at the restart time.
+On $\{\theta=j\}$ the later increment $M_N-M_j$ has conditional mean zero. Expanding the square gives
+\[
+\mathbb E[\mathbf1_{\{\theta=j\}}M_N^2]
+\ge \mathbb E[\mathbf1_{\{\theta=j\}}M_j^2]
+\ge z^2\mathbb P(\theta=j).
+\]
+Summing over $j\le N$ bounds the crossing probability by $\mathbb E[M_N^2]/z^2$.
+Multiplying throughout by indicators of events known at the restart gives the conditional version. Stopping a sum preserves its zero conditional means, because the decision to retain an increment is made before drawing it. Apply the finite-horizon bound to the stopped sum and then increase $N$. For an infinite horizon, approach a possibly unattained threshold from below. For thresholds and variance bounds determined by the restart history, the same argument is applied conditionally; one may first restrict them to bounded ranges and then increase those ranges. Random restart times are handled on their individual finite-time events. These steps justify the conditional maximal estimates in the growth and lock-in argument without a bound on waiting times.

@@ -1,0 +1,20 @@
+\documentclass[twoside,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,bm}
+\usepackage[preprint]{jmlr2e}
+\usepackage{enumitem,microtype}
+\renewenvironment{proof}[1][Proof]
+  {\par\noindent{\bfseries #1.}\quad}
+  {\unskip\nobreak\hfill\penalty50\hskip1em\null\nobreak\hfill
+   \BlackBox\par\vspace{2mm}}
+\newtheorem{assumption}[theorem]{Assumption}
+\input{z-maths}
+\hypersetup{hidelinks}
+\ShortHeadings{MC-O-PI proof replacement}{Oliviers and Vinnicombe}
+\begin{document}
+\input{foundations}
+\input{mean-field}
+\input{stochastic}
+\input{barrier}
+\input{seeds}
+\end{document}

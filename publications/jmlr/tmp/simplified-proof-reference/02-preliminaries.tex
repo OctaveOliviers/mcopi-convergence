@@ -1,0 +1,166 @@
+% Original PDF: Section 2, pages 2--5.
+\section{Preliminaries and the MCES algorithm}\label{sec:preliminaries}
+\subsection{Finite discounted and proper episodic MDPs}
+Let $\mathcal S$ be a finite set of nonterminal states, with finite nonempty action sets $\mathcal A(s)$, and put
+$\mathcal I=\{(s,a):s\in\mathcal S,\ a\in\mathcal A(s)\}$ and $J=|\mathcal I|$. A transition from $(s,a)$ produces a reward and
+a next state according to the MDP kernel. Expected absolute one-step rewards are finite.
+Terminal states, when present, have value zero and are omitted from $\mathcal I$. Write $\mathcal P$ for the
+finite set of deterministic stationary policies.
+
+The discount factor is $\gamma\in[0,1]$. If $\gamma=1$, assume that every $\pi\in\mathcal P$ is \emph{proper}: from
+every nonterminal state it reaches a terminal state almost surely. If $\gamma<1$, no termination
+assumption is imposed. State and action values are
+\[
+v_\pi(s)=\mathbb E_\pi\!\left[\sum_{t\ge0}\gamma^tR_t\mid S_0=s\right],\qquad
+q_\pi(s,a)=\mathbb E_\pi\!\left[\sum_{t\ge0}\gamma^tR_t\mid S_0=s,A_0=a\right],
+\]
+where rewards after termination are zero and the initial action in the second expression is
+prescribed. The policy is followed thereafter. The values are finite: discounting suffices when
+$\gamma<1$, while properness makes each finite nonterminal transition matrix transient when
+$\gamma=1$. In particular,
+\begin{equation}\label{eq:bound}
+B:=\max_{\pi\in\mathcal P}\|q_\pi\|_\infty<\infty.
+\end{equation}
+All vector inequalities below are coordinatewise, and all norms are supremum norms unless
+indicated otherwise. We use $\inf\varnothing=\infty$.
+
+\begin{lemma}[Uniform termination in the episodic case]\label{lem:termination}
+If every deterministic stationary policy is proper, there are an integer $m\ge1$ and $\rho\in[0,1)$ such that the termination
+time $T$ satisfies $\mathbb P(T>jm)\le\rho^j$ under every control law, uniformly over starting states and
+prescribed initial actions. In particular, $\sup\mathbb E[T^2]<\infty$.
+\end{lemma}
+\begin{proof}
+Let $w_n(s)$ be the largest probability of remaining nonterminal after $n$ transitions,
+allowing arbitrary history-dependent policies. Then $w_0(s)=1$ and finite-horizon dynamic
+programming gives
+\[
+w_{n+1}(s)=\max_{a\in\mathcal A(s)}\sum_{s'\in\mathcal S}P(s'\mid s,a)w_n(s').
+\]
+The sequence decreases to a vector $w$. Finiteness permits passage through the maximum
+and sum. A deterministic stationary maximizer $\pi$ therefore satisfies $w=P_\pi w$. Properness
+implies $P_\pi^n\to0$, so $w=0$. Choose $m$ with $\max_s w_m(s)\le\rho<1$. Conditioning at successive
+blocks of $m$ transitions gives the asserted bound, also when the first action is prescribed.
+Summing the geometric tail gives a uniform second moment.
+\end{proof}
+
+For a deterministic policy $\rho$, write $T_\rho v=r_\rho+\gamma P_\rho v$, and let $Tv(s)=\max_a\{r(s,a)+
+\gamma\sum_{s'}P(s'\mid s,a)v(s')\}$. The following form of policy improvement will be used repeatedly;
+see also Howard (1960).
+
+\begin{lemma}[Policy improvement and Bellman verification]\label{lem:improvement}
+Suppose that, for every
+state,
+\[
+q_\pi(s,\rho(s))\ge q_\pi(s,\pi(s)).
+\]
+Then $v_\rho\ge v_\pi$ and $q_\rho\ge q_\pi$. If additionally $q_\rho\ne q_\pi$, then $\sum_{i\in\mathcal I}q_\rho(i)>\sum_{i\in\mathcal I}q_\pi(i)$. A
+deterministic policy greedy for its own action values is optimal, including among history-dependent policies.
+\end{lemma}
+\begin{proof}
+The premise is $T_\rho v_\pi\ge v_\pi$. Since $v_\rho=T_\rho v_\rho$,
+\begin{equation}\label{eq:inverse}
+v_\rho-v_\pi=(I-\gamma P_\rho)^{-1}(T_\rho v_\pi-v_\pi)\ge0.
+\end{equation}
+The inverse is the nonnegative series $\sum_{j\ge0}(\gamma P_\rho)^j$: discounting or properness ensures convergence. The identity $q_\pi(s,a)=r(s,a)+\gamma\sum_{s'}P(s'\mid s,a)v_\pi(s')$ gives the action-value
+comparison. Distinct coordinatewise ordered vectors have strictly ordered sums.
+
+If $\pi$ is greedy for $q_\pi$, then $Tv_\pi=v_\pi$. Iterating the Bellman inequality along any control
+law shows that its expected return is at most $v_\pi$, up to a terminal remainder bounded by
+$\|v_\pi\|_\infty\gamma^n$ when $\gamma<1$, or by $\|v_\pi\|_\infty\mathbb P(T>n)$ when $\gamma=1$. That remainder tends to zero, in
+the latter case by Lemma~\ref{lem:termination}. The policy $\pi$ attains $v_\pi$, proving optimality.
+\end{proof}
+
+An optimal deterministic stationary policy exists. For example, choose $\pi$ maximizing
+$\sum_s v_\pi(s)$ over the finite set $\mathcal P$. If it were not greedy for $q_\pi$, a greedy improvement $\rho$ would
+have $T_\rho v_\pi-v_\pi\ge0$ with a positive coordinate; the identity term in the inverse in \eqref{eq:inverse} would
+give a strict increase of the sum, a contradiction. We denote the optimal state and action
+values by $v^\star$ and $q^\star$, respectively. We do not use the converse implication from action-value
+ordering to state-value ordering. Equal action-value targets can belong to policies with
+different state values.
+
+\subsection{Initial-visit Monte Carlo control}\label{sec:algorithm}
+Let $q_k\in\mathbb R^{\mathcal I}$ be the current estimate, starting from a deterministic finite $q_0$. At the beginning
+of iteration $k$, select a deterministic greedy policy
+\begin{equation}\label{eq:greedy}
+\pi_k\in\mathcal G(q_k),\qquad
+\mathcal G(q)=\{\pi\in\mathcal P:q(s,\pi(s))=\max_a q(s,a)\text{ for all }s\}.
+\end{equation}
+Let $\mathcal H_k$ contain the history after computing $q_k$ but before this selection. We allow either of
+two tie rules, fixed throughout a run:
+\begin{enumerate}
+\item \emph{Fixed priorities.} At every state use a fixed priority ordering of the actions, including at
+initialization.
+\item \emph{Full inertia.} Choose $\pi_0$ greedily, and thereafter retain the preceding action whenever it
+remains greedy:
+\begin{equation}\label{eq:inertia}
+\pi_{k+1}(s)=\pi_k(s)\quad\text{if }\pi_k(s)\in\arg\max_a q_{k+1}(s,a).
+\end{equation}
+Otherwise choose any maximizing action, possibly at random and using the history.
+No statewise independence is required for this rule.
+\end{enumerate}
+After selecting $\pi_k$, choose the initial-pair distribution $\sigma_k$ and let $\mathcal F_k$ contain $\mathcal H_k$, $\pi_k$, and $\sigma_k$.
+The distribution may depend on the policy and on the entire past. Conditional on $\mathcal F_k$, draw
+$I_{k+1}$ with distribution $\sigma_k$ and obtain a return estimate $G_{k+1}$. In the episodic implementation,
+start with that pair, follow $\pi_k$ thereafter until termination, and sum the discounted rewards.
+Only the initial pair is updated:
+\begin{equation}\label{eq:update}
+q_{k+1}(i)=q_k(i)+\alpha_k\mathbf1_{\{I_{k+1}=i\}}(G_{k+1}-q_k(i)),\qquad i\in\mathcal I.
+\end{equation}
+The policy remains fixed during each episode and is selected again after this update. The
+next pre-policy history contains the pair, return, and update; in particular,
+\[
+\mathcal H_k\subseteq\mathcal F_k\subseteq\sigma(\mathcal F_k,I_{k+1})\subseteq\mathcal H_{k+1}\subseteq\mathcal F_{k+1}.
+\]
+All stopping times in the convergence proof refer to $(\mathcal F_k)$. This is the initial-visit version
+of MC-O-PI, also called Monte Carlo control with exploring starts (MCES). First-visit and
+every-visit algorithms update additional pairs within an episode; those algorithms are not
+covered by the convergence theorem below.
+
+\begin{assumption}[Cumulative learning, returns, and step sizes]\label{asp:main}
+The following conditions hold:
+\begin{enumerate}[label=(\arabic*)]
+\item Almost surely, initial actions are uniform within each state, and every state accumulates
+infinite learning:
+\begin{equation}\label{eq:learning}
+\begin{gathered}
+\sigma_k(s,a)=\sigma_k(s)\ge0,\qquad
+\sum_s|\mathcal A(s)|\sigma_k(s)=1,\qquad k\ge0,\\
+\sum_{k=0}^{\infty}\alpha_k\sigma_k(s)=\infty\quad\text{for every }s.
+\end{gathered}
+\end{equation}
+Here $\sigma_k(s)$ is the probability of each pair at state $s$, not its state marginal, which is
+$|\mathcal A(s)|\sigma_k(s)$.
+\item For a deterministic $c_v<\infty$, the return is conditionally unbiased with uniformly bounded
+conditional variance. On pairs with positive conditional sampling probability,
+\begin{equation}\label{eq:moments}
+\begin{aligned}
+\mathbb E[G_{k+1}\mid\mathcal F_k,I_{k+1}=i]&=q_{\pi_k}(i),\\
+\mathbb E[(G_{k+1}-q_{\pi_k}(i))^2\mid\mathcal F_k,I_{k+1}=i]&\le c_v.
+\end{aligned}
+\end{equation}
+No return law is required on a zero-probability initial-pair event.
+\item The deterministic steps satisfy
+\begin{equation}\label{eq:steps}
+0<\alpha_k\le1,\qquad\sum_{k=0}^{\infty}\alpha_k^2<\infty,\qquad
+\alpha_{k+1}\le\alpha_k\quad(k\ge k_{\mathrm m}),
+\end{equation}
+for a deterministic integer $k_{\mathrm m}$. Thus nonincrease is required only eventually. Equation~\eqref{eq:learning} already implies $\sum_k\alpha_k=\infty$.
+\end{enumerate}
+\end{assumption}
+
+The state law can be unequal, adaptive, and zero for arbitrarily long intervals. Equivalently, draw a state with probability $d_k(s)$ and then choose its initial action uniformly, giving
+$\sigma_k(s)=d_k(s)/|\mathcal A(s)|$. No lower bound or bound on waiting times is imposed in Assumption~\ref{asp:main}.
+Infinite visitation alone is not a substitute for infinite \emph{learning weight} when a common global
+step sequence is used.
+
+Bounded one-step rewards suffice for \eqref{eq:moments} with ordinary episode returns. For $|R_t|\le R_{\max}$
+and $\gamma<1$, the return is bounded by $R_{\max}/(1-\gamma)$. For $\gamma=1$ it is bounded by $R_{\max}T$, which
+has a uniform second moment by Lemma~\ref{lem:termination}. Unbounded rewards or other estimators are
+allowed when the explicit conditional moments hold. In a continuing discounted problem,
+an infinite rollout is unnecessary: with bounded rewards, draw an independent $U$ with
+$\mathbb P(U=j)=(1-\gamma)\gamma^j$, simulate from the prescribed initial pair using $\pi_k$ thereafter, and
+return $R_U/(1-\gamma)$. This bounded estimator is unbiased; for $\gamma=0$ take $U=0$.
+
+No comparability condition such as $\alpha_{k+j}\ge c\alpha_k$ for $j$ up to order $1/\alpha_k$ is assumed.
+Nonincrease compares earlier seed updates with a state's eventual completion step and
+controls future variance on that state's learning clock.

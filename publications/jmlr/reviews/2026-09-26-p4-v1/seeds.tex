@@ -1,0 +1,148 @@
+\subsection{Reference gaps and separately completed seeds}
+For a reference policy $\pi$, define
+\begin{equation}\label{eq:gaps}
+\begin{gathered}
+d_\pi(s,a)=q_\pi(s,\pi(s))-q_\pi(s,a),\qquad
+\mathcal B_\pi=\{(s,a):d_\pi(s,a)>0\},\\
+d_k(s,a)=q_k(s,\pi(s))-q_k(s,a).
+\end{gathered}
+\end{equation}
+An action in $\mathcal B_\pi$ would worsen the reference action according to $q_\pi$. If these estimated gaps
+are all positive, no greedy policy can select a bad action, so policy improvement applies. If
+every $\mathcal B_\pi$ is empty, improvement applies between every pair of policies in both directions.
+Their state values are equal; choosing a policy taking any prescribed action shows that every
+action attains that same value. All policies are optimal with the same target, and Lemma~\ref{thm: bounded limit sets}
+completes the theorem. Otherwise set
+\begin{equation}\label{eq:constants}
+d_* = \min_{\pi,\ (s,a)\in\mathcal B_\pi}d_\pi(s,a)>0,\qquad
+\delta=d_*/4,\qquad h=g=\delta/2.
+\end{equation}
+
+Fix deterministic $K>B$ and restart $r$, and let $\zeta_r=\inf\{k\ge r:\|q_k\|_\infty>K\}$. For a
+stopping time $t\ge r$, work on $\{t<\infty,t<\zeta_r\}$, fix $\pi=\pi_t$, and define
+\begin{equation}\label{eq:stops}
+\tau=\inf\{k>t:q_{\pi_k}\ne q_\pi\},\qquad \chi=\tau\wedge\zeta_r.
+\end{equation}
+These are stopping times. Return moments give finite second moments for every fixed-time
+table by induction in \eqref{eq: update q with chi}. For $t\le k<\chi$, the action-value target is exactly $q_\pi$, even if the
+selected policy label is different. Equal initial action probabilities give
+\begin{align}
+\mathbb E[d_{k+1}(s,a)-d_k(s,a)\mid\mathcal F'_k]
+&=\alpha_k\sigma_k(s)(d_\pi(s,a)-d_k(s,a)),\label{eq:gapdrift}\\
+\operatorname{Var}(d_{k+1}(s,a)-d_k(s,a)\mid\mathcal F'_k)
+&\le V\alpha_k^2\sigma_k(s),\qquad V=2\{c_v+(B+K)^2\}.\label{eq:gapvariance}
+\end{align}
+Only the two coordinates forming the gap can change, their selection events are disjoint,
+and each contributes at most $\alpha_k^2\sigma_k(s)\{c_v+(B+K)^2\}$ to the raw second moment. Since
+$d_\pi(s,a)\ge4\delta$, the state-clock barrier applies up to and including $\chi$. All such moment estimates
+are used before exit, not conditioned on future containment in the ball.
+
+\paragraph{A favorable local update.}
+Suppose the reference action is selected at $s$ and a current
+bad gap is below $\delta$. Request one of the following action/return events:
+\begin{enumerate}
+\item If $q_\pi(s,\pi(s))-q_k(s,\pi(s))\ge d_*/2$, select $\pi(s)$ and require $G_{k+1}\ge q_\pi(s,\pi(s))-h$. The
+reference coordinate increases by at least $3\delta\alpha_k/2$.
+\item Otherwise select $a$ and require $G_{k+1}\le q_\pi(s,a)+h$. The identity
+\[
+q_k(s,a)-q_\pi(s,a)=q_k(s,\pi(s))-q_\pi(s,\pi(s))+d_\pi(s,a)-d_k(s,a)>\delta
+\]
+implies that the bad coordinate decreases by more than $g\alpha_k=\delta\alpha_k/2$.
+\end{enumerate}
+In either case no other gap against the reference action decreases, and the reference action
+remains greedy. For centered $X$ with variance at most $c_v$, the one-sided Chebyshev inequality
+gives
+\[
+\mathbb P(X\ge-h)\ge\frac{h^2}{c_v+h^2},\qquad
+\mathbb P(X\le h)\ge\frac{h^2}{c_v+h^2}.
+\]
+For example, apply Markov's inequality to $(X+c_v/h)^2$ to bound $\mathbb P(X\ge h)$ and repeat for
+$-X$; when $c_v=0$, $X=0$ almost surely. Conditional on selecting $s$, its initial action is
+uniform, so every requested local update has conditional probability at least
+\begin{equation}\label{eq:localprob}
+p_0=\frac{h^2}{\max_s|\mathcal A(s)|\,(c_v+h^2)}>0.
+\end{equation}
+No probability of selecting the state enters this bound.
+
+\begin{lemma}[Separately completed statewise seeds]\label{lem:seeds}
+For full-inertia ties and any positive integer $N$, there is an adapted construction asking for at most $JN$
+favorable local updates, starting at $t\ge k_\alpha$. Along successful requests, every unfinished state
+retains its reference action, including at an endpoint reached by a favorable update. If state $s$
+completes at time $T_s<\infty$, then
+\begin{equation}\label{eq:seedmargin}
+d_{T_s}(s,a)\ge\min\{\delta,gN\alpha_{T_s}/C_\alpha\}\qquad((s,a)\in\mathcal B_\pi).
+\end{equation}
+Each request, conditional on selecting its unfinished state, has probability at least $p_0$.
+\end{lemma}
+\begin{proof}
+Order the bad actions at each state. Skip an action immediately if its gap is already
+at least $\delta$; otherwise process it with at most $N$ favorable updates at that state, stopping
+earlier if it reaches $\delta$. Process skips at $t$ and after every favorable update, before the next
+sample. A state completes when its list is exhausted. Write $T_s$ for this time, using $T_s=t$ for
+a state completed initially and $T_s=\infty$ if the construction stops before completion. These
+are stopping times. Every selection of an unfinished state requests a local update; completed
+states receive ordinary updates. Stop the construction at the first failed requirement or at $\chi$.
+
+Under full inertia, raising the reference estimate or lowering a competitor retains the
+reference action, since it remains greedy. At an unupdated state the table is unchanged, so
+the action is also retained. Induction proves the assertion through every unfinished state's
+wait.
+
+The same retention conclusion also holds for fixed priorities: at time $t$ the reference action has highest priority among that state's
+maximizers. Leaving the table unchanged, raising its estimate, or lowering a competitor
+cannot create a new maximizer ahead of it in the priority order. Therefore that same action
+continues to be selected at every unfinished state. Induct over all iterations, including those
+updating other states and the final favorable update at completion. This proves the required
+retention property directly; a fixed-priority rule is not being identified with full inertia on
+arbitrary updates.
+
+Every processed gap either reaches $\delta$ or receives $N$ increases of at least $g\alpha_k$. Later seed
+updates at its state cannot lower it. Bounded future increases give $\alpha_k\ge\alpha_{T_s}/C_\alpha$
+for every such update and proves \eqref{eq:seedmargin}. At most $J$ bad actions are processed, so there are
+at most $JN$ requests, irrespective of waiting times. Their conditional probability bound is
+\eqref{eq:localprob}.
+\end{proof}
+
+Completed states can be updated while other states wait. We therefore cannot condition
+indiscriminately on all future successful behavior: the completed-state return laws must stay
+unchanged. The following bounded change of measure conditions only the seed updates.
+
+\begin{lemma}[Conditioning only the seed updates]\label{lem:measure}
+There is an auxiliary law $\widehat{\mathbb P}\ll\mathbb P$
+under which all active requirements of Lemma~\ref{lem:seeds} succeed. Conditional state selection is
+unchanged. At completed states, and after the construction stops, the conditional action and
+return law given the current history and selected state is unchanged. For every future event
+$E$, on $\{t<\infty,t<\zeta_r\}$,
+\begin{equation}\label{eq:transfer}
+\mathbb P(E\mid\mathcal F'_t)\ge p_0^{JN}\widehat{\mathbb P}(E\mid\mathcal F'_t).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $S_{k+1}$ be the state component of $I_{k+1}$. At an active unfinished state $s$, let
+$p_k(s)$ be the conditional probability of its requirement given $\mathcal F'_k,S_{k+1}=s$. Then $p_k(s)\ge p_0$.
+If the state has zero sampling probability, set $p_k(s)=p_0$; this value is never used on a
+positive-probability draw.
+
+Start $L_t=1$. At a requested update of $s$, multiply $L$ by the indicator of success divided
+by $p_k(s)$; at other iterations multiply it by one. Every factor has conditional mean one given
+$\mathcal F'_k,S_{k+1}$. Hence $(L_k)$ is a martingale. At most $JN$ factors differ from one, even though their
+times need not be bounded, so $0\le L_k\le p_0^{-JN}$. Bounded convergence gives $\mathbb E[L_\infty\mid\mathcal F'_t]=1$.
+Define $d\widehat{\mathbb P}=L_\infty\,d\mathbb P$. For random $t$, use likelihood one before $t$, on $\{t=\infty\}$, and off $\{t<\zeta_r\}$,
+and combine the constructions on $\{t=j\}$ over integers $j$. The law agrees with $\mathbb P$ on $\mathcal F'_t$
+where the construction is active.
+
+A failure makes $L_\infty=0$, so active requirements succeed almost surely under the auxiliary
+law. To check conditional laws, use $\mathbb E[L_\infty\mid\mathcal F'_{k+1}]=L_{k+1}$; future factors do not alter
+the one-step likelihood. Its current factor has conditional mean one given the selected
+state, preserving state selection. At a completed state the current factor is identically one,
+so its conditional action and return law is unchanged as well. The statement holds on
+auxiliary-almost-every history, where $L_k>0$. Absolute continuity preserves the almost-sure
+algorithmic identities, including the full-inertia tie rule. Finally,
+\[
+\widehat{\mathbb P}(E\mid\mathcal F'_t)=\mathbb E[L_\infty\mathbf1_E\mid\mathcal F'_t]
+\le p_0^{-JN}\mathbb P(E\mid\mathcal F'_t),
+\]
+which proves the bound. This auxiliary law is used only in the proof; the algorithm still
+samples its original returns.
+\end{proof}
+
