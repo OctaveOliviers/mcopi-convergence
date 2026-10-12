@@ -1,6 +1,6 @@
 # JMLR proof: working decisions
 
-Updated 2026-10-10. The mathematical scope below remains agreed. The user authorized a focused simplification around seeding and gap preservation, making protection from a learning-rate-scale margin explicit and removing unnecessary notation. Preserve the weaker sampling and learning-rate assumptions and the original exposition outside the affected proof. No new specification approval is needed. See STATUS.md for the exact reviewed version and evidence.
+Updated 2026-10-12. The mathematical scope remains agreed. The user authorized this focused exposition order: gap preservation and an immediate interpretation of its probability bound; seeding to supply the required margin; their combination, with the auxiliary probabilities introduced at their use; global convergence. Remove comparisons with abandoned proof stages. Preserve the theorem, weaker assumptions and exposition outside the affected proof. No new specification approval is needed. See STATUS.md for exact versions and evidence.
 
 ## Agreed direction
 

@@ -62,7 +62,7 @@ Thus, on average, the estimate gap is pulled towards the positive target gap $d_
 Indeed, only the initial pair is updated. The two possible updates forming this gap are disjoint, each has probability $\sigma_k(s)$, and before $\zeta_r$ the difference between an estimate and its target has magnitude at most $2K$. Their total second moment bounds the variance in \eqref{eq:gapvariance}.
 The stopping time $\zeta_r$ is used only to justify these deterministic bounds. Boundedness will remove it at the end of the proof; we never condition the noise on future containment.
 
-The construction has two steps: \emph{seeding} creates positive gaps through favorable updates, and \emph{gap preservation} bounds the probability that these gaps close before the next transition or exit. States may wait arbitrarily long between updates, so each state completes its seed separately and its gaps are protected while other states are still waiting.
+We first determine how large a positive gap must be for stochastic updates to preserve it with high probability. We then construct that margin through favorable updates, a step called \emph{seeding}, and combine the two estimates to obtain a positive probability of policy improvement.
 
 Choose
 \begin{equation}
@@ -70,77 +70,19 @@ Choose
 \delta=\frac14\min_{\substack{\pi\in\mathcal P\\(s,a)\in\mathcal B_\pi}}d_\pi(s,a)>0.
 \end{equation}
 If the set in this minimum is empty, the Policy Improvement Theorem applies between every two policies in both directions. All policies then have the same optimal values, and \autoref{thm: suboptimal blocks finite} proves the theorem directly. We henceforth consider the nonempty case.
-The following constants are used in the seed and gap-preservation estimates, respectively:
-\begin{equation}
-\label{eq:c-def}
-c_s=\frac\delta2,
-\qquad c_g=\max\{1,20c_\xi(1+(3\delta)^{-1})\}.
-\end{equation}
-They depend on the fixed bound $K$ and the MDP, but not on the restart time or reference policy.
-
-\subsubsection{Seed: creating positive gaps}
-Suppose the reference action $\pi(s)$ is still selected and the gap $d_k(s,a)$ is below $\delta$. The favorable update depends on whether that action is under- or overestimated:
-\begin{enumerate}
-\item If $q_\pi(s,\pi(s))-q_k(s,\pi(s))\ge2\delta$, update $(s,\pi(s))$ and require $v_k(s,\pi(s))\ge-c_s$. Its estimate increases by at least $3\delta\alpha_k/2$.
-\item Otherwise update $(s,a)$ and require $v_k(s,a)\le c_s$. Since
-\[
-q_k(s,a)-q_\pi(s,a)
-=q_k(s,\pi(s))-q_\pi(s,\pi(s))+d_\pi(s,a)-d_k(s,a)>\delta,
-\]
-its estimate decreases by more than $c_s\alpha_k$.
-\end{enumerate}
-Either update increases the intended gap by at least $c_s\alpha_k$, leaves every other gap against the reference action unchanged or larger, and keeps the reference action greedy. The selection rule \eqref{eq:greedy-pol-tie-breaking} therefore retains it.
-
-The conditional return moments ensure that each one-sided noise requirement has probability at least $c_s^2/(c_v+c_s^2)$, by the one-sided Chebyshev inequality (the short conditional calculation is recalled in the appendix). Conditional on selecting the state, each action is sampled uniformly. Thus every favorable update has conditional probability at least
-\begin{equation}
-\label{eq:localprob}
-p_0=\frac{c_s^2}{\max_{s\in\mathcal S}|\mathcal A(s)|\,(c_v+c_s^2)}>0.
-\end{equation}
-No lower bound on the probability of selecting the state is needed.
-
-\begin{definition}[Seed construction]
-\label{def: seed construction}
-For the gaps and stopping times in \autoref{def: gap variables}, fix a positive integer $N$. To give every gap an initial margin, order the actions in $\mathcal B_\pi$ at each state. Skip a pair if its gap has already reached $\delta$; otherwise request up to $N$ favorable updates for it, stopping earlier if it reaches $\delta$. Whenever an unfinished state is sampled, request the next favorable update on its list. Completed states receive ordinary updates. Stop the construction at the first failed request or at $\tau\wedge\zeta_r$.
-Write $T_s$ for the iteration when state $s$ completes its list, with $T_s=t$ if it is complete initially and $T_s=\infty$ if the construction stops first. Skips are processed at $t$ and after every successful update, before the next sample, so $T_s$ is a stopping time.
-\end{definition}
-
-\begin{lemma}[Seed]
-\label{lem:seeds}
-Under \autoref{asp: standing}, consider the gaps and stopping times of \autoref{def: gap variables}, with $t\ge k_\alpha$, and let $N$ be a positive integer. The seed construction of \autoref{def: seed construction} requests at most $|\mathcal S\times\mathcal A|N$ favorable updates. Along successful requests, each unfinished state retains its reference action. If $T_s<\infty$, then
-\begin{equation}
-\label{eq:seedmargin}
-d_{T_s}(s,a)\ge\min\{\delta,c_sN\alpha_{T_s}/c_\alpha\}
-\qquad\text{for every }a\text{ with }(s,a)\in\mathcal B_\pi.
-\end{equation}
-This includes a state completed at the endpoint $\tau\wedge\zeta_r$. Each request has conditional probability at least $p_0$ given the current history and the selection of its unfinished state.
-\end{lemma}
-\begin{proof}
-A favorable update only raises the reference estimate or lowers a competing estimate. It keeps the reference action greedy, so \eqref{eq:greedy-pol-tie-breaking} retains that action. At a state not updated, the policy is unchanged. Induction therefore retains the reference action at every unfinished state, including during waits and after its last favorable update.
-
-Every processed gap either reaches $\delta$ or receives $N$ increases of at least $c_s\alpha_k$. Later favorable updates at the same state cannot lower it. By \eqref{eq:comparison}, each of these earlier steps satisfies $\alpha_k\ge\alpha_{T_s}/c_\alpha$, proving \eqref{eq:seedmargin}.
-At most $|\mathcal S\times\mathcal A|$ pairs are processed, and the probability of each request is bounded below by \eqref{eq:localprob}.
-\end{proof}
-
-A state can finish its seed stage long before another state is sampled. To analyze its later gaps, we must preserve the original return distribution at completed states. Conditioning on all future successful behavior would not ensure this. Instead we reweight only the favorable updates requested at unfinished states. The next lemma makes that restriction precise; its proof is in the appendix.
-
-\begin{lemma}
-\label{lem:measure}
-Under the conditions of \autoref{lem:seeds}, there is an auxiliary probability law $\widehat{\mathbb P}$ under which every requested seed update succeeds. State-selection probabilities are unchanged, and at completed states the action and return law given the current history and selected state is unchanged. The same holds after the construction stops. Every event of original probability zero still has auxiliary probability zero, and, for every future event $E$,
-\begin{equation}
-\label{eq:transfer}
-\mathbb P(E\mid\mathcal F'_t)
-\ge p_0^{|\mathcal S\times\mathcal A|N}\widehat{\mathbb P}(E\mid\mathcal F'_t)
-\quad\text{on }\{t<\infty,t<\zeta_r\}.
-\end{equation}
-\end{lemma}
 
 \subsubsection{Preserving positive gaps}
-Once a state has completed its seed, we apply a single estimate to bound the probability that a gap closes before the next transition or exit. The estimate starts from the small margin in \eqref{eq:seedmargin}; we need not first bring the gap to a fixed positive margin. The drift and noise variance in \eqref{eq:gapdrift}--\eqref{eq:gapvariance} both carry the per-action update probability $\sigma_k(s)$ at state $s$. Measuring elapsed learning at that state therefore allows arbitrarily long pauses between its updates.
+The following estimate bounds the probability that a positive gap closes before the next target change or exit. The drift and noise variance in \eqref{eq:gapdrift}--\eqref{eq:gapvariance} both carry the per-action update probability $\sigma_k(s)$ at state $s$. Measuring accumulated learning at that state will let us control this probability even when its updates are arbitrarily far apart. Set
+\begin{equation}
+\label{eq:c-def}
+c_g=\max\{1,20c_\xi(1+(3\delta)^{-1})\}.
+\end{equation}
+This constant depends on $K$ and the MDP, but not on the restart time or reference policy.
 
 \begin{lemma}[Gap preservation]
 \label{lem:barrier}
 Consider a pair $(s,a)\in\mathcal B_\pi$ in \autoref{def: gap variables}, and a stopping time $t'\ge\max\{t,k_\alpha\}$ with $t'<\infty$, $t'\le\tau\wedge\zeta_r$ and $d_{t'}(s,a)>0$.
-Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap recursion \eqref{eq:gapdrift} and conditional moments \eqref{eq:gapvariance} hold from $t'$ until $\tau\wedge\zeta_r$, under the probability law being used. With the constants in \eqref{eq:c-def},
+Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap recursion \eqref{eq:gapdrift} and conditional moments \eqref{eq:gapvariance} hold from $t'$ until $\tau\wedge\zeta_r$, under the probability law being used. With $c_g$ from \eqref{eq:c-def},
 \begin{equation}
 \label{eq:barrier}
 \mathbb P\!\left(\exists\text{ finite }n\in[t',\tau\wedge\zeta_r]:d_n(s,a)\le0\ \middle|\ \mathcal F'_{t'}\right)
@@ -149,7 +91,7 @@ Assume the learning-rate conditions of \autoref{asp: standing}, and that the gap
 \end{equation}
 The crossing event includes the update ending at $\tau\wedge\zeta_r$.
 \end{lemma}
-For the seed margin in \eqref{eq:seedmargin}, the first term is bounded by a constant times $1/N$ at sufficiently late completion times, and the second tends to zero. Thus the estimate protects gaps at the learning-rate scale; the substitution is given explicitly in the next subsection. The proof treats crossings before and after first reaching $\delta$ separately. This case distinction places no requirement on how quickly, or whether, the gap reaches $\delta$.
+Equation~\eqref{eq:barrier} bounds the chance that one specified gap closes. If its starting value is bounded below by a fixed positive number, both terms become arbitrarily small as $t^{\prime}$ increases. If the starting gap also tends to zero, however, the first term depends on the ratio of the learning rate to that gap: waiting alone need not make it small. A sufficiently large multiple of the learning rate controls this ratio, while a sufficiently late start makes the squared-learning-rate tail small. After proving the estimate, we construct such a margin through favorable updates.
 
 \begin{proof}
 \emph{A crossing before reaching $\delta$.} Condition~\eqref{eq:comparison} bounds every later step by $c_\alpha\alpha_{t'}$. Suppose $0<d_{t'}(s,a)<\delta$. If $d_{t'}(s,a)<c_\alpha\alpha_{t'}$, the first term in \eqref{eq:barrier} is already
@@ -214,4 +156,49 @@ $16c_\xi\delta^{-2}\sum_{k\ge\rho}\alpha_k^2$. Multiply by the $\mathcal F'_\rho
 and use $\rho\ge t'$. This proves the second term in \eqref{eq:barrier}. The last-visit index $\ell$ is used only in a pathwise
 inequality; we never condition at it. Both parts retain the increment $k=(\tau\wedge\zeta_r)-1$ and therefore
 protect the gap through the endpoint itself.
+\end{proof}
+
+\subsubsection{Seed: creating positive gaps}
+The preservation bound \eqref{eq:barrier} now gives us a concrete objective: lower-bound its denominator $\min\{d_{t'}(s,a),\delta\}$ relative to the learning rate. At a newly selected policy, some estimated gaps may be zero. We create the required margin through a finite number of favorable updates. States may wait arbitrarily long between updates, so each state completes this construction separately; its gaps will then be protected while other states are still waiting.
+
+Set $c_s=\delta/2$. Suppose the reference action $\pi(s)$ is still selected and the gap $d_k(s,a)$ is below $\delta$. The favorable update depends on whether that action is under- or overestimated:
+\begin{enumerate}
+\item If $q_\pi(s,\pi(s))-q_k(s,\pi(s))\ge2\delta$, update $(s,\pi(s))$ and require $v_k(s,\pi(s))\ge-c_s$. Its estimate increases by at least $3\delta\alpha_k/2$.
+\item Otherwise update $(s,a)$ and require $v_k(s,a)\le c_s$. Since
+\[
+q_k(s,a)-q_\pi(s,a)
+=q_k(s,\pi(s))-q_\pi(s,\pi(s))+d_\pi(s,a)-d_k(s,a)>\delta,
+\]
+its estimate decreases by more than $c_s\alpha_k$.
+\end{enumerate}
+Either update increases the intended gap by at least $c_s\alpha_k$, leaves every other gap against the reference action unchanged or larger, and keeps the reference action greedy. The selection rule \eqref{eq:greedy-pol-tie-breaking} therefore retains it.
+
+The conditional return moments ensure that each one-sided noise requirement has probability at least $c_s^2/(c_v+c_s^2)$, by the one-sided Chebyshev inequality (the short conditional calculation is recalled in the appendix). Conditional on selecting the state, each action is sampled uniformly. Thus every favorable update has conditional probability at least
+\begin{equation}
+\label{eq:localprob}
+p_0=\frac{c_s^2}{\max_{s\in\mathcal S}|\mathcal A(s)|\,(c_v+c_s^2)}>0.
+\end{equation}
+No lower bound on the probability of selecting the state is needed.
+
+\begin{definition}[Seed construction]
+\label{def: seed construction}
+For the gaps and stopping times in \autoref{def: gap variables}, fix a positive integer $N$. To give every gap an initial margin, order the actions in $\mathcal B_\pi$ at each state. Skip a pair if its gap has already reached $\delta$; otherwise request up to $N$ favorable updates for it, stopping earlier if it reaches $\delta$. Whenever an unfinished state is sampled, request the next favorable update on its list. Completed states receive ordinary updates. Stop the construction at the first failed request or at $\tau\wedge\zeta_r$.
+Write $T_s$ for the iteration when state $s$ completes its list, with $T_s=t$ if it is complete initially and $T_s=\infty$ if the construction stops first. Skips are processed at $t$ and after every successful update, before the next sample, so $T_s$ is a stopping time.
+\end{definition}
+
+\begin{lemma}[Seed]
+\label{lem:seeds}
+Under \autoref{asp: standing}, consider the gaps and stopping times of \autoref{def: gap variables}, with $t\ge k_\alpha$, and let $N$ be a positive integer. The seed construction of \autoref{def: seed construction} requests at most $|\mathcal S\times\mathcal A|N$ favorable updates. Along successful requests, each unfinished state retains its reference action. If $T_s<\infty$, then
+\begin{equation}
+\label{eq:seedmargin}
+d_{T_s}(s,a)\ge\min\{\delta,c_sN\alpha_{T_s}/c_\alpha\}
+\qquad\text{for every }a\text{ with }(s,a)\in\mathcal B_\pi.
+\end{equation}
+This includes a state completed at the endpoint $\tau\wedge\zeta_r$. Each request has conditional probability at least $p_0$ given the current history and the selection of its unfinished state.
+\end{lemma}
+\begin{proof}
+A favorable update only raises the reference estimate or lowers a competing estimate. It keeps the reference action greedy, so \eqref{eq:greedy-pol-tie-breaking} retains that action. At a state not updated, the policy is unchanged. Induction therefore retains the reference action at every unfinished state, including during waits and after its last favorable update.
+
+Every processed gap either reaches $\delta$ or receives $N$ increases of at least $c_s\alpha_k$. Later favorable updates at the same state cannot lower it. By \eqref{eq:comparison}, each of these earlier steps satisfies $\alpha_k\ge\alpha_{T_s}/c_\alpha$, proving \eqref{eq:seedmargin}.
+At most $|\mathcal S\times\mathcal A|$ pairs are processed, and the probability of each request is bounded below by \eqref{eq:localprob}.
 \end{proof}

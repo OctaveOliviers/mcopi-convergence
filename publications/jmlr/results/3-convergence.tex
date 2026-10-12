@@ -1,5 +1,5 @@
 \subsubsection{A positive probability of policy improvement}
-We now apply the gap-preservation estimate at each state's seed completion. Under the auxiliary law of \autoref{lem:measure}, all requested updates succeed. Choosing their number $N$ first and then a sufficiently late start bounds the probability of losing any completed gap by $1/2$, uniformly over the current policy. Transferring back to the original law gives the following positive probability of improvement.
+The seed lemma supplies the margin required by the gap-preservation bound. We combine them by choosing the number of favorable updates first, and then a sufficiently late start. This gives a fixed positive probability that the next target change improves the policy, unless the estimates first leave the bound or the target stays constant forever.
 
 \begin{lemma}
 \label{thm: fixed prob that bad actions dont become greedy}
@@ -16,7 +16,7 @@ Under \autoref{asp: standing}, fix $K>\max_{\pi\in\mathcal P}\|q_\pi\|$. There a
 on $\{t<\infty,t<\zeta_r\}$. Thus the stopped interval either reaches the bound, continues forever with the same target, or ends with a better policy, with conditional probability at least $p$.
 \end{lemma}
 \begin{proof}
-Fix the constants in \eqref{eq:c-def}. Choose a positive integer $N$ such that
+With $c_s=\delta/2$ and $c_g$ from \eqref{eq:c-def}, choose a positive integer $N$ such that
 \[
 \frac{2|\mathcal S\times\mathcal A|c_gc_\alpha^2}{\delta N}\le\frac14.
 \]
@@ -29,7 +29,18 @@ N\alpha_t\le2c_\alpha,
 \end{equation}
 These choices are possible because $\alpha_t\to0$ and the squared learning rates have a finite sum.
 
-Use the auxiliary law in \autoref{lem:measure}, so that all requested seed updates succeed. For a state completing at $T_s<\tau\wedge\zeta_r$, its subsequent update law is unchanged. The gap recursion and conditional moments therefore hold under this law, and \autoref{lem:barrier} applies starting at $T_s$. Equations~\eqref{eq:seedmargin} and \eqref{eq:choices} give
+A state can finish its seed before another state is sampled. To apply gap preservation from its completion time, we need its subsequent updates to keep their original conditional distribution. We therefore assign different probabilities to the same possible runs, only for this proof. Given the current history, keep the state-selection probabilities unchanged. If the selected state is unfinished, condition its requested action and return on being favorable; at completed states and after the construction stops, keep the original conditional action and return law.
+
+Write $\widehat{\mathbb P}$ for these auxiliary probabilities. Under this law every requested update succeeds. The construction in \autoref{lem:measure} in the appendix justifies these conditional laws and shows that, for every future event $E$,
+\begin{equation}
+\label{eq:transfer}
+\mathbb P(E\mid\mathcal F'_t)
+\ge p_0^{|\mathcal S\times\mathcal A|N}\widehat{\mathbb P}(E\mid\mathcal F'_t)
+\quad\text{on }\{t<\infty,t<\zeta_r\}.
+\end{equation}
+Thus a lower bound under the auxiliary probabilities gives a lower bound for the actual algorithm. The factor accounts for at most $|\mathcal S\times\mathcal A|N$ favorable requests, each with conditional probability at least $p_0$.
+
+For a state completing at $T_s<\tau\wedge\zeta_r$, its subsequent update law is unchanged. The gap recursion and conditional moments therefore hold under this law, and \autoref{lem:barrier} applies starting at $T_s$. Equations~\eqref{eq:seedmargin} and \eqref{eq:choices} give
 \[
 \frac{c_\alpha\alpha_{T_s}}{\min\{d_{T_s}(s,a),\delta\}}
 \le\frac{c_\alpha^2}{c_sN}

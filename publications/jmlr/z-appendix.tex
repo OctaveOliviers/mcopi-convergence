@@ -131,7 +131,17 @@ For a zero-mean random variable $X$ with $\mathbb E[X^2]\le c_v$, the nonnegativ
 \]
 Taking complements yields $\mathbb P(X\le c_s)\ge c_s^2/(c_v+c_s^2)$; applying the same argument to $-X$ gives $\mathbb P(X\ge-c_s)\ge c_s^2/(c_v+c_s^2)$. The calculation also holds conditionally, so \eqref{eq: return moments} supplies both return bounds used in the seed stage.
 
-\paragraph{Proof of \autoref{lem:measure}}
+\paragraph{Probabilities during the seed construction}
+\begin{lemma}
+\label{lem:measure}
+Under the conditions of \autoref{lem:seeds}, there is an auxiliary probability law $\widehat{\mathbb P}$ under which every requested seed update succeeds. State-selection probabilities are unchanged, and at completed states the action and return law given the current history and selected state is unchanged. The same holds after the construction stops. Every event of original probability zero still has auxiliary probability zero, and, for every future event $E$,
+\[
+\mathbb P(E\mid\mathcal F'_t)
+\ge p_0^{|\mathcal S\times\mathcal A|N}\widehat{\mathbb P}(E\mid\mathcal F'_t)
+\quad\text{on }\{t<\infty,t<\zeta_r\}.
+\]
+\end{lemma}
+\begin{proof}
 We construct the auxiliary law by assigning new probabilities to the same algorithm runs. At each requested update, discard the failed outcomes and divide the probabilities of successful outcomes by their total conditional probability. This is ordinary conditioning at that update; the weights below keep track of these changes over the whole run.
 At a requested update of state $s$, let $p_k(s)$ be the conditional probability of the favorable action and return event, given $\mathcal F'_k$ and that state $s$ is selected. By \eqref{eq:localprob}, $p_k(s)\ge p_0$ on positive-probability selections. Values at zero-probability selections may be assigned arbitrarily.
 
@@ -187,7 +197,7 @@ Finally,
 \le p_0^{-|\mathcal S\times\mathcal A|N}\mathbb P(E\mid\mathcal F'_t),
 \]
 which is \eqref{eq:transfer}. This reweighting is only a proof device; the algorithm continues to sample its original returns.
-\hfill\BlackBox
+\end{proof}
 
 \paragraph{The martingale maximal inequality used in \autoref{lem:barrier}}
 \label{app: martingale bound}
