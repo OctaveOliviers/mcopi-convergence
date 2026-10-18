@@ -123,13 +123,13 @@ A policy appearing infinitely often in the remaining sequence has action values 
 \hfill\BlackBox
 
 \paragraph{The one-sided return bound used in \autoref{lem:seeds}}
-For a zero-mean random variable $X$ with $\mathbb E[X^2]\le c_v$, the nonnegative quantity $(X+c_v/c_s)^2$ exceeds $(c_s+c_v/c_s)^2$ on $\{X>c_s\}$. Taking expectations gives
+For a zero-mean random variable $X$ with $\mathbb E[X^2]\le c_v$, the nonnegative quantity $(X+2c_v/\delta)^2$ exceeds $(\delta/2+2c_v/\delta)^2$ on $\{X>\delta/2\}$. Taking expectations gives
 \[
-\mathbb P(X>c_s)
-\le\frac{c_v+(c_v/c_s)^2}{(c_s+c_v/c_s)^2}
-=\frac{c_v}{c_v+c_s^2}.
+\mathbb P(X>\delta/2)
+\le\frac{c_v+(2c_v/\delta)^2}{(\delta/2+2c_v/\delta)^2}
+=\frac{4c_v}{4c_v+\delta^2}.
 \]
-Taking complements yields $\mathbb P(X\le c_s)\ge c_s^2/(c_v+c_s^2)$; applying the same argument to $-X$ gives $\mathbb P(X\ge-c_s)\ge c_s^2/(c_v+c_s^2)$. The calculation also holds conditionally, so \eqref{eq: return moments} supplies both return bounds used in the seed stage.
+Taking complements yields $\mathbb P(X\le\delta/2)\ge\delta^2/(4c_v+\delta^2)$; applying the same argument to $-X$ gives $\mathbb P(X\ge-\delta/2)\ge\delta^2/(4c_v+\delta^2)$. The calculation also holds conditionally, so \eqref{eq: return moments} supplies both return bounds used in the seed stage.
 
 \paragraph{Probabilities during the seed construction}
 \begin{lemma}
@@ -201,7 +201,7 @@ which is \eqref{eq:transfer}. This reweighting is only a proof device; the algor
 
 \paragraph{The martingale maximal inequality used in \autoref{lem:barrier}}
 \label{app: martingale bound}
-For a sum $M_n$ of increments with zero conditional mean, distinct increments have zero expected product. Its second moment is therefore the sum of their second moments. To bound its largest deviation, first fix a finite horizon $N$ and let $\theta$ be the first index at which $|M_\theta|\ge z$, where $M$ starts from zero and $z>0$ is known at the restart time.
+For a sum $M_n$ of increments with zero conditional mean, distinct increments have zero expected product. Its second moment is therefore the sum of their second moments. To bound its largest deviation, first fix a finite horizon $N$ and a deterministic threshold $z>0$. Let $\theta$ be the first index at which $|M_\theta|\ge z$, where $M$ starts from zero.
 On $\{\theta=j\}$ the later increment $M_N-M_j$ has conditional mean zero. Expanding the square gives
 \[
 \mathbb E[\mathbf1_{\{\theta=j\}}M_N^2]

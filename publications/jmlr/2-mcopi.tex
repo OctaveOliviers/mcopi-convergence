@@ -184,7 +184,7 @@ while all other estimates remain unchanged. Here $(\lrate_k)_{k \ge 0}$ is a sca
     \qquad
     \sum_{k =0}^\infty \alpha_k^2 < \infty .
 \end{align}
-We take these learning rates to be deterministic, with $0<\alpha_k\le1$. The stochastic convergence proof also uses the following weaker form of eventual nonincrease: there are deterministic constants $c_\alpha\ge1$ and $k_\alpha<\infty$ such that
+We use one global deterministic sequence of learning rates, with $0<\alpha_k\le1$. The stochastic convergence proof also uses the following weaker form of eventual nonincrease: there are deterministic constants $c_\alpha\ge1$ and $k_\alpha<\infty$ such that
 \begin{equation}
 \label{eq:comparison}
 \alpha_j\le c_\alpha\alpha_k\qquad\text{for every }j\ge k\ge k_\alpha.
@@ -236,14 +236,14 @@ q_{k+1}(s,a)
 The indicator function $u_k$ depends on the initial state-action pair of the episode, the policy used for simulating it and the chosen update method.
 Thus this representation separates the choice of updated pairs from the noise in their observed returns. The algebra below applies to either indicator-based update method; the convergence theorem in this paper uses initial visits.
 
-For initial-visit updates, the return from the sampled pair has conditional mean $q_{\pi_k}(s,a)$. We assume a uniform bound on its conditional variance:
+For initial-visit updates, we assume that the sampled return is conditionally unbiased and has uniformly bounded conditional variance:
 \begin{equation}
 \label{eq: return moments}
 \mathbb E[v_k(s,a)\mid\mathcal F'_k,u_k(s,a)=1]=0,
 \qquad
 \mathbb E[v_k(s,a)^2\mid\mathcal F'_k,u_k(s,a)=1]\le c_v.
 \end{equation}
-These conditions are imposed only when the pair has positive sampling probability. Bounded one-step rewards suffice: discounting bounds the return directly, while the geometric termination tail of a proper finite-state policy gives a finite second moment. There are only finitely many deterministic policies and initial pairs, so the bound is uniform~\citep[Section~2.2.1]{Bertsekas1996Neuro-DynamicProgramming}.
+These conditions are imposed only when the pair has positive sampling probability. A fresh episode from the sampled pair, following $\pi_k$ with the MDP transition and reward laws, suffices for conditional unbiasedness. If rewards are also bounded, the variance condition holds: discounting bounds the return directly, while the geometric termination tail of a proper finite-state policy gives a finite second moment. There are only finitely many deterministic policies and initial pairs, so the bound is uniform~\citep[Section~2.2.1]{Bertsekas1996Neuro-DynamicProgramming}.
 
 \subsubsection{Initial sampling distribution}
 
@@ -261,7 +261,7 @@ A common sufficient condition is \textit{strict exploring starts}: a fixed posit
 \end{equation}
 This allows a pair to have zero sampling probability at some iterations, and it allows arbitrarily long waits between its updates. Infinite visitation alone would not suffice, since the learning rates at those visits could have a finite sum.
 
-Our main result further requires that, after selecting the initial state, the initial action is chosen uniformly from its available actions. We then write
+Our main result further requires that, conditional on the available history and selected initial state, the initial action is chosen uniformly from its available actions. We then write
 \begin{equation}
 \label{eq: uniform starts}
 \sigma_k(s,a)=\sigma_k(s)\ge0,
@@ -327,10 +327,10 @@ We gather the conditions for the main convergence result in one place.
 \phantom{Assume}
 \begin{enumerate}[label=(\arabic*)]
 \item \textbf{Finite MDP and initialization.} The state and action sets are finite, rewards have finite expected absolute value, and the MDP is discounted or every deterministic stationary policy is proper. The initial estimate $q_0$ is finite and deterministic.
-\item \textbf{Learning rates.} The deterministic rates satisfy $0<\alpha_k\le1$, the Robbins--Monro conditions \eqref{eq: robbins monro conditions}, and the weakened monotonicity condition \eqref{eq:comparison}.
+\item \textbf{Learning rates.} The global deterministic rates satisfy $0<\alpha_k\le1$, the Robbins--Monro conditions \eqref{eq: robbins monro conditions}, and the weakened monotonicity condition \eqref{eq:comparison}.
 \item \textbf{Greedy policy selection.} The policies are greedy as in \eqref{eq: greedy policy def}, with inertia as in \eqref{eq:greedy-pol-tie-breaking}.
 \item \textbf{Initial-visit updates.} Only the initial pair of each episode is updated. The sampled returns satisfy \eqref{eq: return moments} for a deterministic constant $c_v<\infty$.
-\item \textbf{Sampling.} The initial actions are uniform within each state as in \eqref{eq: uniform starts}, and every pair receives infinite accumulated learning as in \eqref{eq: cumulative learning}. The sampling distribution may depend on the available history and the selected policy.
+\item \textbf{Sampling.} Conditional on the available history and initial state, the first action is uniform as in \eqref{eq: uniform starts}, and every pair receives infinite accumulated learning as in \eqref{eq: cumulative learning}. The sampling distribution may depend on the available history and the selected policy.
 \end{enumerate}
 \end{assumption}
 

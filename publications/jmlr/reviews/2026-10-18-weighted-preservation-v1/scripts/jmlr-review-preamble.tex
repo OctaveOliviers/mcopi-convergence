@@ -1,0 +1,42 @@
+% This preamble is injected only into the generated review copy.
+\RequirePackage[pdftex,xcolor,leftbars]{changebar}
+\definecolor{reviewbar}{RGB}{0,115,207}
+\cbcolor{reviewbar}
+\setlength{\changebarwidth}{1pt}
+\setlength{\changebarsep}{9pt}
+% Queue inline starts like changebar's ends, preserving order on a shared line.
+\DeclareRobustCommand{\reviewbarstart}{%
+  \ifhmode
+    \vadjust{\vbox to 0pt{%
+      \vskip-\ht\strutbox
+      \vskip-\dp\strutbox
+      \cbstart[\changebarwidth]
+      \vss
+    }}%
+  \else
+    \cbstart[\changebarwidth]%
+  \fi
+}
+% Keep bar endpoints outside equations, which may be typeset repeatedly.
+\providecommand{\DIFadd}[1]{#1}
+\providecommand{\DIFdel}[1]{}
+\providecommand{\DIFaddbegin}{\reviewbarstart}
+\providecommand{\DIFaddend}{\protect\cbend}
+\providecommand{\DIFdelbegin}{}
+\providecommand{\DIFdelend}{}
+\providecommand{\DIFmodbegin}{}
+\providecommand{\DIFmodend}{}
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}}
+\providecommand{\DIFdelFL}[1]{}
+\providecommand{\DIFaddbeginFL}{\DIFaddbegin}
+\providecommand{\DIFaddendFL}{\DIFaddend}
+\providecommand{\DIFdelbeginFL}{}
+\providecommand{\DIFdelendFL}{}
+\pdfstringdefDisableCommands{%
+  \def\DIFadd#1{#1}%
+  \def\DIFaddFL#1{#1}%
+  \def\DIFaddbegin{}%
+  \def\DIFaddend{}%
+  \def\DIFaddbeginFL{}%
+  \def\DIFaddendFL{}%
+}

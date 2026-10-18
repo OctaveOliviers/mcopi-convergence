@@ -1,6 +1,6 @@
 # JMLR proof: working decisions
 
-Updated 2026-10-12. The mathematical scope remains agreed. The user authorized this focused exposition order: gap preservation and an immediate interpretation of its probability bound; seeding to supply the required margin; their combination, with the auxiliary probabilities introduced at their use; global convergence. Remove comparisons with abandoned proof stages. Preserve the theorem, weaker assumptions and exposition outside the affected proof. No new specification approval is needed. See STATUS.md for exact versions and evidence.
+Updated 2026-10-18. The user authorized the weighted-martingale gap-preservation proof, symmetric favorable updates and direct seed-to-future-step comparison using condition (5) once. Preserve localization at random positive entry gaps, the existing auxiliary-law proof and explicit finite/infinite transition handling. Retain the theorem and all standing assumptions; clarify conditional uniformity, one global deterministic step sequence, and fresh episodes as a sufficient implementation of the return-moment assumption. The earlier exposition order remains: preservation, seed, combination, convergence. No new scope approval is needed. See STATUS.md for exact versions and evidence.
 
 ## Agreed direction
 
