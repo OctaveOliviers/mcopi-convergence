@@ -1,0 +1,434 @@
+% Original PDF: Section 3, pages 6--13 and the first two lines on page 14.
+\section{Results}\label{sec:results}
+\begin{theorem}[Convergence under cumulative learning]\label{thm:convergence}
+Consider recursion~\eqref{eq:update} under
+Assumption~\ref{asp:main}, with either fixed-priority or full-inertia tie-breaking from Section~\ref{sec:algorithm}. Then,
+almost surely, $(q_{\pi_k})$ changes only finitely many times and
+\[
+q_k\longrightarrow q^\star.
+\]
+Every sufficiently late selected policy $\pi_k$ is optimal. If each state has a unique optimal action,
+$\pi_k$ is eventually constant; with optimal ties, constancy of policy labels is not asserted.
+\end{theorem}
+
+\subsection{The mean-field argument}
+Replace each sampled update by its conditional expectation:
+\begin{equation}\label{eq:meanfield}
+q_{k+1}(s,a)=q_k(s,a)+\alpha_k\sigma_k(s)\bigl(q_{\pi_k}(s,a)-q_k(s,a)\bigr).
+\end{equation}
+At a state with $c=\alpha_k\sigma_k(s)>0$, greediness before and after the update gives
+\[
+\begin{aligned}
+q_{\pi_k}(s,\pi_{k+1}(s))-q_{\pi_k}(s,\pi_k(s))
+&\ge\frac{1-c}{c}\bigl(q_k(s,\pi_k(s))-q_k(s,\pi_{k+1}(s))\bigr)\\
+&\ge0.
+\end{aligned}
+\]
+If $c=0$, the state's table is unchanged. Fixed priorities and full inertia retain its selected
+action, so the same policy-improvement inequality holds with equality. Thus Lemma~\ref{lem:improvement} gives
+$q_{\pi_{k+1}}\ge q_{\pi_k}$. With finitely many targets, this sequence is eventually a single $\bar q$. Infinite
+cumulative learning then makes \eqref{eq:meanfield} converge to $\bar q$. A policy $\widehat\pi$ occurring infinitely often is
+greedy for $\bar q=q_{\widehat\pi}$, so Bellman verification gives $\bar q=q^\star$.
+
+Equal action rates are exactly what permits a common coefficient $c$. The sampled
+recursion need not improve its target at every change. Instead we will show a uniform
+positive conditional probability of improving or stopping during each sufficiently late target
+interval.
+
+\subsection{Sampling, filtering, and stability}
+\begin{lemma}[From conditional to actual update weight]\label{lem:actual}
+Let $J_{k+1}(i)\in\{0,1\}$ be $\mathcal F_{k+1}$-measurable indicators for finitely many coordinates, and put $p_k(i)=\mathbb E[J_{k+1}(i)\mid\mathcal F_k]$. If the
+deterministic $\alpha_k\ge0$ satisfy $\sum_k\alpha_k^2<\infty$, then on one probability-one event, for every $i$,
+\begin{equation}\label{eq:actual}
+\sum_k\alpha_kp_k(i)=\infty\quad\Longrightarrow\quad\sum_k\alpha_kJ_{k+1}(i)=\infty.
+\end{equation}
+This statement does not require an assumption on the update targets.
+\end{lemma}
+\begin{proof}
+The series $\sum_k\alpha_k(J_{k+1}(i)-p_k(i))$ is a martingale series whose increment variances
+sum to at most $\sum_k\alpha_k^2$. It therefore converges almost surely by the $L^2$ martingale convergence
+theorem. Subtracting its partial sums from $\sum_{k<n}\alpha_kJ_{k+1}(i)$ proves the implication. Intersect
+the probability-one events over the finitely many coordinates.
+\end{proof}
+
+For initial-pair indicators, $p_k(i)=\sigma_k(i)$. In particular, a positive initial-pair floor and
+$\sum_k\alpha_k=\infty$ give infinite actual update weight. A full first-visit indicator dominates the
+initial-pair indicator, so the same conclusion holds for full first visits.
+
+\begin{lemma}[Filtering accumulated errors]\label{lem:filter}
+Consider the scalar recursion
+\[
+x_{k+1}=(1-b_k)x_k+b_ky_k+e_{k+1},\qquad0\le b_k\le1.
+\]
+For $n>r$, its filtered error satisfies
+\begin{equation}\label{eq:filter}
+\left|\sum_{k=r}^{n-1}e_{k+1}\prod_{j=k+1}^{n-1}(1-b_j)\right|
+\le2\max_{r\le m\le n}\left|\sum_{k=r}^{m-1}e_{k+1}\right|.
+\end{equation}
+If $\sum_kb_k=\infty$ and $\sum_ke_{k+1}$ converges, eventual bounds $\ell\le y_k\le h$ imply $\ell\le\liminf_kx_k\le
+\limsup_kx_k\le h$. In particular, an eventually constant target $y$ gives $x_k\to y$. All statements
+are pathwise.
+\end{lemma}
+\begin{proof}
+Unrolling from $r$ gives the initial value with weight $P_{r,n}=\prod_{k=r}^{n-1}(1-b_k)$, the targets
+with nonnegative weights summing to $1-P_{r,n}$, and the displayed error. The error weights
+belong to $[0,1]$ and are nondecreasing in $k$, so summation by parts gives \eqref{eq:filter}. If $\sum_kb_k=\infty$,
+then $P_{r,n}\to0$ for each $r$. Convergence of the error series makes its tail partial sums uniformly
+small. First let $n\to\infty$ with $r$ after the target bounds begin, and then let $r\to\infty$.
+\end{proof}
+
+\begin{lemma}[Stability and persistent targets]\label{lem:stability}
+Under Assumption~\ref{asp:main}, with any greedy tie
+selection, there is one probability-one event on which
+\[
+\sum_k\alpha_k\mathbf1_{\{I_{k+1}=i\}}=\infty\quad(i\in\mathcal I),\qquad
+\limsup_k\|q_k\|_\infty\le B.
+\]
+On the same event, if $q_{\pi_k}=\bar q$ for all sufficiently large $k$, then $q_k\to\bar q=q^\star$.
+\end{lemma}
+\begin{proof}
+For $i=(s,a)$, put
+\[
+\lambda_{k,i}=\alpha_k\mathbf1_{\{I_{k+1}=i\}},\qquad
+\varepsilon_{k+1,i}=\lambda_{k,i}(G_{k+1}-q_{\pi_k}(i)).
+\]
+Cumulative learning and Lemma~\ref{lem:actual} give $\sum_k\lambda_{k,i}=\infty$ almost surely. The return-moment
+assumption makes $\varepsilon_{k+1,i}$ a martingale difference with conditional second moment at most
+$c_v\alpha_k^2\sigma_k(s)$. Its series therefore converges almost surely. Intersect these events over the finitely
+many coordinates.
+
+On this event the MCES recursion has the form of Lemma~\ref{lem:filter}, with weights $\lambda_{k,i}$, targets
+$q_{\pi_k}(i)\in[-B,B]$, and errors $\varepsilon_{k+1,i}$. The lemma gives stability and convergence to any
+eventual target $\bar q$. A policy $\widehat\pi$ occurring infinitely often satisfies $q_{\widehat\pi}=\bar q$, and its greedy
+inequalities pass to the limit. Lemma~\ref{lem:improvement} gives $\bar q=q^\star$. No conditioning on eventual target
+persistence is used.
+\end{proof}
+
+\subsection{A barrier on a state's learning clock}
+The same sampling factor appears in a gap's drift and variance. Keeping that factor permits
+arbitrarily long pauses: when a state is not sampled, both the restoring force and the noise
+pause. No divergence of the state's clock is needed for the following local estimate.
+
+\begin{lemma}[State-clock barrier]\label{lem:barrier}
+Let $(D_k)$ be a real adapted process with integrable increments, let $r\le\tau$ be stopping times, and let $\sigma_k(s)\in[0,1]$ be $\mathcal F_k$-measurable. The deterministic
+steps are in $(0,1]$, square summable, and nonincreasing from $r$ onward. Write
+\[
+m_k=\mathbb E[D_{k+1}-D_k\mid\mathcal F_k],\qquad
+Z_{k+1}=D_{k+1}-D_k-m_k.
+\]
+Suppose deterministic $\delta,V>0$ satisfy, on $\{r\le k<\tau,D_k\ge0\}$,
+\begin{equation}\label{eq:barrierhyp}
+m_k\ge\alpha_k\sigma_k(s)(4\delta-D_k),\qquad
+\mathbb E[Z_{k+1}^2\mid\mathcal F_k]\le V\alpha_k^2\sigma_k(s).
+\end{equation}
+Then, on $\{r<\infty,D_r>0\}$,
+\begin{equation}\label{eq:barrier}
+\mathbb P\bigl(\exists\text{ finite }n\in[r,\tau]:D_n\le0\mid\mathcal F_r\bigr)
+\le C_0\frac{\alpha_r}{\min\{D_r,\delta\}}+\frac{C_1}{\delta^2}\sum_{k=r}^{\infty}\alpha_k^2,
+\end{equation}
+where $C_0=\max\{1,20V(1+(3\delta)^{-1})\}$ and $C_1=16V$. The crossing event includes the update
+ending at $\tau$.
+\end{lemma}
+\begin{proof}
+\emph{Before reaching $\delta$.} Suppose $0<D_r<\delta$. If $D_r<\alpha_r$, the first term in \eqref{eq:barrier} is already
+at least one. Otherwise define
+\[
+\nu=\tau\wedge\inf\{n\ge r:D_n\le0\text{ or }D_n\ge\delta\},\qquad
+M_n=\sum_{k=r}^{n-1}\mathbf1_{\{k<\nu\}}Z_{k+1},
+\]
+and the state clock
+\begin{equation}\label{eq:clock}
+A_s(r,n)=\sum_{k=r}^{n-1}\alpha_k\sigma_k(s).
+\end{equation}
+A first crossing at $n\le\tau$ before reaching $\delta$ forces
+\begin{equation}\label{eq:crossing}
+M_n\le-D_r-3\delta A_s(r,n).
+\end{equation}
+For $b>0$ known at $r$, set $T(b)=\inf\{n\ge r:A_s(r,n)\ge b\}$, possibly infinite. Nonincrease
+bounds the overshoot and future variance, at every finite horizon $n\ge r$, by
+\[
+A_s(r,T(b)\wedge n)\le b+\alpha_r,\qquad
+\sum_{k=r}^{T(b)\wedge n-1}\alpha_k^2\sigma_k(s)\le\alpha_r(b+\alpha_r).
+\]
+Conditional martingale isometry and Doob's $L^2$ inequality therefore give
+\begin{equation}\label{eq:doob}
+\mathbb P\!\left(\sup_{r\le n\le T(b)}|M_n|\ge z\ \middle|\ \mathcal F_r\right)
+\le\frac{4V\alpha_r(b+\alpha_r)}{z^2},\qquad z>0.
+\end{equation}
+The supremum is over finite indices. First stop at a finite horizon, then increase the horizon;
+an unattained supremum is handled by increasing thresholds to $z$ from below. For $\mathcal F_r$-measurable $b,z$, localize on sets where $b,z,z^{-1}$ are bounded. Random $r$ is treated on $\{r=j\}$
+and then combined over integers $j$. Thus no finite bound on $T(b)$ or the waiting time has
+been assumed.
+
+Partition possible crossing times into $A_s(r,n)<D_r/(3\delta)$ and, for $j\ge1$,
+\[
+2^{j-1}D_r/(3\delta)\le A_s(r,n)<2^jD_r/(3\delta).
+\]
+Apply \eqref{eq:doob} with $(b,z)=(D_r/(3\delta),D_r)$ for the first range and $(b,z)=(2^jD_r/(3\delta),2^{j-1}D_r)$
+for the others. Because $D_r\ge\alpha_r$, the respective bounds are at most
+\[
+4V(1+(3\delta)^{-1})\frac{\alpha_r}{D_r},\qquad
+16V(1+(3\delta)^{-1})\frac{\alpha_r}{D_r}2^{-j}.
+\]
+Summing gives the first term in \eqref{eq:barrier}.
+
+\emph{After reaching $\delta$.} Let $\rho=\inf\{n\ge r:D_n\ge\delta\}$, using $\rho=r$ if $D_r\ge\delta$. On $\{\rho<\infty,\rho\le\tau\}$,
+restart at $\rho$ and stop at $\eta=\tau\wedge\inf\{n\ge\rho:D_n\le0\}$:
+\[
+\widetilde M_n=\sum_{k=\rho}^{n-1}\mathbf1_{\{k<\eta\}}Z_{k+1}.
+\]
+For $D_k\ge\delta$, \eqref{eq:barrierhyp} and $0\le\alpha_k\sigma_k(s)\le1$ imply $D_k+m_k\ge\delta$. If a first subsequent crossing is
+at $n$, let $\ell<n$ be the last index with $D_\ell\ge\delta$. All subsequent gaps before $n$ are in $(0,\delta)$ and
+have nonnegative mean increments, so
+\[
+D_n\ge\delta+\widetilde M_n-\widetilde M_\ell.
+\]
+A crossing forces $\sup_{n\ge\rho}|\widetilde M_n|\ge\delta/2$. Doob's inequality at $\rho$ bounds this probability by
+$16V\delta^{-2}\sum_{k\ge\rho}\alpha_k^2$. Multiply by the $\mathcal F_\rho$-measurable event $\{\rho<\infty,\rho\le\tau\}$, average back to $\mathcal F_r$,
+and use $\rho\ge r$. This proves the second term. The last-visit index $\ell$ is used only in a pathwise
+inequality; we never condition at it. Both parts retain the increment $k=\tau-1$ and therefore
+protect the gap through the endpoint itself.
+\end{proof}
+
+\subsection{Reference gaps and separately completed seeds}
+For a reference policy $\pi$, define
+\begin{equation}\label{eq:gaps}
+\begin{gathered}
+d_{\pi,s,a}=q_\pi(s,\pi(s))-q_\pi(s,a),\qquad
+\mathcal B_\pi=\{(s,a):d_{\pi,s,a}>0\},\\
+D_k^{\pi,s,a}=q_k(s,\pi(s))-q_k(s,a).
+\end{gathered}
+\end{equation}
+An action in $\mathcal B_\pi$ would worsen the reference action according to $q_\pi$. If these estimated gaps
+are all positive, no greedy policy can select a bad action, so policy improvement applies. If
+every $\mathcal B_\pi$ is empty, improvement applies between every pair of policies in both directions.
+Their state values are equal; choosing a policy taking any prescribed action shows that every
+action attains that same value. All policies are optimal with the same target, and Lemma~\ref{lem:stability}
+completes the theorem. Otherwise set
+\begin{equation}\label{eq:constants}
+d_* = \min_{\pi,\ (s,a)\in\mathcal B_\pi}d_{\pi,s,a}>0,\qquad
+\delta=d_*/4,\qquad h=g=\delta/2.
+\end{equation}
+
+Fix deterministic $K>B$ and restart $r$, and let $\zeta_r=\inf\{k\ge r:\|q_k\|_\infty>K\}$. For a
+stopping time $t\ge r$, work on $\{t<\infty,t<\zeta_r\}$, fix $\pi=\pi_t$, and define
+\begin{equation}\label{eq:stops}
+\tau=\inf\{k>t:q_{\pi_k}\ne q_\pi\},\qquad \chi=\tau\wedge\zeta_r.
+\end{equation}
+These are stopping times. Return moments give finite second moments for every fixed-time
+table by induction in \eqref{eq:update}. For $t\le k<\chi$, the action-value target is exactly $q_\pi$, even if the
+selected policy label is different. Equal initial action probabilities give
+\begin{align}
+\mathbb E[D_{k+1}^{\pi,s,a}-D_k^{\pi,s,a}\mid\mathcal F_k]
+&=\alpha_k\sigma_k(s)(d_{\pi,s,a}-D_k^{\pi,s,a}),\label{eq:gapdrift}\\
+\operatorname{Var}(D_{k+1}^{\pi,s,a}-D_k^{\pi,s,a}\mid\mathcal F_k)
+&\le V\alpha_k^2\sigma_k(s),\qquad V=2\{c_v+(B+K)^2\}.\label{eq:gapvariance}
+\end{align}
+Only the two coordinates forming the gap can change, their selection events are disjoint,
+and each contributes at most $\alpha_k^2\sigma_k(s)\{c_v+(B+K)^2\}$ to the raw second moment. Since
+$d_{\pi,s,a}\ge4\delta$, the state-clock barrier applies up to and including $\chi$. All such moment estimates
+are used before exit, not conditioned on future containment in the ball.
+
+\paragraph{A favorable local update.}
+Suppose the reference action is selected at $s$ and a current
+bad gap is below $\delta$. Request one of the following action/return events:
+\begin{enumerate}
+\item If $q_\pi(s,\pi(s))-q_k(s,\pi(s))\ge d_*/2$, select $\pi(s)$ and require $G_{k+1}\ge q_\pi(s,\pi(s))-h$. The
+reference coordinate increases by at least $3\delta\alpha_k/2$.
+\item Otherwise select $a$ and require $G_{k+1}\le q_\pi(s,a)+h$. The identity
+\[
+q_k(s,a)-q_\pi(s,a)=q_k(s,\pi(s))-q_\pi(s,\pi(s))+d_{\pi,s,a}-D_k^{\pi,s,a}>\delta
+\]
+implies that the bad coordinate decreases by more than $g\alpha_k=\delta\alpha_k/2$.
+\end{enumerate}
+In either case no other gap against the reference action decreases, and the reference action
+remains greedy. For centered $X$ with variance at most $c_v$, the one-sided Chebyshev inequality
+gives
+\[
+\mathbb P(X\ge-h)\ge\frac{h^2}{c_v+h^2},\qquad
+\mathbb P(X\le h)\ge\frac{h^2}{c_v+h^2}.
+\]
+For example, apply Markov's inequality to $(X+c_v/h)^2$ to bound $\mathbb P(X\ge h)$ and repeat for
+$-X$; when $c_v=0$, $X=0$ almost surely. Conditional on selecting $s$, its initial action is
+uniform, so every requested local update has conditional probability at least
+\begin{equation}\label{eq:localprob}
+p_0=\frac{h^2}{\max_s|\mathcal A(s)|\,(c_v+h^2)}>0.
+\end{equation}
+No probability of selecting the state enters this bound.
+
+\begin{lemma}[Separately completed statewise seeds]\label{lem:seeds}
+For fixed-priority or full-inertia\linebreak
+ties and any positive integer $N$, there is an adapted construction asking for at most $JN$
+favorable local updates, starting at $t\ge k_{\mathrm m}$. Along successful requests, every unfinished state
+retains its reference action, including at an endpoint reached by a favorable update. If state $s$
+completes at time $T_s<\infty$, then
+\begin{equation}\label{eq:seedmargin}
+D_{T_s}^{\pi,s,a}\ge\min\{\delta,gN\alpha_{T_s}\}\qquad((s,a)\in\mathcal B_\pi).
+\end{equation}
+Each request, conditional on selecting its unfinished state, has probability at least $p_0$.
+\end{lemma}
+\begin{proof}
+Order the bad actions at each state. Skip an action immediately if its gap is already
+at least $\delta$; otherwise process it with at most $N$ favorable updates at that state, stopping
+earlier if it reaches $\delta$. Process skips at $t$ and after every favorable update, before the next
+sample. A state completes when its list is exhausted. Write $T_s$ for this time, using $T_s=t$ for
+a state completed initially and $T_s=\infty$ if the construction stops before completion. These
+are stopping times. Every selection of an unfinished state requests a local update; completed
+states receive ordinary updates. Stop the construction at the first failed requirement or at $\chi$.
+
+Under full inertia, raising the reference estimate or lowering a competitor retains the
+reference action, since it remains greedy. At an unupdated state the table is unchanged, so
+the action is also retained. Induction proves the assertion through every unfinished state's
+wait.
+
+For fixed priorities, at time $t$ the reference action has highest priority among that state's
+maximizers. Leaving the table unchanged, raising its estimate, or lowering a competitor
+cannot create a new maximizer ahead of it in the priority order. Therefore that same action
+continues to be selected at every unfinished state. Induct over all iterations, including those
+updating other states and the final favorable update at completion. This proves the required
+retention property directly; a fixed-priority rule is not being identified with full inertia on
+arbitrary updates.
+
+Every processed gap either reaches $\delta$ or receives $N$ increases of at least $g\alpha_k$. Later seed
+updates at its state cannot lower it. Eventual nonincrease, already in force, gives $\alpha_k\ge\alpha_{T_s}$
+for every such update and proves \eqref{eq:seedmargin}. At most $J$ bad actions are processed, so there are
+at most $JN$ requests, irrespective of waiting times. Their conditional probability bound is
+\eqref{eq:localprob}.
+\end{proof}
+
+Completed states can be updated while other states wait. We therefore cannot condition
+indiscriminately on all future successful behavior: the completed-state return laws must stay
+unchanged. The following bounded change of measure conditions only the seed updates.
+
+\begin{lemma}[Conditioning only the seed updates]\label{lem:measure}
+There is an auxiliary law $\widehat{\mathbb P}\ll\mathbb P$
+under which all active requirements of Lemma~\ref{lem:seeds} succeed. Conditional state selection is
+unchanged. At completed states, and after the construction stops, the conditional action and
+return law given the current history and selected state is unchanged. For every future event
+$E$, on $\{t<\infty,t<\zeta_r\}$,
+\begin{equation}\label{eq:transfer}
+\mathbb P(E\mid\mathcal F_t)\ge p_0^{JN}\widehat{\mathbb P}(E\mid\mathcal F_t).
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $S_{k+1}$ be the state component of $I_{k+1}$. At an active unfinished state $s$, let
+$p_k(s)$ be the conditional probability of its requirement given $\mathcal F_k,S_{k+1}=s$. Then $p_k(s)\ge p_0$.
+If the state has zero sampling probability, set $p_k(s)=p_0$; this value is never used on a
+positive-probability draw.
+
+Start $L_t=1$. At a requested update of $s$, multiply $L$ by the indicator of success divided
+by $p_k(s)$; at other iterations multiply it by one. Every factor has conditional mean one given
+$\mathcal F_k,S_{k+1}$. Hence $(L_k)$ is a martingale. At most $JN$ factors differ from one, even though their
+times need not be bounded, so $0\le L_k\le p_0^{-JN}$. Bounded convergence gives $\mathbb E[L_\infty\mid\mathcal F_t]=1$.
+Define $d\widehat{\mathbb P}=L_\infty\,d\mathbb P$. For random $t$, use likelihood one before $t$, on $\{t=\infty\}$, and off $\{t<\zeta_r\}$,
+and combine the constructions on $\{t=j\}$ over integers $j$. The law agrees with $\mathbb P$ on $\mathcal F_t$
+where the construction is active.
+
+A failure makes $L_\infty=0$, so active requirements succeed almost surely under the auxiliary
+law. To check conditional laws, use $\mathbb E[L_\infty\mid\mathcal F_{k+1}]=L_{k+1}$; future factors do not alter
+the one-step likelihood. Its current factor has conditional mean one given the selected
+state, preserving state selection. At a completed state the current factor is identically one,
+so its conditional action and return law is unchanged as well. The statement holds on
+auxiliary-almost-every history, where $L_k>0$. Absolute continuity preserves the almost-sure
+algorithmic identities, including the chosen fixed-priority or full-inertia tie rule. Finally,
+\[
+\widehat{\mathbb P}(E\mid\mathcal F_t)=\mathbb E[L_\infty\mathbf1_E\mid\mathcal F_t]
+\le p_0^{-JN}\mathbb P(E\mid\mathcal F_t),
+\]
+which proves the bound. This auxiliary law is used only in the proof; the algorithm still
+samples its original returns.
+\end{proof}
+
+\subsection{A stopped positive probability of progress}
+Let $W(\pi)=\sum_{i\in\mathcal I}q_\pi(i)$. Its possible values form a finite ordered set. A distinct componentwise larger target has strictly larger $W$, although different targets may have equal
+$W$.
+
+\begin{lemma}[Stopped improvement bound]\label{lem:progress}
+Under the assumptions of Theorem~\ref{thm:convergence}, for
+every fixed $K>B$ there are deterministic $k_0$ and $p>0$ such that for every deterministic
+restart $r$ and stopping time $t\ge\max\{r,k_0\}$, on $\{t<\infty,t<\zeta_r\}$,
+\begin{equation}\label{eq:progress}
+\mathbb P\!\left(
+\begin{aligned}
+&\{\zeta_r\le\tau,\zeta_r<\infty\}\text{ or }\{\tau=\zeta_r=\infty\}\text{ or}\\
+&\{\tau<\zeta_r,W(\pi_\tau)>W(\pi_t)\}
+\end{aligned}
+\ \middle|\ \mathcal F_t\right)\ge p.
+\end{equation}
+Here $\tau$ is the next target change in \eqref{eq:stops}.
+\end{lemma}
+\begin{proof}
+Fix $V$ from \eqref{eq:gapvariance} and $C_0,C_1$ from the state-clock barrier. Choose a positive integer
+$N$ with $2JC_0/(\delta N)\le1/4$. Then choose deterministic $k_0\ge k_{\mathrm m}$ so that, for every $t\ge k_0$,
+\begin{equation}\label{eq:choices}
+N\alpha_t\le2,\qquad\frac{JC_1}{\delta^2}\sum_{k=t}^{\infty}\alpha_k^2\le\frac14.
+\end{equation}
+The radius and variance constants are fixed before choosing $N$.
+
+Use the auxiliary law of Lemma~\ref{lem:measure}. For each bad action whose state completes at
+$T_s<\chi$, apply the barrier at $T_s$, stopped at $\chi$. At that completed state the original sampling
+and return laws are preserved, so \eqref{eq:gapdrift}--\eqref{eq:gapvariance} hold under $\widehat{\mathbb P}$. No such assertion is made for
+a conditioned return at an unfinished state. Nonincrease and \eqref{eq:seedmargin}--\eqref{eq:choices} imply that its
+conditional crossing probability is at most
+\begin{equation}\label{eq:crossprob}
+\frac{2C_0}{\delta N}+\frac{C_1}{\delta^2}\sum_{k=t}^{\infty}\alpha_k^2.
+\end{equation}
+Indeed $gN\alpha_{T_s}\le\delta$, so $\alpha_{T_s}/\min\{D_{T_s}^{\pi,s,a},\delta\}\le1/(gN)$. Multiply the conditional estimate by
+the $\mathcal F_{T_s}$-measurable event $\{T_s<\chi\}$ and average back to $\mathcal F_t$. A union bound over at most
+$J$ pairs gives probability at most $1/2$ of any completed gap failing through $\chi$. This needs
+neither independence nor simultaneous completion. If $T_s=\chi<\infty$, its final favorable update
+already retains the reference action, so no subsequent barrier is needed.
+
+On the complementary event, either exit occurs first, the target persists without exit,
+or $\tau<\zeta_r$ is finite. In the third case, states unfinished just before the endpoint retain the
+reference action, including those completed at the endpoint. Previously completed states
+cannot choose a bad action. Thus
+\[
+q_\pi(s,\pi_\tau(s))\ge q_\pi(s,\pi(s))\quad\text{for every }s.
+\]
+Policy improvement gives $q_{\pi_\tau}\ge q_\pi$ with distinct targets, and hence a strict increase of $W$.
+There is no need to prove that every seed completes: at a finite endpoint unfinished states
+are safe, and an infinite endpoint without exit is already a successful outcome. Transfer back
+by \eqref{eq:transfer}, obtaining \eqref{eq:progress} with $p=\frac12p_0^{JN}$.
+
+If $\mathcal B_\pi$ is empty, the gap conditions and barrier are vacuous and policy improvement
+holds for every next selected policy. The same lower bound remains valid. An exit \emph{after} an
+unsuccessful finite target change is not counted as success for that earlier interval.
+\end{proof}
+
+\subsection{Finitely many target changes and convergence}
+\begin{proof}[Proof of Theorem~\ref{thm:convergence}]
+Fix $K>B$ and constants $k_0,p$ from Lemma~\ref{lem:progress}. For a deterministic
+$r\ge k_0$, start at $t_0=r$ and absorb immediately if $\|q_r\|_\infty>K$. Enumerate successive target
+changes
+\[
+t_{n+1}=\inf\{k>t_n:q_{\pi_k}\ne q_{\pi_{t_n}}\}
+\]
+only while $t_n<\zeta_r$. All finite continuing times are stopping times. Stop counting if exit
+occurs before or at the next target change, or if the target persists forever without exit.
+
+At every alive interval, absorption or a strict increase in $W$ has conditional probability
+at least $p$. By induction and the tower property, absorption within the next $m$ intervals
+or $m$ consecutive strict increases has conditional probability at least $p^m$. On an absorbed
+branch the continuation probability is one; on a finite successful-transition branch condition
+at its stopping time and apply the remaining bound. This uses no independence and never
+conditions at an infinite time on a continuing branch.
+
+Let $L$ be the number of distinct values of $W$. There cannot be $L$ consecutive strict
+increases. Absorption within the next $L$ intervals therefore has conditional probability at least
+$p^L$. Applying the bound at successive surviving blocks gives probability at most $(1-p^L)^j$
+of surviving $j$ such blocks. In particular the probability of infinitely many target changes
+before exit is zero.
+
+Intersect these probability-one conclusions over all deterministic integers $r\ge k_0$. Lemma~\ref{lem:stability}
+says that almost every path remains inside the ball after some such integer. On that path,
+choose $r$ with $\zeta_r=\infty$; the original sequence consequently has only finitely many target
+changes. The integer is selected pathwise only after the countable intersection. We do not
+condition on an eventual containment time or claim that it is a stopping time. Nor is an
+unconditional geometric tail for the original process's total number of changes asserted.
+
+Lemma~\ref{lem:stability} now gives $q_k\to q^\star$. Every nonoptimal action has a strictly positive optimality
+gap. Finiteness of the action sets and convergence exclude all such actions from sufficiently
+late greedy policies. Those policies are greedy for $q^\star$ and hence optimal by Bellman verification.
+If every state has a unique optimal action, their labels are eventually constant.
+\end{proof}

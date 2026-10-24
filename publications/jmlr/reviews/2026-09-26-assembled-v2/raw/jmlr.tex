@@ -1,0 +1,229 @@
+\documentclass[twoside,11pt]{article}
+
+% \usepackage{blindtext}
+
+% Any additional packages needed should be included after jmlr2e.
+% Note that jmlr2e.sty includes epsfig, amssymb, natbib and graphicx,
+% and defines many common macros, such as 'proof' and 'example'.
+%
+% It also sets the bibliographystyle to plainnat; for more information on
+% natbib citation styles, see the natbib documentation, a copy of which
+% is archived at http://www.jmlr.org/format/natbib.pdf
+
+% Available options for package jmlr2e are:
+%
+%   - abbrvbib : use abbrvnat for the bibliography style
+%   - nohyperref : do not load the hyperref package
+%   - preprint : remove JMLR specific information from the template,
+%         useful for example for posting to preprint servers.
+%
+% Example of using the package with custom options:
+%
+\usepackage[abbrvbib, preprint]{jmlr2e}
+% \usepackage{jmlr2e}
+
+% additional packages for the paper
+\input{z-packages}
+\usepackage{microtype}
+\renewenvironment{proof}[1][Proof]
+  {\par\noindent{\bfseries #1.}\quad}
+  {\unskip\nobreak\hfill\penalty50\hskip1em\null\nobreak\hfill
+   \BlackBox\par\vspace{2mm}}
+
+% \usepackage{bm}
+% \usepackage{amsmath}
+% \usepackage{aliascnt}
+% Fix Definition from jmlr2e
+\let\definition\relax
+\let\enddefinition\relax
+\newaliascnt{definition}{theorem}
+\newtheorem{definition}[definition]{Definition}
+\aliascntresetthe{definition}
+\providecommand*{\definitionautorefname}{Definition}
+
+% Add Assumption
+\newaliascnt{assumption}{theorem}
+\newtheorem{assumption}[assumption]{Assumption}
+\aliascntresetthe{assumption}
+\providecommand*{\assumptionautorefname}{Assumption}
+
+\let\lemma\relax
+\let\endlemma\relax
+\newaliascnt{lemma}{theorem}
+\newtheorem{lemma}[lemma]{Lemma}
+\aliascntresetthe{lemma}
+\providecommand*{\lemmaautorefname}{Lemma}
+
+\let\proposition\relax
+\let\endproposition\relax
+\newaliascnt{proposition}{theorem}
+\newtheorem{proposition}[proposition]{Proposition}
+\aliascntresetthe{proposition}
+\providecommand*{\propositionautorefname}{Proposition}
+
+% Definitions of handy macros can go here
+\input{z-maths}
+
+% Heading arguments are {volume}{year}{pages}{date submitted}{date published}{paper id}{author-full-names}
+
+\usepackage{lastpage}
+\jmlrheading{23}{2026}{1-\pageref{LastPage}}{1/21; Revised 5/22}{9/22}{21-0000}{Octave Oliviers and Glenn Vinnicombe}
+
+% Short headings should be running head and authors last names
+
+\ShortHeadings{Convergence of MC-O-PI with uniform updates}{Oliviers and Vinnicombe}
+\firstpageno{1}
+
+% \input{z-packages}
+
+% \input{z-maths-notation}
+
+\begin{document}
+\raggedbottom
+
+%\title{Convergence of Monte Carlo Optimistic Policy Iteration with uniform updates}
+\title{Convergence of Monte Carlo Optimistic Policy Iteration: Beyond Uniform State-Action Updates}
+
+\author{\name Octave Oliviers \email ofao2@cam.ac.uk \\
+       \addr Department of Engineering\\
+       University of Cambridge\\
+       Cambridge, UK
+       \AND
+       \name Glenn Vinnicombe \email gv103@cam.ac.uk \\
+       \addr Department of Engineering\\
+       University of Cambridge\\
+       Cambridge, UK}
+
+\editor{My editor}
+
+\maketitle
+
+\begin{abstract}%
+% % context
+% % Monte Carlo optimistic policy iteration (MC-O-PI) is a reinforcement learning algorithm that can learn the optimal policy and action values of a Markov decision process (MDP) without knowing its parameters.
+% % The algorithm maintains an estimate for the optimal action-value function.
+% % It alternates between simulating episodes of the MDP using the greedy policy with respect to the current estimate, and updating the estimate in certain visited state-action pairs to match the episode’s returns.
+% The asymptotic behaviour of Monte Carlo optimistic policy iteration (MC-O-PI)
+% is a long-standing open question in reinforcement learning.
+% % even in the tabular setting.
+% % When the Markov decision process is unknown,
+% When the model of the environment is unknown,
+% as is generally the case for real-world applications,
+% the only known condition that guarantees convergence to optimality is impractical.
+% In its canonical form, this condition requires that the episodes used for policy evaluation be initialised uniformly over the entire state-action space.
+% % (or at least that the initialisation distribution is known and can be controlled for).
+% %  this requirement is difficult to satisfy for large problems because it amounts to initialising episodes uniformly over the entire state-action space.
+% % task
+% % This paper strictly relaxes this condition.
+% % This relaxation strictly generalises the previous guarantee and 
+% % making MC-O-PI with guarantees practical for settings with large or uncontrolled state distributions but manageable action spaces.
+% % % findings
+% % Specifically, we prove that initial-visit MC-O-PI converges to optimality when updates are uniform only over the actions within each state.
+% % % so what 1
+% % This result guarantees convergence
+% % % allows (with convergence guara to optimality)
+% % even when episodes to be started in different states at arbitrary frequencies,
+% % making the method better suited to real-world problems with large state spaces.
+% % % 
+% % 
+% This paper strictly relaxes that requirement.
+% % This relaxation strictly generalises the previous guarantee and 
+% % findings
+% Specifically, we prove that initial-visit MC-O-PI converges to optimality even when updates are uniform only over the actions within each state.
+% % so what 1
+% This guarantees convergence to optimality
+% even when episodes start in different states at arbitrary frequencies;
+% a realistic implementation 
+% when the state space is large or unknown but the action space in each state is manageable.
+% % for large or unknown state spaces but manageable action spaces in each state.
+% % make the point somehow that we're not making the method more applicable, we're just making it more practical to require "safety"
+% % 
+% % 
+% % so what 2
+% The proof departs from the classical analysis of Tsitsiklis, whose central commutativity argument no longer applies when states are updated at unequal rates.
+% % The proof departs from Tsitsiklis' classical commutation step.
+% % as it fails when updates are not uniform over all state-action pairs.
+% Instead, we first
+% % track the evolution of the greedy policy
+% % rather than that of the value function.
+% % and 
+% show that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions in each state,
+% and then prove that stochastic perturbations cannot consistently prevent this improvement by extending the lock-in argument of the combined stability-ODE method.
+% This approach suggests a new way to analyse more general optimistic policy-iteration algorithms with temporal-difference updates.
+% 
+The asymptotic behaviour of Monte Carlo optimistic policy iteration (MC-O-PI) is a long-standing open question. Classical convergence guarantees for general finite MDPs impose a restrictive sampling condition. In its canonical form, this condition requires that the episodes used for policy evaluation be initialised uniformly over the entire state-action space. This paper strictly relaxes that requirement. Specifically, we prove that initial-visit MC-O-PI converges to optimality even when updates are uniform only over the actions within each state. Different states may be sampled at unequal, adaptive frequencies, provided each accumulates infinite learning weight. With inertial policy ties and mild learning-rate regularity, this gives a realistic implementation when the state space is large or unknown but the action space in each state is manageable. The proof departs from the classical analysis of Tsitsiklis whose central commutativity argument no longer applies when states are updated at different frequencies. Instead, we first show that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions in each state, and then prove that noise cannot consistently prevent this improvement by extending the lock-in argument of the combined stability-ODE method. This approach suggests a new way to study optimistic policy-iteration algorithms in general.
+\end{abstract}
+
+% Optimistic policy algorithms update their policies before policy evaluation has converged. Despite their practical importance, few such algorithms are known to converge to optimality in general finite Markov decision processes.
+% Two central examples are $Q$-learning, which converges under broad conditions, and Monte Carlo optimistic policy iteration (MC-O-PI), whose existing guarantees require updates to be uniform over all state-action pairs, an
+% assumption which is poorly suited to large-scale problems.
+% Here we prove that uniform state-action updates are not in fact necessary; initial-visit MC-O-PI converges almost surely to the optimal action values provided updates are uniform across the actions of each state only. Different states may be updated at different frequencies.
+% This relaxation strictly generalises the previous guarantee and makes MC-O-PI practical for settings with large or uncontrolled state distributions but manageable action spaces.
+% The proof departs from the classical analysis of Tsitsiklis, whose central commutativity argument no longer applies when states are updated at unequal rates.
+% Our key idea is to track the evolution of the greedy policy rather than that of the value function. When the update frequency is uniform over the actions in each state the mean-field dynamics result in monotone policy improvement, and we  show that the stochastic perturbations cannot consistently obstruct this improvement. 
+% % Beyond MC-O-PI, this viewpoint offers hope for the analysis of the continuum of optimistic reinforcement learning methods lying between Q-learning and Monte Carlo methods and differentiated by the degree of bootstrapping they employ.
+
+\begin{keywords}
+reinforcement learning, optimistic policy iteration, Monte Carlo control, convergence analysis, stability-ODE method
+\end{keywords}
+
+\input{1-introduction}
+\input{2-mcopi}
+\input{3-results}
+\input{4-discussion}
+
+
+% Acknowledgements and Disclosure of Funding should go at the end, before appendices and references
+
+\acks{This research was supported by the MathWorks Studentship.}
+
+% Manual newpage inserted to improve layout of sample file - not
+% needed in general before appendices/bibliography.
+
+% \newpage
+
+
+
+
+% \section{}
+% \label{app:theorem}
+
+% % Note: in this sample, the section number is hard-coded in. Following
+% % proper LaTeX conventions, it should properly be coded as a reference:
+
+% %In this appendix we prove the following theorem from
+% %Section~\ref{sec:textree-generalization}:
+
+% In this appendix we prove the following theorem from
+% Section~6.2:
+
+% \noindent
+% {\bf Theorem} {\it Let $u,v,w$ be discrete variables such that $v, w$ do
+% not co-occur with $u$ (i.e., $u\neq0\;\Rightarrow \;v=w=0$ in a given
+% dataset $\dataset$). Let $N_{v0},N_{w0}$ be the number of data points for
+% which $v=0, w=0$ respectively, and let $I_{uv},I_{uw}$ be the
+% respective empirical mutual information values based on the sample
+% $\dataset$. Then
+% \[
+% 	N_{v0} \;>\; N_{w0}\;\;\Rightarrow\;\;I_{uv} \;\leq\;I_{uw}
+% \]
+% with equality only if $u$ is identically 0.} 
+% \hfill\BlackBox
+
+% \noindent
+% {\bf Proof}. We use the notation:
+% \[
+% P_v(i) \;=\;\frac{N_v^i}{N},\;\;\;i \neq 0;\;\;\;
+% P_{v0}\;\equiv\;P_v(0)\; = \;1 - \sum_{i\neq 0}P_v(i).
+% \]
+% These values represent the (empirical) probabilities of $v$
+% taking value $i\neq 0$ and 0 respectively.  Entropies will be denoted
+% by $H$. We aim to show that $\fracpartial{I_{uv}}{P_{v0}} < 0$....\\
+
+% {\noindent \em Remainder omitted in this sample. See http://www.jmlr.org/papers/ for full paper.}
+
+
+\vskip 0.2in
+\bibliography{references}
+
+\end{document}
