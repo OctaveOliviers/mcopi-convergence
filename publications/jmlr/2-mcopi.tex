@@ -347,7 +347,7 @@ Since $\graval(\pol)$ forms a convex subset of $\qset$, we refer to $\graval(\po
 \subsubsection{Basic properties}
 \label{sec: replacement foundations}
 The convergence proof needs two basic properties: bounded estimates, and convergence when the action-value target eventually stops changing.
-We first check that the combined perturbations have zero conditional mean and a controlled second moment. We then obtain boundedness by comparing the estimates with averages of returns having fixed lower and upper targets. The proofs are given in the appendix.
+We first check that the combined perturbations have zero conditional mean and a controlled second moment. We then obtain boundedness by comparing the estimates with averages of returns having fixed lower and upper targets. The proofs are given in Appendices~\ref{app: noise properties}--\ref{app: bounded estimates}.
 
 \begin{lemma}
 \label{thm: properties of noise}
@@ -409,7 +409,7 @@ q_k\longrightarrow q_{\pi_{t_n}}=q_{\pi_*}.
 Consequently, if $q_{\pi_{t_n}}\ne q_{\pi_*}$, then $t_{n+1}<\infty$ almost surely.
 \end{lemma}
 \begin{proof}
-The fixed-target averaging argument in the appendix gives $q_k\to q_{\pi_{t_n}}$ on every path where the target becomes constant, outside one null event.
+The fixed-target averaging argument in Appendix~\ref{app: fixed target averages} gives $q_k\to q_{\pi_{t_n}}$ on every path where the target becomes constant, outside one null event.
 Choose a policy that appears infinitely often after $t_n$. Its action-value function is $q_{\pi_{t_n}}$, and its greedy inequalities pass to the limit along that subsequence. It is therefore greedy with respect to its own action values and hence optimal.
 \end{proof}
 

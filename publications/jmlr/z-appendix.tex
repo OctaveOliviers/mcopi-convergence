@@ -1,7 +1,8 @@
-\section*{Appendix}
+\section{Proofs of auxiliary results}
 \label{sec: Appendix}
 
-\paragraph{Proof of \autoref{thm: properties of noise}}
+\subsection{Proof of \autoref{thm: properties of noise}}
+\label{app: noise properties}
 
 Fix a time $k\ge 0$, a state $s \in \mathcal S$ and an action $a \in \mathcal A(s)$.
 
@@ -62,7 +63,7 @@ there exists a constant $c_\polset < \infty$ such that $\|q_\pi\|^2 \leq c_\pols
 So \eqref{eq: muw_second_moment} holds for example with $c_w := \max \{ 2 c_v + 4 c_\polset, 4\}$.
 \hfill \BlackBox
 
-\paragraph{Fixed-target averages.}
+\subsection{Fixed-target averages}
 \label{app: fixed target averages}
 The comparison argument for boundedness and the convergence of a constant-target block both use the following consequence of the supermartingale convergence theorem~\citep[Proposition~4.2]{Bertsekas1996Neuro-DynamicProgramming}: if a nonnegative process has conditional expected increments bounded above by a negative term plus a summable error, then it converges and the negative terms have finite sum.
 
@@ -85,7 +86,8 @@ The cited theorem shows that $(x_k-q_\pi(s,a))^2$ converges and that
 Its limit must be zero, since \eqref{eq: cumulative learning} makes the sum of the weights infinite.
 These assertions hold simultaneously for every deterministic integer $r$, every policy and every state-action pair: take the intersection of their countably many probability-one events. We may therefore choose a restart and a target separately on each resulting path, without conditioning on their future-dependent values.
 
-\paragraph{Proof of \autoref{thm: bounded limit sets}}
+\subsection{Proof of \autoref{thm: bounded limit sets}}
+\label{app: bounded estimates}
 Let $(q_k)$ and $(\pi_k)$ be an MC-O-PI solution satisfying \autoref{asp: standing}, and work on the probability-one event just obtained. Since the policy set is finite, there is a finite index $r$ after which only policies in $\polset_\infty$ appear.
 Thus for all $k\ge r$ and every pair $(s,a)$,
 \[
@@ -109,7 +111,8 @@ Each comparison target is one of the finitely many values covered by the precedi
 This proves convergence to the stated bounded set. In particular, the estimates are bounded along almost every path. If the actual target is eventually constant, the estimate itself is one of the fixed-target averages above, which also justifies its use in \autoref{thm: suboptimal blocks finite}.
 \hfill\BlackBox
 
-\paragraph{Proof of \autoref{thm: convergence deterministic mcopi}}
+\subsection{Proof of \autoref{thm: convergence deterministic mcopi}}
+\label{app: mean field convergence}
 Let $(q_k)$ be a solution of the mean-field dynamics \eqref{eq: deterministic mcopi} under the stated assumptions, with policies $(\pi_k)$ and transition times $(t_n)$.
 \autoref{thm: improving policies} shows that their action-value functions are nondecreasing and change only by improvements. Since there are finitely many deterministic policies, the target is constant from some finite transition time $t_n$ onwards.
 For every pair $(s,a)$ and every $k\ge t_n$, unrolling the deterministic recursion gives
@@ -122,7 +125,8 @@ The product tends to zero because $\sum_j\alpha_j\mu_j(s,a)=\infty$.
 A policy appearing infinitely often in the remaining sequence has action values $q_{\pi_{t_n}}$; passing its greedy inequalities to the limit shows that it is greedy for its own action values, hence optimal. Therefore $q_{\pi_{t_n}}=q_{\pi_*}$ and $q_k\to q_{\pi_*}$.
 \hfill\BlackBox
 
-\paragraph{The one-sided return bound used in \autoref{lem:seeds}}
+\subsection{The one-sided return bound used in \autoref{lem:seeds}}
+\label{app: one sided return bound}
 For a zero-mean random variable $X$ with $\mathbb E[X^2]\le c_v$, the nonnegative quantity $(X+2c_v/\delta)^2$ exceeds $(\delta/2+2c_v/\delta)^2$ on $\{X>\delta/2\}$. Taking expectations gives
 \[
 \mathbb P(X>\delta/2)
@@ -131,7 +135,8 @@ For a zero-mean random variable $X$ with $\mathbb E[X^2]\le c_v$, the nonnegativ
 \]
 Taking complements yields $\mathbb P(X\le\delta/2)\ge\delta^2/(4c_v+\delta^2)$; applying the same argument to $-X$ gives $\mathbb P(X\ge-\delta/2)\ge\delta^2/(4c_v+\delta^2)$. The calculation also holds conditionally, so \eqref{eq: return moments} supplies both return bounds used in the seed stage.
 
-\paragraph{Probabilities during the seed construction}
+\subsection{Probabilities during the seed construction}
+\label{app: seed law}
 \begin{lemma}
 \label{lem:measure}
 Under the conditions of \autoref{lem:seeds}, there is an auxiliary probability law $\widehat{\mathbb P}$ under which every requested seed update succeeds. State-selection probabilities are unchanged, and at completed states the action and return law given the current history and selected state is unchanged. The same holds after the construction stops. Every event of original probability zero still has auxiliary probability zero, and, for every future event $E$,
@@ -199,7 +204,7 @@ Finally,
 which is \eqref{eq:transfer}. This reweighting is only a proof device; the algorithm continues to sample its original returns.
 \end{proof}
 
-\paragraph{The martingale maximal inequality used in \autoref{lem:barrier}}
+\subsection{The martingale maximal inequality used in \autoref{lem:barrier}}
 \label{app: martingale bound}
 For a sum $M_n$ of increments with zero conditional mean, distinct increments have zero expected product. Its second moment is therefore the sum of their second moments. To bound its largest deviation, first fix a finite horizon $N$ and a deterministic threshold $z>0$. Let $\theta$ be the first index at which $|M_\theta|\ge z$, where $M$ starts from zero.
 On $\{\theta=j\}$ the later increment $M_N-M_j$ has conditional mean zero. Expanding the square gives

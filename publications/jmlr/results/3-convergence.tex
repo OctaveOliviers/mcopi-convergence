@@ -27,7 +27,7 @@ These choices are possible because $\bar\alpha_k\to0$ and the squared learning r
 
 The guarantee that all seed requests succeed is only $p_0^{|\mathcal S\times\mathcal A|N}$, whereas the gap-loss bound decreases as $1/N$. Subtracting the latter bound from the former does not give a positive success probability. We need to control gap loss on runs where seeding succeeds. Simply conditioning on successful seeding can bias the later updates at completed states, because those updates can affect when the construction stops. We therefore assign different probabilities to the same possible runs, only for this proof. Given the current history, keep the state-selection probabilities unchanged. If the selected state is unfinished, condition its requested action and return on being favorable; at completed states and after the construction stops, keep the original conditional action and return law.
 
-Write $\widehat{\mathbb P}$ for these auxiliary probabilities. Under this law every requested update succeeds. The construction in \autoref{lem:measure} in the appendix justifies these conditional laws and shows that, for every future event $E$,
+Write $\widehat{\mathbb P}$ for these auxiliary probabilities. Under this law every requested update succeeds. The construction in \autoref{lem:measure} in Appendix~\ref{app: seed law} justifies these conditional laws and shows that, for every future event $E$,
 \begin{equation}
 \label{eq:transfer}
 \mathbb P(E\mid\mathcal F'_t)

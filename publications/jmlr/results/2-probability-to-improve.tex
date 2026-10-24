@@ -118,7 +118,7 @@ Thus the noise must cross the growing threshold $b_n=d_{t'}+3\delta A_n$. To bou
 \[
 Z_n=\sum_{k=t'}^{n-1}\frac{M_{k+1}-M_k}{b_{k+1}}.
 \]
-The denominator $b_{k+1}$ is known from $\mathcal F'_k$, since $\sigma_k(s)$ is chosen before drawing the episode. Hence the rescaled increments still have conditional mean zero. To ensure square integrability when the initial gap is random, first restrict to $\{d_{t'}\ge\varepsilon\}$ for a fixed $\varepsilon>0$, an event known at $t'$. Equivalently, multiply the increments by its indicator. All the following conditional estimates hold on this event; letting $\varepsilon\downarrow0$ covers every positive initial gap. Random starts are treated on their finite-time events, as in the appendix.
+The denominator $b_{k+1}$ is known from $\mathcal F'_k$, since $\sigma_k(s)$ is chosen before drawing the episode. Hence the rescaled increments still have conditional mean zero. To ensure square integrability when the initial gap is random, first restrict to $\{d_{t'}\ge\varepsilon\}$ for a fixed $\varepsilon>0$, an event known at $t'$. Equivalently, multiply the increments by its indicator. All the following conditional estimates hold on this event; letting $\varepsilon\downarrow0$ covers every positive initial gap. Random starts are treated on their finite-time events, as in Appendix~\ref{app: martingale bound}.
 
 Summation by parts gives
 \[
@@ -126,7 +126,7 @@ M_n=b_nZ_n-\sum_{k=t'+1}^{n-1}(b_{k+1}-b_k)Z_k,
 \qquad
 |M_n|\le2b_n\max_{t'\le m\le n}|Z_m|,
 \]
-because the nonnegative differences $b_{k+1}-b_k$ sum to at most $b_n$. A crossing therefore requires $\sup_{n\ge t'}|Z_n|\ge1/2$. The conditional martingale maximal inequality recalled in the appendix bounds its probability by
+because the nonnegative differences $b_{k+1}-b_k$ sum to at most $b_n$. A crossing therefore requires $\sup_{n\ge t'}|Z_n|\ge1/2$. The conditional martingale maximal inequality in Appendix~\ref{app: martingale bound} bounds its probability by
 \begin{align*}
 4\,\mathbb E\!\left[
 \sum_{k\ge t'}\frac{c_\xi\bar\alpha_{t'}(A_{k+1}-A_k)}{(d_{t'}+3\delta A_{k+1})^2}
@@ -163,7 +163,7 @@ at least one of these two estimation errors exceeds $3\delta/2$. We request a fa
 \end{enumerate}
 Either update increases the intended gap by more than $\delta\alpha_k$, leaves every other gap against the reference action unchanged or larger, and keeps the reference action greedy. The selection rule \eqref{eq:greedy-pol-tie-breaking} therefore retains it.
 
-The conditional return moments ensure that each one-sided noise requirement has probability at least $\delta^2/(4c_v+\delta^2)$, by the one-sided Chebyshev inequality (the short conditional calculation is recalled in the appendix). Conditional on selecting the state, each action is sampled uniformly. Thus every favorable update has conditional probability at least
+The conditional return moments ensure that each one-sided noise requirement has probability at least $\delta^2/(4c_v+\delta^2)$, by the one-sided Chebyshev inequality (see Appendix~\ref{app: one sided return bound} for the conditional calculation). Conditional on selecting the state, each action is sampled uniformly. Thus every favorable update has conditional probability at least
 \begin{equation}
 \label{eq:localprob}
 p_0=\frac{\delta^2}{\max_{s\in\mathcal S}|\mathcal A(s)|\,(4c_v+\delta^2)}>0.
