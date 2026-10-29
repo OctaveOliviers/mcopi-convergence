@@ -1,5 +1,15 @@
 # JMLR proof review status
 
+Updated 2026-10-29. The author-approved first-case explanation is integrated into Lemma 13, and the second case now follows the same explicit progression from a necessary noise fluctuation to its probability bound. The duplicate Appendix A.7 has been brought into the proof and removed. The theorem, assumptions, constants and later proof structure are unchanged.
+
+Current version: [gap-proof integration v1](reviews/2026-10-29-gap-proof-integration/v1/MANIFEST.sha256), with a separately supplied [figure dependency](reviews/2026-10-29-gap-proof-integration/figure-dependency/MANIFEST.sha256) and [PDF fingerprints](reviews/2026-10-29-gap-proof-integration/v1/ARTIFACTS.sha256). The [review record](reviews/2026-10-29-gap-proof-integration/REVIEW.md) links independent local correctness, assembled correctness, notation/rendering and fresh-reader checks: all pass within their stated scopes. No blocking finding remains; the pre-existing experiment-wording issue WA2-C1 remains outside scope.
+
+Both standard builds produce 32-page PDFs. Read pages 14–19 for Lemma 13; the second case begins on page 18. Permanent equation references, the conditional maximal argument, and blue review bars have been checked. The review build preserves the clean PDF. [Validation details](reviews/2026-10-29-gap-proof-integration/VALIDATION.md) record source-scope checks, existing typography diagnostics and all 170 matching numbered-equation occurrences.
+
+Fresh GPT-6 Astra/high checkers reviewed local and assembled mathematics; separate GPT-6.1 Sol/medium checkers reviewed notation/rendering and exposition. No tutoring was needed in the fresh-reader follow-ups. The first-case author approval is explicit; agent review is not formal certification or a human-readability score. Branch and [PR #4](https://github.com/OctaveOliviers/mcopi-convergence/pull/4), labelled `jmlr`, remain unchanged.
+
+## Earlier records
+
 Updated 2026-10-18. The authorized mathematical simplifications are implemented and **agent-checked**: weighted gap preservation, symmetric favorable updates and a single use of condition (5) to compare seed increments with future steps. The main theorem and standing mathematical assumptions are unchanged. No blocking proof finding remains. One pre-existing, nonblocking experiment-discussion issue is recorded below.
 
 ## Current version

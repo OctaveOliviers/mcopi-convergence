@@ -88,63 +88,245 @@ Assume deterministic learning rates $0<\alpha_k\le1$ with $\sum_k\alpha_k^2<\inf
 \le \frac{4c_\xi}{3\delta}\frac{\bar\alpha_{t'}}{d_{t'}(s,a)}
 +\frac{4c_\xi}{\delta^2}\sum_{k=t'}^\infty\alpha_k^2.
 \end{equation}
-The crossing event includes the update ending at $\tau\wedge\zeta_r$.
+The event in \eqref{eq:barrier} includes the update ending at $\tau\wedge\zeta_r$.
 \end{lemma}
 Equation~\eqref{eq:barrier} bounds the chance that one specified gap closes. If its starting value is bounded below by a fixed positive number, both terms become arbitrarily small as $t^{\prime}$ increases. If the starting gap also tends to zero, however, the first term depends on the ratio of the largest remaining learning rate to that gap: waiting alone need not make it small. A sufficiently large multiple of that learning rate controls this ratio, while a sufficiently late start makes the squared-learning-rate tail small. After proving the estimate, we construct such a margin through favorable updates.
 
 \begin{proof}
-Fix $(s,a)$ and write $d_k=d_k(s,a)$ within this proof. Stop the noise sum at the first gap closure or at the endpoint, whichever comes first:
+Fix $(s,a)$ and write $d_k=d_k(s,a)$ within this proof. Stop the noise sum at the first time the gap $d_n$ reaches zero or below, or at the endpoint $\tau\wedge\zeta_r$, whichever comes first:
 \[
-\eta=(\tau\wedge\zeta_r)\wedge\inf\{n\ge t':d_n\le0\},\qquad
-M_n=\sum_{k=t'}^{n-1}\mathbf1_{\{k<\eta\}}\alpha_k\xi_k(s,a).
+\begin{aligned}
+\eta&=(\tau\wedge\zeta_r)\wedge\inf\{n\ge t':d_n\le0\},\\
+M_n&=\sum_{k=t'}^{n-1}\mathbf1_{\{k<\eta\}}\alpha_k\xi_k(s,a).
+\end{aligned}
 \]
-The decision to retain increment $k$ is known from $\mathcal F'_k$, so $M_n$ has zero conditional-mean increments. Define the accumulated learning at state $s$ by
+Define the accumulated learning at state $s$ by
 \begin{equation}\label{eq:clock}
 A_n=\sum_{k=t'}^{n-1}\alpha_k\sigma_k(s).
 \end{equation}
-Its increments bound the conditional variance of the noise:
-\[
+We distinguish whether the gap $d_k$ reaches or exceeds $\delta$ before it first becomes nonpositive.
+
+\emph{The gap $d_n$ reaches zero or below before reaching $\delta$.}
+
+We consider the event that $d_n\le0$ at a finite time $n\in[t',\tau\wedge\zeta_r]$, with $0<d_k<\delta$ at every preceding time $t'\le k<n$. Thus reaching zero includes equality, and reaching the upper level $\delta$ means reaching or exceeding it. We first determine how negative the accumulated noise $M_n$ must be to bring the gap $d_n$ to zero or below, then bound the probability of that noise fluctuation.
+
+For $k\ge t'$, recall that the stopped noise sum $M_n$ retains increment $k$ exactly when $k<\eta$, where $\eta$ is the first time the gap becomes nonpositive or the endpoint $\tau\wedge\zeta_r$ is reached. The indicator $\mathbf1_{\{k<\eta\}}$ and the learning rate $\alpha_k$ are known from $\mathcal F'_k$. Condition~\eqref{eq:gapvariance} applies when $k<\eta$; when $k\ge\eta$, the stopped increment is zero. Substituting the noise increment $\alpha_k\xi_k(s,a)$ and taking these known factors outside the conditional expectation, the zero-mean condition~\eqref{eq:gapvariance} gives
+\begin{equation}
+\begin{aligned}
+\mathbb E[M_{k+1}-M_k\mid\mathcal F'_k]
+&=\mathbb E[\mathbf1_{\{k<\eta\}}\alpha_k\xi_k(s,a)
+\mid\mathcal F'_k]\\
+&=\mathbf1_{\{k<\eta\}}\alpha_k
+\mathbb E[\xi_k(s,a)\mid\mathcal F'_k]\\
+&=0.
+\end{aligned}
+\label{eq:gap-noise-mean}
+\end{equation}
+
+Because the conditional mean in \eqref{eq:gap-noise-mean} is zero, the conditional variance is the conditional second moment. Squaring an indicator leaves it unchanged. We again take the known factors outside the conditional expectation and apply the variance bound \eqref{eq:gapvariance}. For the last step, use $\alpha_k\le\bar\alpha_{t'}$ and the accumulated-learning identity $A_{k+1}-A_k=\alpha_k\sigma_k(s)$ from \eqref{eq:clock}. For $k\ge t'$, this gives
+\begin{equation}
+\begin{aligned}
 \mathbb E[(M_{k+1}-M_k)^2\mid\mathcal F'_k]
-\le c_\xi\alpha_k^2\sigma_k(s)
-\le c_\xi\bar\alpha_{t'}(A_{k+1}-A_k).
-\]
-Suppose the first gap closure occurs at a finite $n\le\tau\wedge\zeta_r$. We distinguish whether the gap reached $\delta$ before closing.
+&=\mathbb E[\mathbf1_{\{k<\eta\}}\alpha_k^2\xi_k(s,a)^2
+\mid\mathcal F'_k]\\
+&=\mathbf1_{\{k<\eta\}}\alpha_k^2
+\mathbb E[\xi_k(s,a)^2\mid\mathcal F'_k]\\
+&\le\mathbf1_{\{k<\eta\}}c_\xi\alpha_k^2\sigma_k(s)\\
+&\le c_\xi\alpha_k^2\sigma_k(s)\\
+&\le c_\xi\bar\alpha_{t'}(A_{k+1}-A_k).
+\end{aligned}
+\label{eq:gap-noise-second-moment}
+\end{equation}
 
-\emph{A crossing before reaching $\delta$.} For $t'\le k<n$, the target gap is at least $4\delta$ while $0<d_k<\delta$. Summing \eqref{eq:gapdrift} therefore gives
-\[
+Suppose now that the gap first becomes nonpositive at $n$, without previously reaching $\delta$. For $t'\le k<n$, the gap satisfies $0<d_k<\delta$, whereas \eqref{eq:constants} gives the target gap $d_\pi(s,a)\ge4\delta$. The mean-field drift term $\alpha_k\sigma_k(s)(d_\pi(s,a)-d_k)$ in \eqref{eq:gapdrift} is therefore at least $3\delta\alpha_k\sigma_k(s)$. Summing \eqref{eq:gapdrift}, with every noise increment up to this first nonpositive gap retained in $M_n$, gives
+\begin{equation}
 0\ge d_n\ge d_{t'}+3\delta A_n+M_n.
-\]
-Thus the noise must cross the growing threshold $b_n=d_{t'}+3\delta A_n$. To bound this event, divide each noise increment by the threshold for the next step:
-\[
-Z_n=\sum_{k=t'}^{n-1}\frac{M_{k+1}-M_k}{b_{k+1}}.
-\]
-The denominator $b_{k+1}$ is known from $\mathcal F'_k$, since $\sigma_k(s)$ is chosen before drawing the episode. Hence the rescaled increments still have conditional mean zero. To ensure square integrability when the initial gap is random, first restrict to $\{d_{t'}\ge\varepsilon\}$ for a fixed $\varepsilon>0$, an event known at $t'$. Equivalently, multiply the increments by its indicator. All the following conditional estimates hold on this event; letting $\varepsilon\downarrow0$ covers every positive initial gap. Random starts are treated on their finite-time events, as in Appendix~\ref{app: martingale bound}.
+\label{eq:gap-before-noise}
+\end{equation}
+Thus the accumulated noise $M_n$ must offset both the starting gap $d_{t'}$ and the accumulated mean-field increase $3\delta A_n$.
 
-Summation by parts gives
-\[
-M_n=b_nZ_n-\sum_{k=t'+1}^{n-1}(b_{k+1}-b_k)Z_k,
-\qquad
-|M_n|\le2b_n\max_{t'\le m\le n}|Z_m|,
-\]
-because the nonnegative differences $b_{k+1}-b_k$ sum to at most $b_n$. A crossing therefore requires $\sup_{n\ge t'}|Z_n|\ge1/2$. The conditional martingale maximal inequality in Appendix~\ref{app: martingale bound} bounds its probability by
-\begin{align*}
+Write $b_n$ for their sum. To control the probability that the noise $M_n$ falls to $-b_n$ or below, rescale each noise increment by the corresponding threshold:
+\begin{equation}
+\begin{aligned}
+b_n&=d_{t'}+3\delta A_n,\\
+Z_n&=\sum_{k=t'}^{n-1}\frac{M_{k+1}-M_k}{b_{k+1}}.
+\end{aligned}
+\label{eq:gap-rescaling}
+\end{equation}
+We will relate a downward crossing of $-b_n$ by $M_n$ to a fixed level for the rescaled noise $|Z_n|$.
+
+We consider $n>t'$, as is necessarily the case when the positive starting gap $d_{t'}$ first becomes nonpositive. Both noise sums start at zero: $M_{t'}=Z_{t'}=0$. By \eqref{eq:gap-rescaling}, $M_{k+1}-M_k=b_{k+1}(Z_{k+1}-Z_k)$. When we expand and sum these differences, each $Z_k$ with $t'<k<n$ appears twice: once multiplied by $b_k$, and once subtracted with multiplier $b_{k+1}$. The term involving $Z_{t'}$ vanishes, leaving the endpoint term $b_nZ_n$. This is summation by parts, and it gives
+\begin{equation}
+\begin{aligned}
+M_n
+&=\sum_{k=t'}^{n-1}b_{k+1}(Z_{k+1}-Z_k)\\
+&=\sum_{k=t'+1}^{n}b_kZ_k
+-\sum_{k=t'}^{n-1}b_{k+1}Z_k\\
+&=b_nZ_n-\sum_{k=t'+1}^{n-1}(b_{k+1}-b_k)Z_k.
+\end{aligned}
+\label{eq:gap-summation-parts}
+\end{equation}
+
+The thresholds $b_k$ are positive and nondecreasing because the accumulated learning $A_k$ is nondecreasing. Hence the weights $b_{k+1}-b_k$ are nonnegative and sum to $b_n-b_{t'+1}\le b_n$. Applying the triangle inequality to \eqref{eq:gap-summation-parts}, then bounding each $|Z_k|$ by its largest value up to $n$, yields
+\begin{equation}
+\begin{aligned}
+|M_n|
+&\le b_n|Z_n|
++\sum_{k=t'+1}^{n-1}(b_{k+1}-b_k)|Z_k|\\
+&\le
+\left[b_n+\sum_{k=t'+1}^{n-1}(b_{k+1}-b_k)\right]
+\max_{t'\le m\le n}|Z_m|\\
+&\le2b_n\max_{t'\le m\le n}|Z_m|.
+\end{aligned}
+\label{eq:gap-noise-max}
+\end{equation}
+
+If the gap $d_n$ reaches zero or below before reaching $\delta$, \eqref{eq:gap-before-noise} requires $M_n\le-b_n$. Equation~\eqref{eq:gap-noise-max} then forces $|Z_m|\ge1/2$ at some finite time $m\in[t',n]$. Consequently,
+\begin{equation}
+\begin{aligned}
+&\mathbb P\!\left(
+\begin{array}{l}
+\exists\text{ finite }n\in[t',\tau\wedge\zeta_r]:d_n\le0,\\
+0<d_k<\delta\text{ for every }t'\le k<n
+\end{array}
+\,\middle|\,\mathcal F'_{t'}\right)\\
+&\qquad\le
+\mathbb P\!\left(\exists\text{ finite }m\ge t':|Z_m|\ge\tfrac12
+\,\middle|\,\mathcal F'_{t'}\right).
+\end{aligned}
+\label{eq:gap-before-event}
+\end{equation}
+
+To bound the probability on the right of \eqref{eq:gap-before-event}, we use Doob's martingale maximal inequality. It bounds the probability that a martingale reaches a given magnitude by its expected squared terminal value divided by the square of that magnitude. We justify its application here before estimating the resulting second moments.
+
+Doob's inequality requires square integrability. The denominator $b_{k+1}=b_k+3\delta\alpha_k\sigma_k(s)$ is known from $\mathcal F'_k$, so dividing the increment in \eqref{eq:gap-noise-mean} by $b_{k+1}$ preserves its conditional zero mean whenever the rescaled increment is integrable. However, the positive starting gap $d_{t'}$ may be arbitrarily small, so integrability needs checking.
+
+For this check only, fix $\varepsilon>0$ and multiply the process $Z_n$ by $\mathbf1_{\{d_{t'}\ge\varepsilon\}}$. This leaves the noise sum $Z_n$ unchanged on histories with $d_{t'}\ge\varepsilon$, and sets it to zero on the remaining histories. The indicator is known at the restart. Since $b_{k+1}\ge d_{t'}$, equation~\eqref{eq:gap-noise-second-moment} gives
+\begin{equation}
+\begin{aligned}
+&\mathbb E\!\left[
+\left(\mathbf1_{\{d_{t'}\ge\varepsilon\}}(Z_{k+1}-Z_k)\right)^2
+\,\middle|\,\mathcal F'_k\right]\\
+&\qquad\le
+\frac{1}{\varepsilon^2}
+\mathbb E[(M_{k+1}-M_k)^2\mid\mathcal F'_k]\\
+&\qquad\le\frac{c_\xi\alpha_k^2}{\varepsilon^2}.
+\end{aligned}
+\label{eq:gap-cutoff-moment}
+\end{equation}
+The modified increments have conditional mean zero, and \eqref{eq:gap-cutoff-moment}, together with $\sum_k\alpha_k^2<\infty$, makes the modified noise sum square-integrable.
+
+First suppose the restart $t'$ is a fixed finite time, and take a finite horizon $n\ge t'$. Apply Doob's inequality at magnitude $1/2$ to this square-integrable noise sum. The conditional version follows by applying the ordinary inequality after multiplying the noise sum by the indicator of any event known at the restart. Also, distinct zero-mean increments have zero expected product: when the later increment is drawn, the earlier one is already known and the later one has conditional mean zero. Thus the expected squared terminal value equals the expected sum of squared increments. On histories with $d_{t'}\ge\varepsilon$, the modified noise sum equals $Z_n$, and we obtain
+\begin{equation}
+\begin{aligned}
+&\mathbb P\!\left(\max_{t'\le m\le n}|Z_m|\ge\tfrac12
+\,\middle|\,\mathcal F'_{t'}\right)\\
+&\qquad\le\frac{\mathbb E[Z_n^2\mid\mathcal F'_{t'}]}{(1/2)^2}\\
+&\qquad=4\,\mathbb E\!\left[
+\sum_{k=t'}^{n-1}(Z_{k+1}-Z_k)^2
+\,\middle|\,\mathcal F'_{t'}\right].
+\end{aligned}
+\label{eq:gap-doob-finite}
+\end{equation}
+
+If the restart $t'$ is random, apply this argument separately on $\{t'=j\}$. This event is known at time $j$, so the same indicator argument applies there; combining the countably many finite values of $j$ gives \eqref{eq:gap-doob-finite} at the random restart.
+
+We can now remove the temporary cutoff. For each $\varepsilon=1,1/2,1/3,\ldots$, \eqref{eq:gap-doob-finite} holds on $\{d_{t'}\ge\varepsilon\}$. These events cover every positive starting gap $d_{t'}$, so \eqref{eq:gap-doob-finite} holds for every such gap, outside one null event. The finite second-moment bound \eqref{eq:gap-cutoff-moment} need not be uniform as $\varepsilon$ decreases: the inequality \eqref{eq:gap-doob-finite} that it justifies contains no $\varepsilon$. No subsequent calculation is restricted to a fixed positive lower bound on $d_{t'}$.
+
+Finally increase the finite horizon $n$. The events on the left of \eqref{eq:gap-doob-finite} increase to the event that $|Z_m|$ reaches $1/2$ at some finite time, while the nonnegative sums on the right increase to the full sum. Monotone convergence therefore gives
+\begin{equation}
+\begin{aligned}
+&\mathbb P\!\left(\exists\text{ finite }m\ge t':|Z_m|\ge\tfrac12
+\,\middle|\,\mathcal F'_{t'}\right)\\
+&\qquad\le
 4\,\mathbb E\!\left[
-\sum_{k\ge t'}\frac{c_\xi\bar\alpha_{t'}(A_{k+1}-A_k)}{(d_{t'}+3\delta A_{k+1})^2}
-\ \middle|\ \mathcal F'_{t'}\right]
-&\le4c_\xi\bar\alpha_{t'}\int_0^\infty\frac{\mathrm dx}{(d_{t'}+3\delta x)^2}\\
-&=\frac{4c_\xi\bar\alpha_{t'}}{3\delta d_{t'}}.
-\end{align*}
-The integral bound uses the fact that the integrand is decreasing: each summand without $c_\xi\bar\alpha_{t'}$ is at most its integral from $A_k$ to $A_{k+1}$. No divergence of $A_n$ is required.
+\sum_{k\ge t'}(Z_{k+1}-Z_k)^2
+\,\middle|\,\mathcal F'_{t'}\right].
+\end{aligned}
+\label{eq:gap-doob-infinite}
+\end{equation}
+Together, \eqref{eq:gap-before-event} and \eqref{eq:gap-doob-infinite} explain why bounding the squared increments of the rescaled noise $Z_n$ bounds the probability that the gap $d_n$ reaches zero or below before reaching $\delta$.
 
-\emph{A crossing after reaching $\delta$.} Let $\ell<n$ be the last index with $d_\ell\ge\delta$. Since $0\le\alpha_\ell\sigma_\ell(s)\le1$, the noise-free part of the update at $\ell$ is a convex combination of $d_\ell\ge\delta$ and $d_\pi(s,a)\ge4\delta$, so it is at least $\delta$. All subsequent gaps before $n$ lie in $(0,\delta)$ and have nonnegative mean increments. Consequently,
-\[
+The denominator $b_{k+1}$ is known from $\mathcal F'_k$, so it can be taken outside the conditional expectation. Substituting \eqref{eq:gap-noise-second-moment} into the definition \eqref{eq:gap-rescaling} yields
+\begin{equation}
+\begin{aligned}
+\mathbb E[(Z_{k+1}-Z_k)^2\mid\mathcal F'_k]
+&=\frac{\mathbb E[(M_{k+1}-M_k)^2\mid\mathcal F'_k]}{b_{k+1}^2}\\
+&\le
+\frac{c_\xi\bar\alpha_{t'}(A_{k+1}-A_k)}
+{(d_{t'}+3\delta A_{k+1})^2}.
+\end{aligned}
+\label{eq:gap-rescaled-moment}
+\end{equation}
+The tower property lets us average these conditional second-moment bounds at the starting history $\mathcal F'_{t'}$ and sum them in \eqref{eq:gap-doob-infinite}.
+
+To estimate the resulting sum, the function $x\mapsto(d_{t'}+3\delta x)^{-2}$ is decreasing. A rectangle with width $A_{k+1}-A_k$ and height at the right endpoint $A_{k+1}$ lies below its graph. Therefore
+\begin{equation}
+\frac{A_{k+1}-A_k}{(d_{t'}+3\delta A_{k+1})^2}
+\le
+\int_{A_k}^{A_{k+1}}\frac{\mathrm dx}{(d_{t'}+3\delta x)^2}.
+\label{eq:gap-integral-comparison}
+\end{equation}
+The intervals $[A_k,A_{k+1}]$ are consecutive and start at $A_{t'}=0$. Extending them to $[0,\infty)$ gives an upper bound even if the accumulated learning $A_n$ has a finite limit. The integral depends only on the starting gap $d_{t'}$, so its conditional expectation given $\mathcal F'_{t'}$ is unchanged.
+
+Combining \eqref{eq:gap-before-event}, \eqref{eq:gap-doob-infinite}, \eqref{eq:gap-rescaled-moment} and \eqref{eq:gap-integral-comparison}, the conditional probability that the gap $d_n$ reaches zero or below before reaching $\delta$, by time $\tau\wedge\zeta_r$, is at most
+\begin{equation}
+\begin{aligned}
+&4\,\mathbb E\!\left[
+\sum_{k\ge t'}
+\frac{c_\xi\bar\alpha_{t'}(A_{k+1}-A_k)}
+{(d_{t'}+3\delta A_{k+1})^2}
+\,\middle|\,\mathcal F'_{t'}\right]\\
+&\quad\le
+4c_\xi\bar\alpha_{t'}\int_0^\infty
+\frac{\mathrm dx}{(d_{t'}+3\delta x)^2}\\
+&\quad=\frac{4c_\xi\bar\alpha_{t'}}{3\delta d_{t'}}.
+\end{aligned}
+\label{eq:gap-before-bound}
+\end{equation}
+This bound applies even when the positive starting gaps $d_{t'}$ tend to zero at successive entries. Its size depends on the ratio $\bar\alpha_{t'}/d_{t'}$; seeding will ensure that the starting gaps are sufficiently large relative to the remaining learning rates. It remains to bound the probability that the gap $d_n$ reaches zero or below after first reaching $\delta$.
+
+\emph{The gap $d_n$ reaches zero or below after reaching $\delta$.}
+Suppose that the first nonpositive gap occurs at a finite time $n\le\tau\wedge\zeta_r$, and that $d_k\ge\delta$ at some preceding time $t'\le k<n$. Let $\ell$ be the last such time. We first show that falling from $d_\ell\ge\delta$ to $d_n\le0$ requires a noise fluctuation of at least $\delta$.
+
+In the update at $\ell$, the noise-free part is a convex combination of the gap $d_\ell\ge\delta$ and the target gap $d_\pi(s,a)\ge4\delta$, since $0\le\alpha_\ell\sigma_\ell(s)\le1$. It is therefore at least $\delta$. Equation~\eqref{eq:gapdrift} gives
+\begin{equation}
+\begin{aligned}
+d_{\ell+1}
+&=(1-\alpha_\ell\sigma_\ell(s))d_\ell
++\alpha_\ell\sigma_\ell(s)d_\pi(s,a)
++(M_{\ell+1}-M_\ell)\\
+&\ge\delta+M_{\ell+1}-M_\ell.
+\end{aligned}
+\label{eq:gap-after-first-update}
+\end{equation}
+At every subsequent time $\ell<k<n$, the gap satisfies $0<d_k<\delta$ by the choices of $n$ and $\ell$. The mean-field drift in \eqref{eq:gapdrift} is then nonnegative. Summing the remaining updates and using \eqref{eq:gap-after-first-update}, we obtain
+\begin{equation}
 0\ge d_n\ge\delta+M_n-M_\ell.
-\]
-This forces $\sup_{n\ge t'}|M_n|\ge\delta/2$. Since $\sigma_k(s)\le1$, the same maximal inequality bounds its conditional probability by
-\[
-\frac{4c_\xi}{\delta^2}\sum_{k\ge t'}\alpha_k^2.
-\]
-The last-visit index $\ell$ is used only in a pathwise inequality; we never condition at it. Both cases retain the increment ending at $\tau\wedge\zeta_r$. Adding their bounds proves \eqref{eq:barrier}.
+\label{eq:gap-after-noise}
+\end{equation}
+Thus $M_n-M_\ell\le-\delta$. By the triangle inequality,
+\begin{equation}
+\delta\le|M_n-M_\ell|
+\le|M_n|+|M_\ell|
+\le2\max_{t'\le m\le n}|M_m|.
+\label{eq:gap-after-max}
+\end{equation}
+Consequently, the stopped noise sum $M_m$ must reach magnitude $\delta/2$ at some finite time. The last-visit index $\ell$ is used only in these pathwise inequalities; conditioning remains at the stopping time $t'$.
+
+By \eqref{eq:gap-noise-second-moment} and $\sigma_k(s)\le1$, the conditional second moments of the increments of $M_m$ are at most $c_\xi\alpha_k^2$. Their sum is finite, so $M_m$ is square-integrable without a cutoff on the starting gap $d_{t'}$. Applying Doob's inequality at magnitude $\delta/2$, with the conditional and infinite-horizon steps justified above, bounds the probability of this second case by
+\begin{equation}
+\begin{aligned}
+&\mathbb P\!\left(\exists\text{ finite }m\ge t':|M_m|\ge\tfrac\delta2
+\,\middle|\,\mathcal F'_{t'}\right)\\
+&\qquad\le\frac{4}{\delta^2}\,
+\mathbb E\!\left[\sum_{k\ge t'}(M_{k+1}-M_k)^2
+\,\middle|\,\mathcal F'_{t'}\right]\\
+&\qquad\le\frac{4c_\xi}{\delta^2}\sum_{k\ge t'}\alpha_k^2.
+\end{aligned}
+\label{eq:gap-after-bound}
+\end{equation}
+Both cases retain the noise increment ending at $\tau\wedge\zeta_r$. Adding the bounds \eqref{eq:gap-before-bound} and \eqref{eq:gap-after-bound} proves \eqref{eq:barrier}.
 \end{proof}
 
 \subsubsection{Seed: creating positive gaps}

@@ -1,6 +1,8 @@
 # JMLR proof: working decisions
 
-Updated 2026-10-18. The user authorized the weighted-martingale gap-preservation proof, symmetric favorable updates and direct seed-to-future-step comparison using condition (5) once. Preserve localization at random positive entry gaps, the existing auxiliary-law proof and explicit finite/infinite transition handling. Retain the theorem and all standing assumptions; clarify conditional uniformity, one global deterministic step sequence, and fresh episodes as a sufficient implementation of the return-moment assumption. The earlier exposition order remains: preservation, seed, combination, convergence. No new scope approval is needed. See STATUS.md for exact versions and evidence.
+Updated 2026-10-29. The user authorized the weighted-martingale gap-preservation proof, symmetric favorable updates and direct seed-to-future-step comparison using condition (5) once. Preserve localization at random positive entry gaps, the existing auxiliary-law proof and explicit finite/infinite transition handling. Retain the theorem and all standing assumptions; clarify conditional uniformity, one global deterministic step sequence, and fresh episodes as a sufficient implementation of the return-moment assumption. The earlier exposition order remains: preservation, seed, combination, convergence. No new scope approval is needed. See STATUS.md for exact versions and evidence.
+
+The user approved integrating the step-by-step first-case explanation on 2026-10-29 and requested the same legibility in the second case. This is an expository revision of Lemma 13 with local maximal-inequality justification; the theorem, assumptions, constants and subsequent proof structure remain unchanged. The duplicate Appendix A.7 is removed.
 
 ## Agreed direction
 
