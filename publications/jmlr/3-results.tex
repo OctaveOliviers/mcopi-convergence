@@ -5,7 +5,7 @@
 % \textcolor{red}{remove references to asp 2}
 
 Experiments show that initial-visit MC-O-PI can converge to suboptimal solutions under arbitrary update distributions, even when the Robbins–Monro 
-and strict exploring-starts conditions hold.
+and strict exploring-starts conditions hold, meaning that every $\sigma_k(s,a)$ has a common positive lower bound.
 % \citep[Example~5.12]{Bertsekas1996Neuro-DynamicProgramming}.
 % \textcolor{red}{+ cite our neurips submission - GV I don't think we should, the chronology is this paper preceeds neurips (the story was decided, and most of it was written, before) }.
 For instance, if at every step the actions associated with the current greedy policy are updated significantly less frequently than non-greedy actions, stable suboptimal equilibria can emerge even on the boundary of the optimal policy region.
@@ -35,7 +35,7 @@ if for every state $s \in \sset$ and all actions $a, a' \in \aset(s)$
 \end{definition}
 
 \autoref{asp: unbiased over policies} generalises \autoref{asp: unbiased tsitsiklis} because it allows updating different states at different frequencies.
-For instance, under initial-visit updates, the initial state of each episode can now be sampled according to \textit{any} distribution provided the initial action in that state is sampled uniformly.
+For instance, under initial-visit updates, the initial state of each episode may follow an adaptive distribution, provided every state accumulates infinite learning weight and the initial action in that state is sampled uniformly.
 This additional flexibility disrupts Tsitsiklis' proof as the essential commutation step fails \citep[p.~64]{Tsitsiklis2002OnIteration}.
 % However, we show that MC-O-PI still converges to the optimal solution.
 

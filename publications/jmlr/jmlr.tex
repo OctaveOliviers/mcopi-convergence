@@ -24,6 +24,12 @@
 
 % additional packages for the paper
 \input{z-packages}
+\usepackage{microtype}
+\renewenvironment{proof}[1][Proof]
+  {\par\noindent{\bfseries #1.}\quad}
+  {\unskip\nobreak\hfill\penalty50\hskip1em\null\nobreak\hfill
+   \BlackBox\par\vspace{2mm}}
+
 % \usepackage{bm}
 % \usepackage{amsmath}
 % \usepackage{aliascnt}
@@ -69,9 +75,11 @@
 \firstpageno{1}
 
 % \input{z-packages}
+
 % \input{z-maths-notation}
 
 \begin{document}
+\raggedbottom
 
 %\title{Convergence of Monte Carlo Optimistic Policy Iteration with uniform updates}
 \title{Convergence of Monte Carlo Optimistic Policy Iteration: Beyond Uniform State-Action Updates}
@@ -143,7 +151,7 @@
 % and then prove that stochastic perturbations cannot consistently prevent this improvement by extending the lock-in argument of the combined stability-ODE method.
 % This approach suggests a new way to analyse more general optimistic policy-iteration algorithms with temporal-difference updates.
 % 
-The asymptotic behaviour of Monte Carlo optimistic policy iteration (MC-O-PI) is a long-standing open question. When the model of the environment is unknown, as is common in practice, the only known condition that guarantees convergence to optimality is impractical. In its canonical form, this condition requires that the episodes used for policy evaluation be initialised uniformly over the entire state-action space. This paper strictly relaxes that requirement. Specifically, we prove that initial-visit MC-O-PI converges to optimality even when updates are uniform only over the actions within each state. This allows episodes to start in different states at arbitrary frequencies; a realistic implementation when the state space is large or unknown but the action space in each state is manageable. The proof departs from the classical analysis of Tsitsiklis whose central commutativity argument no longer applies when states are updated at different frequencies. Instead, we first show that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions in each state, and then prove that noise cannot consistently prevent this improvement by extending the lock-in argument of the combined stability-ODE method. This approach suggests a new way to study optimistic policy-iteration algorithms in general.
+The asymptotic behaviour of Monte Carlo optimistic policy iteration (MC-O-PI) is a long-standing open question. Classical convergence guarantees for general finite MDPs impose a restrictive sampling condition. In its canonical form, this condition requires that the episodes used for policy evaluation be initialised uniformly over the entire state-action space. This paper strictly relaxes that requirement. Specifically, we prove that initial-visit MC-O-PI converges to optimality even when updates are uniform only over the actions within each state. Different states may be sampled at unequal, adaptive frequencies, provided each accumulates infinite learning weight. With inertial policy ties and mild learning-rate regularity, this gives a realistic implementation when the state space is large or unknown but the action space in each state is manageable. The proof departs from the classical analysis of Tsitsiklis whose central commutativity argument no longer applies when states are updated at different frequencies. Instead, we first show that the mean-field dynamics of MC-O-PI generate monotonically improving policies when updates are uniform over the actions in each state, and then prove that noise cannot consistently prevent this improvement by extending the lock-in argument of the combined stability-ODE method. This approach suggests a new way to study optimistic policy-iteration algorithms in general.
 \end{abstract}
 
 % Optimistic policy algorithms update their policies before policy evaluation has converged. Despite their practical importance, few such algorithms are known to converge to optimality in general finite Markov decision processes.
@@ -164,6 +172,9 @@ reinforcement learning, optimistic policy iteration, Monte Carlo control, conver
 \input{3-results}
 \input{4-discussion}
 
+\appendix
+\input{z-appendix}
+
 
 % Acknowledgements and Disclosure of Funding should go at the end, before appendices and references
 
@@ -174,9 +185,7 @@ reinforcement learning, optimistic policy iteration, Monte Carlo control, conver
 
 % \newpage
 
-\appendix
 
-\input{z-appendix}
 
 
 % \section{}

@@ -1,0 +1,25 @@
+\section{Stochastic convergence under cumulative learning}
+In the sampled algorithm, a single update can worsen the policy even though the mean field improves it. We show instead that each sufficiently late interval with a fixed target has a uniformly positive chance of ending in an improvement or of continuing forever. Boundedness lets us prove this statement before leaving a fixed ball. Finitely many target values then rule out infinitely many unsuccessful transitions.
+
+In addition to the standing assumptions, impose full inertia \eqref{eq:greedy-pol-tie-breaking}, and sample the initial action uniformly within its state:
+\begin{equation}\label{eq: uniform starts}
+\sigma_k(s,a)=\sigma_k(s)\ge0,\qquad
+\sum_s|\mathcal A(s)|\sigma_k(s)=1.
+\end{equation}
+Here $\sigma_k(s)$ is the probability of each pair at $s$; the state marginal is $|\mathcal A(s)|\sigma_k(s)$. Thus \eqref{eq: cumulative learning} reduces to $\sum_k\alpha_k\sigma_k(s)=\infty$ at every state. We also require the following weaker form of eventual nonincrease.
+\begin{assumption}[Bounded future increases]\label{asp: additional conditions on learning rate}
+There are deterministic $C_\alpha\ge1$ and $k_\alpha<\infty$ such that
+\begin{equation}\label{eq:comparison}
+\alpha_j\le C_\alpha\alpha_k\qquad(j\ge k\ge k_\alpha).
+\end{equation}
+\end{assumption}
+Eventual nonincrease is the case $C_\alpha=1$. The condition also permits infinitely many increases, for example $\alpha_k=(2+(-1)^k)/(k+3)$ with $C_\alpha=3$. It imposes no lower bound on future steps relative to the current one.
+
+\begin{theorem}\label{thm: convergence mcopi uniform}
+Under the standing assumptions, initial-visit updates, uniform initial actions \eqref{eq: uniform starts}, full inertia \eqref{eq:greedy-pol-tie-breaking} and bounded future step increases \eqref{eq:comparison}, almost surely $(q_{\pi_k})$ changes only finitely many times and
+\[
+q_k\longrightarrow q_{\pi_*}.
+\]
+Every sufficiently late selected policy is optimal. If every state has a unique optimal action, $\pi_k$ is eventually constant.
+\end{theorem}
+The proof occupies the remainder of this section. The following probability estimate controls an estimated gap between two actions. Its dependence on a state's own accumulated learning, rather than elapsed iteration count, allows arbitrarily long waits between updates of that state.
